@@ -1,0 +1,90 @@
+<div class="modal-header">
+  <button type="button" class="close" ng-click="$dismiss()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <h3 class="modal-title">{{ titulo }}</h3>
+</div>
+<div class="modal-body">
+  <form class="simple-form" id="inasistenciasForm" name="inasistenciasForm">
+    <div class="panel panel-default">
+      <div class="panel-heading">{{ encabezado }}</div>
+
+      <div class="panel-body">
+
+        <div class="col-sm-12" style="margin-top: 20px;" ng-if="!inasistencia.sid">
+          <div class="form-group required">          
+            <label class="col-sm-3 control-label">Nombre:</label>
+            <div class="col-sm-7">
+              <ul class="dropdown-menu">
+                <li ng-repeat="match in matches track by $index" id="{{::match.id}}">
+                </li>
+              </ul>
+              <input type="text" ng-model="inasistencia.trabajador" placeholder="Buscar trabajador" typeahead-editable="false" uib-typeahead="trab as trab.nombreCompleto for trab in trabajadores | filter:{nombreCompleto:$viewValue}" typeahead-on-select="selectTrabajador()" class="form-control" typeahead-show-hint="true" typeahead-min-length="0" required />
+            </div>           
+          </div>
+        </div>
+
+        <div class="col-sm-12" style="margin-top: 20px; padding: 0" ng-if="isTrabajador || inasistencia.sid">
+
+          <div class="col-sm-8">  
+            <div uib-datepicker ng-model='activeDate' multi-select='selectedDates' select-range='true' datepicker-options='options' ng-click="select()"></div>
+          </div>
+
+          <div class="col-sm-4">
+            
+            <div class='well well-sm col-sm-12 pull-right' ng-if='selectedDates.length > 0' style="margin-top: 10px;">
+              <b>{{(selectedDates | orderBy)[0] | date:"fullDate" | capitalize }}</b>
+              <a href="" ng-click="removeFromSelected((selectedDates | orderBy)[0])">
+                <i class="fa fa-times" style="color: #ff3300;"></i>
+              </a>
+              <span ng-if='selectedDates.length > 1'>
+              <br /> al 
+              <br /><b>{{(selectedDates | orderBy : '-')[0] | date:"fullDate" | capitalize }}</b>
+              <a href="" ng-click="removeFromSelected((selectedDates | orderBy : '-')[0])">
+                <i class="fa fa-times" style="color: #ff3300;"></i>
+              </a>
+              </span>
+              <br />
+              <br />
+              <span>
+              {{ totalDias }} 
+              <span ng-if="totalDias>1"> días</span>
+              <span ng-if="totalDias==1"> día</span>
+            </div>
+
+          </div>
+
+          <div class="col-sm-12" style="margin-top: 20px;">
+            <div class="form-group form-group-md">          
+              <label class="col-sm-3 control-label required">Motivo:</label>
+              <div class="col-sm-6">
+                <select class="form-control form-white" ng-model="inasistencia.motivo" ng-options="mot.nombre as mot.nombre for mot in motivos" required>  
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-3" ng-show="inasistencia.dias">
+              {{ inasistencia.dias | number:0 }} <span ng-show="inasistencia.dias>1">días</span><span ng-show="inasistencia.dias===1">día</span>
+            </div>
+          </div>
+
+          <div class="col-sm-12" style="margin-top: 20px;">
+            <div class="form-group form-group-md ">          
+              <label class="col-sm-3 control-label">Observación:</label>
+                <div class="col-sm-8">
+                  <textarea ng-model="inasistencia.observacion" class="form-control form-white" placeholder="ingrese una observación" rows="6" cols="6"></textarea>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+     
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" type="button" ng-click="guardar(inasistencia, trabajador)" ng-disabled="inasistenciasForm.$invalid" ng-show="!isEdit">Ingresar Inasistencia</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar(inasistencia, trabajador)" ng-disabled="inasistenciasForm.$invalid" ng-show="isEdit">Modificar Inasistencia</button>
+  <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancelar</button>
+</div>

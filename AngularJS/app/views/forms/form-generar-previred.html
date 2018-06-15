@@ -1,0 +1,44 @@
+<div class="modal-header">
+  <button type="button" class="close" ng-click="$dismiss()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <h3 class="modal-title">Archivo Previred</h3>
+</div>
+<div class="modal-body">
+  <form class="simple-form" id="clausulasForm" name="clausulasForm">
+    <div class="panel panel-default">
+      <div class="panel-heading">Trabajadores</div>
+
+      <div class="panel-body">   
+
+        <div class="text-center" ng-if="datos.length<=0" style="margin: 50px;">
+          <i>No hay Trabajadores</i>
+        </div>
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover" ng-if="datos.length>0">
+            <thead>
+              <tr>
+                <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos" ng-change="selectAll(datos, objeto.todos)" icheck></th>
+                <th class="col-sm-3">RUT</th>
+                <th class="col-sm-8">Nombre</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in datos">
+                <td><input type="checkbox" ng-model="dato.check" ng-change="selectTrabajadores(dato.check)" icheck></td>
+                <td>{{ dato.rutFormato }}</td>
+                <td>{{ dato.nombreCompleto }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" 
+  type="button" ng-click="generarArchivo()" ng-disabled="!isSelected()">Generar</button>
+  <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancelar</button> 
+</div>

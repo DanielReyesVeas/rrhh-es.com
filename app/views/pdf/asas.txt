@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Liquidaciones de Sueldo</title>
+  
+  <style type="text/css">     
+    
+    html, body {
+      font-family: sans-serif;
+      font-size: 12px;  
+      padding: 0;
+      height: 100%;
+      margin: 0;
+    }
+    body{
+      display: table;
+    }
+    .page {
+      margin: 20px;
+      border: 2px solid black;
+    }
+    .contenedor{  
+      padding: 10px;
+      border-bottom: 1px solid black;
+    }
+    .contenedor2{  
+      padding: 10px;
+    }
+    .pie{  
+      border: 1px solid black;
+      padding: 5px;
+      margin-top: 20px;
+    }
+    .encabezado{
+      width: 100%;
+      margin-top: 10px;
+    }
+    .encabezado td{
+      padding-top: 5px;      
+    }
+    .resumen{
+      border: 1px solid black;
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      font-size: 11px;
+    }
+    table.resumen td{
+      border: 1px solid black;
+    }
+    tr.valores td{
+      border: 1px solid black;
+      font-weight: 800;
+      text-align: right;
+      padding-top: 15px;
+      padding-bottom: 5px;
+      padding-right: 5px;
+      font-size: 12px;
+    }  
+    .contenido{
+      border-collapse: collapse;
+      margin: 0px;
+      font-size: 11px;
+    }
+    .contenido2{
+      border-collapse: collapse;
+      margin: 0px;
+      font-size: 11px;
+    }
+    .cont1{
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .cont1 tr td{
+      border-right: 1px solid black;
+      border-collapse: collapse;
+      width: 70%;
+    }
+    .cont2 tr td{
+      border-right: 1px solid black;
+      border-collapse: collapse;
+      width: 70%;
+    }
+    .cont2{
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .col{
+      /*position: absolute
+      border-collapse: collapse;
+      margin: 0;
+      width: 100%;
+      width: 100%;
+      border: 1px solid black;*/
+    }
+    .totalesContenido{
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0px;
+      font-size: 11px;
+    }
+    .totalesContenido td{
+      border-collapse: collapse;
+      border: 1px solid black;
+    }
+    .liquidoContenido{
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0px;
+      font-size: 11px;
+    }
+    .liquidoContenido td{
+      border-collapse: collapse;
+      border: 1px solid black;
+    }
+    .contenidoContenedor{
+      border-collapse: collapse;
+      height: 360px;
+      border-top: 1px solid black;
+      border-left: 1px solid black;
+      border-right: 1px solid black;
+      margin: 0px;
+      margin-top: 10px;
+      padding: 0;
+    }
+    .totalesContenedor{
+      border-collapse: collapse;
+      margin: 0px;
+      padding: 0;
+    }
+    .liquidoContenedor{
+      padding: 0;
+      border-collapse: collapse;
+      margin: 0;
+    }
+    .tablaContenidos{
+      padding: 0;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .tablaContenidos tr td{
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .fila{
+      border-collapse: collapse;
+      float: left;
+      border-right: 1px solid black;     
+      width: 276px;
+      margin: 0;
+      height: 100px;
+    }
+    .fila:nth-child(even){
+      width: 86px;
+    }
+    table.contenido td{
+      text-align: left;
+    }
+    table.contenido2 td{
+      text-align: left;
+    }
+    .resumen tr.titulos td{
+      border: 1px solid black;
+      padding-top: 5px;
+      text-align: center;
+      font-size: 13px;
+    }
+    /*.contenido tr.titulos td{
+      border-right: 1px solid black;
+      width: 32%;
+      padding-top: 5px;
+      font-size: 13px;
+      text-align: center;
+    }
+    .contenido2 tr.titulos2 td{
+      width: 32%;
+      padding-top: 5px;
+      border-right: 1px solid black;
+      font-size: 13px;
+      text-align: center;
+    }*/
+    tr.detalle td{
+      width: 32%;
+      padding-top: 5px;
+      padding-left: 5px;
+      text-align: left;
+      border-right: 1px solid black;
+    }
+    tr.detalle2 td{
+      width: 32%;
+      padding-top: 5px;
+      padding-left: 5px;
+      text-align: left;
+    }
+    tr.totales td{
+      width: 32%;
+      padding-top: 5px;
+      padding-left: 5px;
+      text-align: right;
+      border-right: 1px solid black;
+    }    
+    tr.liquido td{
+      width: 32%;
+      padding-top: 5px;
+      padding-left: 5px;
+      text-align: right;
+      border-right: 1px solid black;
+    }
+    .final{
+      margin-top: 10px;  
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 11px;
+    }
+    .title td{
+      border-right: 1px solid black;
+      text-align: center;
+      font-size: 13px;
+    }
+    .conforme{
+      margin-top: 20px;
+      font-size: 13px;
+    }
+    .firma{
+      margin-top: 85px;
+      margin-bottom: 25px;
+      margin-right: 10px;
+    }
+    table.final td{
+      border: 1px solid black;
+      padding-top: 5px;
+      padding-left: 5px;
+      text-align: right;
+    }
+    tr.detalle td:nth-child(even){
+      font-weight: 800;
+      text-align: right;
+    }
+    tr.detalle2 td:nth-child(even){
+      font-weight: 800;
+      text-align: right;
+    }
+    .contenido tr.titulos td:nth-child(even){
+      text-align: right;
+    }
+    .contenido2 tr.titulos2 td:nth-child(even){
+      text-align: right;
+    }
+    .liquidoContenido tr.liquido td:nth-child(even){
+      font-weight: 800;
+    }
+    .totalesContenido tr.totales td:nth-child(even){
+      font-weight: 800;
+    }  
+    .cont1 tr td:nth-child(even){
+      text-align: right;
+      font-weight: 800;
+      width: 30%;
+    }   
+    .cont2 tr td:nth-child(even){
+      text-align: right;
+      border-right: 0;
+      font-weight: 800;
+      width: 30%;
+    }    
+    .tablaFirma{
+      width: 100%;
+    }
+    .tablaFirma td{
+      padding: 5px;
+      text-align: center;
+      font-size: 13px;
+    }
+    
+  </style>
+  
+</head>
+@foreach($liquidaciones as $liquidacion)
+<body>
+  <div class="page">
+ 
+    <div class="contenedor">
+
+      <div>
+
+        <table class="encabezado">
+          <tbody>
+            <tr>
+              <td><b>{{ $liquidacion['empresa']['razon_social'] }}</b></td>
+              <td>RUT : <b>{{ $liquidacion['rutEmpresa'] }}</b></td>
+            </tr>
+            <tr>
+              <td>Liquidacion de Sueldo del mes de {{ $liquidacion['mes'] }}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Trabajador : <b>{{ $liquidacion['nombreCompleto'] }}</b></td>
+              <td>RUT : <b>{{ $liquidacion['rutFormato'] }}</b></td>
+            </tr>
+            <tr>
+              <td>Fecha de Ingreso : <b>{{ $liquidacion['fechaIngreso'] }}</b></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div>
+
+        <table class="resumen">
+          <tbody>
+            <tr class="titulos">
+              <td>Tot. Imponible</td>
+              <td>No Imponible</td>
+              <td>Renta Imponible</td>
+              <td>Afec. Impuesto</td>
+              <td>Pacto Isapre</td>
+              <td>DL 889</td>
+              <td>Dias Trabajados</td>
+            </tr>
+            <tr class="valores">
+              <td>{{ $liquidacion['imponibles'] }}</td>
+              <td>{{ $liquidacion['noImponibles'] }}</td>
+              <td>{{ $liquidacion['rentaImponible'] }}</td>
+              <td>
+                @if($liquidacion['impuestoDeterminado']>0)
+                  {{ $liquidacion['baseImpuestoUnicoPesos'] }}
+                @else
+                  $0
+                @endif
+              </td>
+              <td>{{ $liquidacion['totalSalud']['totalPesos'] }}</td>
+              <td>DL 889</td>
+              <td>{{ $liquidacion['diasTrabajados'] }}</td>
+            </tr>
+
+          </tbody>
+        </table>
+              
+      </div>
+        
+      <div class="contenidoContenedor">
+        
+        <table class="tablaContenidos">
+          <tbody>
+            <tr>
+              <td valign="top">
+                <table class="cont1">
+                  <tbody>
+                    <tr class="title">
+                      <td>HABERES</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Sueldo Base</td>
+                      <td>{{ $liquidacion['sueldoBase'] }}</td>
+                    </tr>
+                    @if($liquidacion['gratificacion']>0)
+                      <tr>
+                        <td>Gratificacion Legal</td>
+                        <td>{{ $liquidacion['gratificacionPesos'] }}</td>
+                      </tr>
+                    @endif
+                  </tbody>
+                </table>
+              </td>
+              <td valign="top">
+                <table class="cont2">
+                  <tbody>
+                    <tr class="title">
+                      <td>DESCUENTOS</td>
+                      <td></td>
+                    </tr>
+                    @if ($liquidacion['totalSalud']['obligatorio']>0)
+                      <tr>
+                        <td>Salud {{ $liquidacion['isapre']['nombre'] }}</td>                    
+                        <td>{{ $liquidacion['totalSalud']['obligatorio'] }}</td>
+                      </tr> 
+                    @endif
+                    @if ($liquidacion['totalSalud']['adicional']>0)
+                      <tr >
+                        <td>Adicional Isapre</td>
+                        <td>{{ $liquidacion['totalSalud']['adicionalPesos'] }}</td>
+                      </tr> 
+                    @endif
+                    @if ($liquidacion['afp']['id']!=35)
+                      <tr>
+                        <td>{{ $liquidacion['tasaAfp'] }}% Prevision {{ $liquidacion['afp']['nombre'] }}</td>
+                        <td>{{ $liquidacion['totalAfp'] }}</td>
+                      </tr>
+                    @endif
+                    @if ($liquidacion['seguroDesempleo']>0)
+                      <tr>
+                        <td>Seguro Cesantia</td>                                                
+                        <td>{{ $liquidacion['totalSeguroCesantia'] }}</td>
+                      </tr> 
+                    @endif
+                    @if ($liquidacion['impuestoDeterminado']>0)
+                      <tr>
+                        <td>Impuesto Unico</td>
+                        <td>{{ $liquidacion['impuestoDeterminadoPesos'] }}</td>
+                      </tr> 
+                    @endif
+
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="col">
+          
+        </div>
+       <!--
+        <div class="fila"></div>
+        <div class="fila"></div>
+        <div class="fila"></div>-->
+      </div>
+      
+      <div class="totalesContenedor">
+        <table class="totalesContenido">
+          <tbody>
+            <tr class="totales">
+              <td>Total Haberes :</td>
+              <td>{{ $liquidacion['totalHaberes'] }}</td>
+              <td>Total Descuentos :</td>
+              <td>{{ $liquidacion['totalDescuentos'] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="liquidoContenedor">
+        <table class="liquidoContenido">
+          <tbody>
+            <tr class="liquido">
+              <td style="border: 0;"></td>
+              <td style="border: 0;"></td>
+              <td style="border: 1px solid black;">Alcance Liquido : </td>
+              <td style="border: 1px solid black;">{{ $liquidacion['sueldoLiquido'] }}</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pie">
+        Son: <b>{{ $liquidacion['sueldoLiquidoPalabras'] }}</b>
+      </div>
+
+    </div>
+    <div class="contenedor2">
+
+      <div>
+        <table class="encabezado">
+          <tbody>
+            <tr>
+              <td><b>{{ $liquidacion['empresa']['razon_social'] }}</b></td>
+              <td>RUT : <b>{{ $liquidacion['rutEmpresa'] }}</b></td>
+            </tr>
+            <tr>
+              <td>Liquidacion de Sueldo del mes de {{ $liquidacion['mes'] }}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Trabajador : <b>{{ $liquidacion['nombreCompleto'] }}</b></td>
+              <td>RUT : <b>{{ $liquidacion['rutFormato'] }}</b></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="final">
+          <tbody>
+            <tr class="totales">
+              <td>Total Haberes Imponibles :</td>
+              <td>{{ $liquidacion['imponibles'] }}</td>
+              <td>Total Descuentos Legales :</td>
+              <td>{{ $liquidacion['totalDescuentosPrevisionales'] }}</td>
+            </tr>
+            <tr class="totales">
+              <td>Total Haberes No Imponibles :</td>
+              <td>{{ $liquidacion['noImponibles'] }}</td>
+              <td>Total Otros Descuentos :</td>
+              <td>{{ $liquidacion['totalOtrosDescuentos'] }}</td>
+            </tr> 
+            <tr class="totales">
+              <td>Total Haberes :</td>
+              <td>{{ $liquidacion['totalHaberes'] }}</td>
+              <td>Total Descuentos :</td>
+              <td>{{ $liquidacion['totalDescuentos'] }}</td>
+            </tr> 
+
+            <tr class="liquido">
+              <td style="border: 0;"></td>
+              <td style="border: 0;"></td>
+              <td style="padding: 10px;">Alcance Liquido :</td>
+              <td style="padding: 10px;">{{ $liquidacion['sueldoLiquido'] }}</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="conforme">
+        Recibi conforme el alcance liquido de la presente liquidacion, no teniendo cargo o cobre alguno que hacer por ningun concepto.
+      </div>
+
+      <div class="firma">
+        <table class="tablaFirma">
+          <tbody>
+            <tr>
+              <td></td>
+              <td></td>
+              <td style="width: 40%; border-top: 1px solid black;">
+                {{ $liquidacion['nombreCompleto'] }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+    
+</body>
+@endforeach
+</html>

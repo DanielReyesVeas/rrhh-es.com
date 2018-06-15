@@ -1,0 +1,161 @@
+<div class="modal-header">
+  <button type="button" class="close" ng-click="$dismiss()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <h3 class="modal-title">Archivo Previred</h3>
+</div>
+<div class="modal-body">
+  <div class="panel panel-default">
+    <div class="panel-heading">Resumen</div>
+
+    <div class="panel-body">   
+
+      <fieldset ng-if="afps.length>0">
+        <legend>AFP</legend>
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover" ng-if="afps.length>0">
+            <thead>
+              <tr>
+                <th class="col-sm-8">Institución</th>
+                <th class="col-sm-4">Total a Pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in afps">
+                <td>{{ dato.nombre }}</td>
+                <td>${{ dato.total | currency :"":0 }}</td>
+              </tr>
+              <tr>
+                <td><b>SubTotal AFP:</b></td>
+                <td><b>${{ detalles.totalAfp | currency :"":0 }}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      
+      </fieldset>
+
+      <fieldset ng-if="isapres.length>0">
+        <legend>ISAPRE</legend>
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover" ng-if="isapres.length>0">
+            <thead>
+              <tr>
+                <th class="col-sm-8">Institución</th>
+                <th class="col-sm-4">Total a Pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in isapres">
+                <td>{{ dato.nombre }}</td>
+                <td>${{ dato.total | currency :"":0 }}</td>
+              </tr>
+              <tr>
+                <td><b>SubTotal ISAPRE:</b></td>
+                <td><b>${{ detalles.totalIsapre | currency :"":0 }}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      
+      </fieldset>
+
+      <fieldset>
+        <legend>IPS / FONASA</legend>
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-8">Institución</th>
+                <th class="col-sm-4">Total a Pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FONASA</td>
+                <td>${{ ipsFonasa.fonasa.total | currency :"":0 }}</td>
+              </tr>
+              <tr ng-if="!empresa.isMutual">
+                <td>IPS</td>
+                <td>${{ ipsFonasa.isl.total | currency :"":0 }}</td>
+              </tr>
+              <tr>
+                <td><b>SubTotal IPS / FONASA:</b></td>
+                <td><b>${{ detalles.totalIpsFonasa | currency :"":0 }}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </fieldset>
+
+      <fieldset ng-if="empresa.isMutual">
+        <legend>MUTUAL</legend>
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-8">Institución</th>
+                <th class="col-sm-4">Total a Pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ mutual.nombre }}</td>
+                <td>${{ mutual.total | currency :"":0 }}</td>
+              </tr>
+              <tr>
+                <td><b>SubTotal MUTUAL:</b></td>
+                <td><b>${{ detalles.totalMutual | currency :"":0 }}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </fieldset>
+
+      <fieldset ng-if="empresa.isCaja">
+        <legend>CCAF</legend>
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-8">Institución</th>
+                <th class="col-sm-4">Total a Pagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ caja.nombre }}</td>
+                <td>${{ caja.total | currency :"":0 }}</td>
+              </tr>
+              <tr>
+                <td><b>SubTotal CCAF:</b></td>
+                <td><b>${{ detalles.totalCaja | currency :"":0 }}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </fieldset>
+
+      <fieldset>
+        <legend>TOTAL GENERAL</legend>
+
+        <div class="col-sm-12">
+          <center><h3><b>${{ detalles.total | currency :"":0 }}</b></h3></center>
+        </div>
+
+      </fieldset>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" type="button" ng-click="descargar()">Descargar CSV</button>
+  <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cerrar</button> 
+</div>

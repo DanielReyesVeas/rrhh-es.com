@@ -1,0 +1,1 @@
+ALTER TABLE `apvs` CHANGE `trabajador_id` `ficha_trabajador_id` INT(11) NOT NULL;
