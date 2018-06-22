@@ -22,23 +22,35 @@
           </div>
         </div> 
 
-        <div class="col-sm-12" style="margin-top: 20px; padding: 0" ng-if="isTrabajador || licencia.sid">
+        <div class="col-sm-12" style="margin-top: 40px; padding: 0" ng-if="isTrabajador || licencia.sid">
 
-          <div class="col-sm-8">  
-            <div uib-datepicker ng-model='activeDate' multi-select='selectedDates' select-range='true' datepicker-options='options' ng-click="select()"></div>
+          <div class="col-sm-12">
+            <div class="col-sm-4">
+              <div style="border: 10px solid green; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Licencias 
+            </div>
+            <div class="col-sm-4">
+              <div style="border: 10px solid #7FBF3F; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Seleccionadas 
+            </div>
+            <div class="col-sm-4">
+              <div style="border: 10px solid #7A93AD; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Inactivas
+            </div>
           </div>
 
-          <div class="col-sm-4">
+          <div class="col-sm-8" style="margin-top: 40px;">  
+            <div uib-datepicker ng-model='licencia.activeDate' multi-select='licencia.selectedDates' select-range='true' datepicker-options='options' ng-click="select()"></div>
+          </div>
+
+          <div class="col-sm-4" style="margin-top: 40px;" ng-class="{ 'hidden' : licencia.selectedDates.length==0 }">
             
-            <div class='well well-sm col-sm-12 pull-right' ng-if='selectedDates.length > 0' style="margin-top: 10px;">
-              <b>{{(selectedDates | orderBy)[0] | date:"fullDate" | capitalize }}</b>
-              <a href="" ng-click="removeFromSelected((selectedDates | orderBy)[0])">
+            <div class='well well-sm col-sm-12 pull-right' style="margin-top: 10px;">
+              <b>{{(licencia.selectedDates | orderBy)[0] | date:"fullDate" | capitalize }}</b>
+              <a href="" ng-click="removeFromSelected((licencia.selectedDates | orderBy)[0])">
                 <i class="fa fa-times" style="color: #ff3300;"></i>
               </a>
-              <span ng-if='selectedDates.length > 1'>
+              <span ng-if='licencia.selectedDates.length > 1'>
               <br /> al 
-              <br /><b>{{(selectedDates | orderBy : '-')[0] | date:"fullDate" | capitalize }}</b>
-              <a href="" ng-click="removeFromSelected((selectedDates | orderBy : '-')[0])">
+              <br /><b>{{(licencia.selectedDates | orderBy : '-')[0] | date:"fullDate" | capitalize }}</b>
+              <a href="" ng-click="removeFromSelected((licencia.selectedDates | orderBy : '-')[0])">
                 <i class="fa fa-times" style="color: #ff3300;"></i>
               </a>
               </span>
@@ -109,7 +121,7 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="licenciasForm.$invalid" ng-show="!isEdit">Ingresar Licencia Médica</button>
-  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="licenciasForm.$invalid" ng-show="isEdit">Modificar Licencia Médica</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="licenciasForm.$invalid || !isSelect" ng-show="!isEdit">Ingresar Licencia Médica</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="licenciasForm.$invalid || !isSelect" ng-show="isEdit">Modificar Licencia Médica</button>
   <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancelar</button> 
 </div>

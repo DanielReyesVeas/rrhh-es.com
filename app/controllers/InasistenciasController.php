@@ -105,7 +105,9 @@ class InasistenciasController extends \BaseController {
     {   
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-inasistencias');
         $datosInasistencia = null;
-        $trabajadores = array();
+        $trabajadores = array();  
+        $primerMes = null;
+        $ultimoMes = null;
         
         if($sid){
             $inasistencia = Inasistencia::whereSid($sid)->first();
@@ -122,12 +124,17 @@ class InasistenciasController extends \BaseController {
                 'trabajador' => $inasistencia->trabajadorInasistencia()
             );
         }else{
+            $empresa = \Session::get('empresa');
+            $primerMes = $empresa->primerMes();
+            $ultimoMes = $empresa->ultimoMes();
             $trabajadores = Trabajador::activosFiniquitados();
         }
         
         $datos = array(
             'accesos' => $permisos,
             'datos' => $datosInasistencia,
+            'primerMes' => $primerMes,
+            'ultimoMes' => $ultimoMes,
             'trabajadores' => $trabajadores
         );
         

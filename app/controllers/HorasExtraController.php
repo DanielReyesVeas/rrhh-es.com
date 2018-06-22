@@ -101,6 +101,7 @@ class HorasExtraController extends \BaseController {
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-horas-extra');
         $datosHoraExtra = null;
         $trabajadores = array();
+        $mesActual = \Session::get('mesActivo');
         
         if($sid){
             $horaExtra = HoraExtra::whereSid($sid)->first();
@@ -113,13 +114,14 @@ class HorasExtraController extends \BaseController {
                 'observacion' => $horaExtra->observacion,
                 'trabajador' => $horaExtra->trabajadorHoraExtra()
             );
-        }else{
+        }else{            
             $trabajadores = Trabajador::activosFiniquitados();
         }
         
         $datos = array(
             'accesos' => $permisos,
             'datos' => $datosHoraExtra,
+            'mesActual' => $mesActual,
             'trabajadores' => $trabajadores
         );
         

@@ -11,11 +11,26 @@
 
       <div class="col-sm-12" style="margin-top: 40px;">
 
-        <div class="col-sm-8">  
+        <div class="col-sm-12" style="padding: 0px;">
+          <div class="col-sm-3" style="padding: 0px;">
+            <div style="border: 10px solid green; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Devengadas 
+          </div>
+          <div class="col-sm-3" style="padding: 0px;">
+            <div style="border: 10px solid red; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Feriados
+          </div>
+          <div class="col-sm-3" style="padding: 0px;">
+            <div style="border: 10px solid #7FBF3F; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Seleccionadas 
+          </div>
+          <div class="col-sm-3" style="padding: 0px;">
+            <div style="border: 10px solid #7A93AD; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Inactivas
+          </div>
+        </div>
+
+        <div class="col-sm-8" style="margin-top: 40px;">  
           <div uib-datepicker ng-model='activeDate' multi-select='selectedDates' select-range='true' datepicker-options='options' ng-click="select()"></div>
         </div>
 
-        <div class="col-sm-4">
+        <div class="col-sm-4" style="margin-top: 40px;">
           
           <b>Vacaciones:</b>
 
@@ -25,21 +40,22 @@
               <i class="fa fa-times" style="color: #ff3300;"></i>
             </a>
             <span ng-if='selectedDates.length > 1'>
-            <br /> al 
-            <br /><b>{{(selectedDates | orderBy : '-')[0] | date:"fullDate" | capitalize }}</b>
-            <a href="" ng-click="removeFromSelected((selectedDates | orderBy : '-')[0])">
-              <i class="fa fa-times" style="color: #ff3300;"></i>
-            </a>
+              <br /> al 
+              <br /><b>{{(selectedDates | orderBy : '-')[0] | date:"fullDate" | capitalize }}</b>
+              <a href="" ng-click="removeFromSelected((selectedDates | orderBy : '-')[0])">
+                <i class="fa fa-times" style="color: #ff3300;"></i>
+              </a>
             </span>
             <br />
             <br />
             <span>
-            {{ totalDias }} 
-            <span ng-if="totalDias>1"> días</span>
-            <span ng-if="totalDias==1"> día</span>
+              {{ totalDias }} 
+              <span ng-if="totalDias>1"> días</span>
+              <span ng-if="totalDias==1"> día</span>
+            </span>
           </div>
 
-        </div>
+        </div>        
 
       </div>
     </div>

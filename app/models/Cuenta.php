@@ -75,7 +75,11 @@ class Cuenta extends Eloquent {
                 $listaCuentas=array();
                 if(count($cuentasOrigen)){
                     foreach($cuentasOrigen as $datoCta){
-                        $listaCuentas[$datoCta['id']]=$datoCta;
+                        $index = $datoCta['id'];
+                        if(!$datoCta['cuenta']){
+                            $index += (1000 * $datoCta['nivel']);
+                        }
+                        $listaCuentas[$index]=$datoCta;
                     }
                 }
             }

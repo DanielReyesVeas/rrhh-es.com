@@ -87,7 +87,7 @@ angular.module('angularjsApp')
     }else{
       $scope.titulo = 'Importar Documentos';          
       $scope.encabezado = 'Nuevo Documento';          
-      $scope.documento = {};
+      $scope.documento = { publico : false, descripcion : "" };
       $scope.isEdit = false;
     }
 
@@ -95,7 +95,8 @@ angular.module('angularjsApp')
       $scope.importar($scope.documento.file);
     });
 
-    $scope.importar = function (files) {      
+    $scope.importar = function (files) {    
+    console.log($scope.documento)  
       if(files) {              
         $rootScope.cargando = true;
         $scope.error = {};
@@ -103,7 +104,7 @@ angular.module('angularjsApp')
         var file = files;
         Upload.upload({
           url: constantes.URL + 'documentos/archivo/importar',
-          data: { file : file }
+          data: { file : file, publico : $scope.documento.publico, descripcion : $scope.documento.descripcion }
         }).success(function (data){
           $scope.dynamic=0;
           if( data.success ){

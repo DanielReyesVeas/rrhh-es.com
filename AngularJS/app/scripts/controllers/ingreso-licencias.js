@@ -144,42 +144,27 @@ angular.module('angularjsApp')
 
   })
   .controller('FormLicenciasCtrl', function ($rootScope, Notification, trabajador, $scope, $uibModalInstance, objeto, licencia, fecha) {
-    var mesActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
 
-/*
-    if(objeto.trabajador){
-      $scope.trabajador = angular.copy(objeto.trabajador);
-      $scope.licencia = angular.copy(objeto);
-      $scope.licencia.desde = fecha.convertirFecha($scope.licencia.desde);
-      $scope.licencia.hasta = fecha.convertirFecha($scope.licencia.hasta);
-      $scope.isEdit = true;
-      $scope.titulo = 'Modificación Licencia Médica';
-    }else{
-      $scope.trabajador = angular.copy(objeto);
-      $scope.isEdit = false;
-      $scope.titulo = 'Ingreso Licencia Médica';
-      $scope.licencia = { desde : fecha.fechaActiva(), hasta : fecha.fechaActiva() };
-    }*/
-
-    $scope.selectedDates = [];
     var disabledDates = [];
-    $scope.totalDias = 0;
-    $scope.activeDate = fecha.fechaActiva();
-    var ultimoMes = $rootScope.globals.currentUser.empresa.ultimoMes.fechaRemuneracion;
-    var primerMes = $rootScope.globals.currentUser.empresa.primerMes.mes;
-    console.log(primerMes)
-    console.log(ultimoMes)
+    $scope.totalDias = 0;    
     $scope.isTrabajador = false;
 
     if(objeto.datos){
       $scope.titulo = 'Licencias Médicas';
       $scope.encabezado = 'Modificación Licencia Médica';
-      $scope.licencia = angular.copy(objeto.datos)
+      $scope.licencia = angular.copy(objeto.datos);
+      $scope.licencia.selectedDates = [];
+      $scope.licencia.activeDate = fecha.fechaActiva();
       $scope.isEdit = true;
     }else{
       $scope.isEdit = false;
       $scope.licencia = { observacion : null };
       $scope.trabajadores = angular.copy(objeto.trabajadores);
+      $scope.licencia.selectedDates = [];
+      $scope.licencia.activeDate = fecha.fechaActiva();
+      $scope.fechas = { primerMes : objeto.primerMes, ultimoMes : objeto.ultimoMes };
+      var ultimoMes = $scope.fechas.ultimoMes.fechaRemuneracion;
+      var primerMes = $scope.fechas.primerMes.mes;
       $scope.titulo = 'Licencias Médicas';
       $scope.encabezado = 'Nueva Licencia Médica';
     }
@@ -190,10 +175,13 @@ angular.module('angularjsApp')
       maxDate: fecha.convertirFecha(ultimoMes),
       minDate: fecha.convertirFecha(primerMes),
       customClass: function(data) {
-        if($scope.selectedDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
-          return 'selected';
+        if($scope.licencia.selectedDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
+          return 'selected3';
+        }else if(disabledDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
+          return 'selected2';
+        }else{
+          return '';
         }
-        return '';
       }
     }    
 
@@ -205,28 +193,29 @@ angular.module('angularjsApp')
 
     $scope.removeFromSelected = function(dt) {
       var otherDate;
-      if($scope.selectedDates.length>1){
-        if($scope.selectedDates.indexOf(dt)==1){
-          otherDate = $scope.selectedDates[0];
+      if($scope.licencia.selectedDates.length>1){
+        if($scope.licencia.selectedDates.indexOf(dt)==1){
+          otherDate = $scope.licencia.selectedDates[0];
         }else{
-          otherDate = $scope.selectedDates[1];
+          otherDate = $scope.licencia.selectedDates[1];
         }
-        $scope.selectedDates = [otherDate];
-        $scope.activeDate = otherDate;
+        $scope.licencia.selectedDates = [otherDate];
+        $scope.licencia.activeDate = otherDate;
       }else{
-        $scope.selectedDates.splice($scope.selectedDates.indexOf(dt), 1);
-        $scope.activeDate = null;
+        $scope.licencia.selectedDates.splice($scope.licencia.selectedDates.indexOf(dt), 1);
+        $scope.licencia.activeDate = null;
       }
+      $scope.select();
     }
 
     $scope.select = function(){
       $scope.totalDias = contarDias();
-      $scope.isSelect = ($scope.selectedDates.length > 0);
+      $scope.isSelect = ($scope.licencia.selectedDates.length > 0);
     }
 
     function contarDias(){
       var cont = 0;
-      for(var i=0,len=$scope.selectedDates.length; i<len; i++){
+      for(var i=0,len=$scope.licencia.selectedDates.length; i<len; i++){
         cont++;
       }
       return cont;
@@ -273,7 +262,6 @@ angular.module('angularjsApp')
       var datos = trabajador.licencias().get({sid: $scope.licencia.trabajador.sid});
       datos.$promise.then(function(response){
         disabledDates = crearModels(response.datos);
-        console.log(disabledDates)
         $scope.isTrabajador = true;
         $scope.trabajador = response.datos;
         $rootScope.cargando=false;
@@ -284,19 +272,19 @@ angular.module('angularjsApp')
       var mes, desde, hasta;
       var arr = []; 
 
-      if($scope.selectedDates.length==1){
-        var desde = fecha.convertirFechaFormato($scope.selectedDates[0]);
+      if($scope.licencia.selectedDates.length==1){
+        var desde = fecha.convertirFechaFormato($scope.licencia.selectedDates[0]);
         var obj = { idTrabajador : $scope.trabajador.id, observacion : $scope.licencia.observacion, codigo : $scope.licencia.codigo, mes : fecha.convertirFechaFormato((fecha.obtenerMes(desde))), desde : desde, hasta : desde, dias : 1 };
         arr.push(obj);
       }else{        
         var mesGuardado;
         var mesAnterior = null;
-        $scope.selectedDates.sort();
-        for(var i=0,len=$scope.selectedDates.length; i<len; i++){
-          mes = new Date($scope.selectedDates[i]).getMonth();
+        $scope.licencia.selectedDates.sort();
+        for(var i=0,len=$scope.licencia.selectedDates.length; i<len; i++){
+          mes = new Date($scope.licencia.selectedDates[i]).getMonth();
 
           if(i==0){
-            desde = fecha.convertirFechaFormato($scope.selectedDates[0]);
+            desde = fecha.convertirFechaFormato($scope.licencia.selectedDates[0]);
           }else{
             if(mes==mesAnterior){       
               if((i + 1)==len){
@@ -307,9 +295,9 @@ angular.module('angularjsApp')
                   obj.idTrabajador = $scope.trabajador.id;
                   obj.observacion = $scope.licencia.observacion;
                   obj.codigo = $scope.licencia.codigo;
-                  obj.hasta = fecha.convertirFechaFormato($scope.selectedDates[i]);
+                  obj.hasta = fecha.convertirFechaFormato($scope.licencia.selectedDates[i]);
                   obj.dias = contarDiasMes(obj.desde, obj.hasta);
-                  desde = fecha.convertirFechaFormato($scope.selectedDates[i]);
+                  desde = fecha.convertirFechaFormato($scope.licencia.selectedDates[i]);
                   mesGuardado = obj.mes;
                   arr.push(obj);
                 }
@@ -322,11 +310,11 @@ angular.module('angularjsApp')
                 obj.idTrabajador = $scope.trabajador.id;
                 obj.observacion = $scope.licencia.observacion;
                 obj.codigo = $scope.licencia.codigo;
-                obj.hasta = fecha.convertirFechaFormato($scope.selectedDates[i-1]);
+                obj.hasta = fecha.convertirFechaFormato($scope.licencia.selectedDates[i-1]);
                 obj.dias = contarDiasMes(obj.desde, obj.hasta);
                 mesGuardado = obj.mes;
                 arr.push(obj);
-                desde = fecha.convertirFechaFormato($scope.selectedDates[i]);
+                desde = fecha.convertirFechaFormato($scope.licencia.selectedDates[i]);
               }
             }
           }
@@ -369,31 +357,6 @@ angular.module('angularjsApp')
         }
       }
     }
-
-    // Fecha
-    $scope.dateOptions = {
-      formatYear: 'yy',
-      maxDate: fecha.convertirFecha(mesActual.fechaRemuneracion),
-      minDate: fecha.convertirFecha(mesActual.mes),
-      startingDay: 1
-    };  
-
-    $scope.openFechaHasta = function() {
-      $scope.popupFechaHasta.opened = true;
-    };
-
-    $scope.openFechaDesde = function() {
-      $scope.popupFechaDesde.opened = true;
-    };
-
-    $scope.format = ['dd-MMMM-yyyy'];
-
-    $scope.popupFechaHasta = {
-      opened: false
-    };
-    $scope.popupFechaDesde = {
-      opened: false
-    };
 
   });
 

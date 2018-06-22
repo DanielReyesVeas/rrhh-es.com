@@ -156,7 +156,7 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormArchivoPreviredCtrl', function ($rootScope, constantes, Notification, $scope, $uibModalInstance, objeto) {
+  .controller('FormArchivoPreviredCtrl', function ($rootScope, $uibModal, $filter, constantes, Notification, $scope, $uibModalInstance, objeto) {
 
     $rootScope.cargando = false;
     $scope.constantes = constantes;
@@ -168,10 +168,57 @@ angular.module('angularjsApp')
     $scope.ipsFonasa = angular.copy(objeto.detalles.ipsFonasa);
     $scope.detalles = angular.copy(objeto.detalles);
     $scope.empresa = $rootScope.globals.currentUser.empresa;
+
+    $scope.detalleLarge = function(datos, detalle){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-detalle-large-previred.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormDetallePreviredCtrl',
+        resolve: {
+          objeto: function () {
+            return datos;          
+          },
+          detalle: function () {
+            return detalle;          
+          }
+        },
+        size: 'lg'
+      });
+      miModal.result.then(function (object) {
+        Notification.success({message: object.mensaje, title: 'Mensaje del Sistema'});
+      }, function () {
+        javascript:void(0)
+      });
+    }
+
+    $scope.detalle = function(datos){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-detalle-previred.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormDetallePreviredCtrl',
+        resolve: {
+          objeto: function () {
+            return datos;          
+          }
+        }
+      });
+      miModal.result.then(function (object) {
+        Notification.success({message: object.mensaje, title: 'Mensaje del Sistema'});
+      }, function () {
+        javascript:void(0)
+      });
+    }
     
     $scope.descargar = function(){
       var url = $scope.constantes.URL + 'trabajadores/archivo-previred/descargar';
       window.open(url, "_self");
     }
+
+  })
+  .controller('FormDetallePreviredCtrl', function ($rootScope, detalle, constantes, Notification, $scope, $uibModalInstance, objeto) {
+
+    $scope.datos = angular.copy(objeto);
+    $scope.detalle = angular.copy(detalle);
+    console.log($scope.datos)
 
   });

@@ -59,6 +59,14 @@ angular.module('angularjsApp')
 
     cargarDatos();
 
+    $scope.toolTipEditar = function( nombre ){
+      return 'Editar la cuenta <b>' + nombre + '</b>';
+    };
+
+    $scope.toolTipEliminar = function( nombre ){
+      return 'Eliminar la cuenta <b>' + nombre + '</b>';
+    };
+
 })
   .controller('FormCuentasCtrl', function ($scope, $filter, $uibModalInstance, objeto, Notification, $rootScope, cuenta) {
 

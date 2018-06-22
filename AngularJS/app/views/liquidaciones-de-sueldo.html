@@ -60,15 +60,15 @@
               <td>{{ ::dato.cargo }}</td>
               <td>${{ ::dato.sueldoBasePesos | currency:'':0 }}</td>
               <td>
-                  <a href="javascript:void(0);" ng-show="dato.observaciones" class="text-success" uib-tooltip-html="'<b>Observaciones:</b><br/>' + dato.observaciones">
-                      <i class="fa fa-search"></i>
-                  </a>
+                <a href="javascript:void(0);" ng-show="dato.observaciones" class="text-success" uib-tooltip-html="'<b>Observaciones:</b><br/>' + dato.observaciones">
+                    <i class="fa fa-search"></i>
+                </a>
               </td>
               <td>
-                  <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);">
-                      <i class="fa fa-commenting-o"></i>
-                  </a>
-                <a href="javascript:void(0);" ng-if="accesos.crear && accesos.abierto" confirmation-click="generar(0, dato.sidTrabajador, false, false)" confirmation-needed="Se generará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" ng-class="{ 'hidden' : isSelect[0] }"><i class="fa fa-print"></i></a>
+                <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);" uib-tooltip-html="'Agregar observación a la liquidación'">
+                    <i class="fa fa-commenting-o"></i>
+                </a>
+                <a href="javascript:void(0);" ng-if="accesos.crear && accesos.abierto" confirmation-click="generar(0, dato.sidTrabajador, false, false)" confirmation-needed="Se generará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" ng-class="{ 'hidden' : isSelect[0] }" uib-tooltip-html="toolTipGenerar(dato.nombreCompleto)"><i class="fa fa-print"></i></a>
               </td>
             </tr>
           </tbody>
@@ -148,13 +148,13 @@
               </td>
               <td>
                 <div ng-class="{ 'hidden' : isSelect[1] }">
-                  <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);">
+                  <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);" uib-tooltip-html="'Agregar observación a la liquidación'">
                       <i class="fa fa-commenting-o"></i>
                   </a>
-                  <a href="javascript:void(0);" ng-click="detalle(dato, false)"><i class="fa fa-window-maximize"></i></a>
-                  <a href="javascript:void(0);" ng-click="detalle(dato, true)"><i class="fa fa-window-restore"></i></a>
-                  <a href="javascript:void(0);" ng-if="accesos.crear && accesos.editar && accesos.abierto" confirmation-click="generar(1, dato.sidTrabajador, false, true)" confirmation-needed="Se generará una nueva Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>, sobreescribiendo la anterior. ¿Desea continuar?"><i class="fa fa-refresh"></i></a>
-                  <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto" confirmation-click="eliminar(1, dato, false)" confirmation-needed="Se eliminará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
+                  <a href="javascript:void(0);" ng-click="detalle(dato, false)"><i class="fa fa-window-maximize" uib-tooltip-html="'Abrir liquidación en esta pestaña'"></i></a>
+                  <a href="javascript:void(0);" ng-click="detalle(dato, true)"><i class="fa fa-window-restore" uib-tooltip-html="'Abrir liquidación en nueva pestaña'"></i></a>
+                  <a href="javascript:void(0);" ng-if="accesos.crear && accesos.editar && accesos.abierto" confirmation-click="generar(1, dato.sidTrabajador, false, true)" confirmation-needed="Se generará una nueva Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>, sobreescribiendo la anterior. ¿Desea continuar?" uib-tooltip-html="toolTipRegenerar(dato.nombreCompleto)"><i class="fa fa-refresh"></i></a>
+                  <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto" confirmation-click="eliminar(1, dato, false)" confirmation-needed="Se eliminará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" uib-tooltip-html="toolTipEliminar(dato.nombreCompleto)"><i class="fa fa-trash"></i></a>
                 </div>
               </td>
             </tr>
@@ -225,10 +225,10 @@
                   </a>
               </td>
               <td>
-                <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);">
+                <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);" uib-tooltip-html="'Agregar observación a la liquidación'">
                       <i class="fa fa-commenting-o"></i>
                   </a>
-                <a href="javascript:void(0);" ng-if="accesos.crear && accesos.abierto" confirmation-click="generar(2, dato.sidTrabajador, false, false)" confirmation-needed="Se generará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" ng-class="{ 'hidden' : isSelect[2] }"><i class="fa fa-print"></i></a>
+                <a href="javascript:void(0);" ng-if="accesos.crear && accesos.abierto" confirmation-click="generar(2, dato.sidTrabajador, false, false)" confirmation-needed="Se generará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" ng-class="{ 'hidden' : isSelect[2] }" uib-tooltip-html="toolTipGenerar(dato.nombreCompleto)"><i class="fa fa-print"></i></a>
               </td>
             </tr>
           </tbody>
@@ -295,10 +295,10 @@
               <td>${{ dato.sueldoLiquido | currency:'':0 }}</td>
               <td>
                 <div ng-class="{ 'hidden' : isSelect[3] }">
-                  <a href="javascript:void(0);" ng-click="detalle(dato, false)"><i class="fa fa-window-maximize"></i></a>
-                  <a href="javascript:void(0);" ng-click="detalle(dato, true)"><i class="fa fa-window-restore"></i></a>
-                  <a href="javascript:void(0);" ng-if="accesos.crear && accesos.editar && accesos.abierto" confirmation-click="generar(3, dato.sidTrabajador, false, true)" confirmation-needed="Se generará una nueva Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>, sobreescribiendo la anterior. ¿Desea continuar?"><i class="fa fa-refresh"></i></a>
-                  <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto" confirmation-click="eliminar(3, dato, false)" confirmation-needed="Se eliminará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
+                  <a href="javascript:void(0);" ng-click="detalle(dato, false)"><i class="fa fa-window-maximize" uib-tooltip-html="'Abrir liquidación esta pestaña'"></i></a>
+                  <a href="javascript:void(0);" ng-click="detalle(dato, true)"><i class="fa fa-window-restore" uib-tooltip-html="'Abrir liquidación en nueva pestaña'"></i></a>
+                  <a href="javascript:void(0);" ng-if="accesos.crear && accesos.editar && accesos.abierto" confirmation-click="generar(3, dato.sidTrabajador, false, true)" confirmation-needed="Se generará una nueva Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>, sobreescribiendo la anterior. ¿Desea continuar?" uib-tooltip-html="toolTipRegenerar(dato.nombreCompleto)"><i class="fa fa-refresh"></i></a>
+                  <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto" confirmation-click="eliminar(3, dato, false)" confirmation-needed="Se eliminará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" uib-tooltip-html="toolTipEliminar(dato.nombreCompleto)"><i class="fa fa-trash"></i></a>
                 </div>
               </td>
             </tr>

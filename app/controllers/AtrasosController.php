@@ -99,6 +99,7 @@ class AtrasosController extends \BaseController {
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#atrasos');
         $datosAtraso = null;
         $trabajadores = array();
+        $mesActual = \Session::get('mesActivo');
         
         if($sid){
             $atraso = Atraso::whereSid($sid)->first();
@@ -119,6 +120,7 @@ class AtrasosController extends \BaseController {
         $datos = array(
             'accesos' => $permisos,
             'datos' => $datosAtraso,
+            'mesActual' => $mesActual,
             'trabajadores' => $trabajadores
         );
         

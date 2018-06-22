@@ -65,7 +65,7 @@ html {
 }
 body {
   height: 100%;
-  background: #F5F5F5;
+  background: #FFFFFF;
   color: #5B5B5B;
   font-family: 'Lato', 'Open Sans', Helvetica, sans-serif !important;
   line-height: 1.42857143;
@@ -4199,7 +4199,7 @@ body:not(.fixed-sidebar):not(.fixed-topbar):not(.sidebar-top) .sidebar .logopane
   }
 }
 .main-content {
-  background: #F5F5F5;
+  background: #FFFFFF;
   margin-left: 240px;
   min-height: 750px;
 }
@@ -10850,7 +10850,7 @@ thead .fc-widget-header {
 #page-builder .form,
 #page-builder .build-table,
 #page-builder .build-widget {
-  background: #F5F5F5;
+  background: #FFFFFF;
   color: #121212;
   cursor: move;
   float: left;

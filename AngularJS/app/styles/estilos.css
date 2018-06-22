@@ -21,8 +21,20 @@
 }
 
 .uib-day.selected .btn {
-  color: #fff;
-  background-color: #83b4c1;
+  color: #FFFFFF;
+  background-color: red;
+  border-color: #46b8da;
+}
+
+.uib-day.selected2 .btn {
+  color: #FFFFFF;
+  background-color: green;
+  border-color: #46b8da;
+}
+
+.uib-day.selected3 .btn {
+  color: #FFFFFF;
+  background-color: #7FBF3F;
   border-color: #46b8da;
 }
 

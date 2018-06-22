@@ -81,17 +81,19 @@ angular.module('angularjsApp')
     $scope.isDisponibleSinIndicadores = function(index){
       var bool = false;
 
-      if(!$scope.datos.estadoMeses[index].iniciado && $scope.datos.estadoMeses[index].disponibleSinIndicadores && !$scope.datos.estadoMeses[index].disponible && $scope.datos.estadoMeses[(index - 1)].indicadores){
-        bool = true;
-        console.log(index)
-        for(var i=0, len=$scope.datos.estadoMeses.length; i<len; i++){
-          if(!$scope.datos.estadoMeses[i].disponible && !$scope.datos.estadoMeses[i].iniciado){
-            if(i===index){
-              bool = true;
-              break;
-            }else{
-              bool = false;
-              break;
+      if($scope.datos.estadoMeses[(index - 1)]){
+        if(!$scope.datos.estadoMeses[index].iniciado && $scope.datos.estadoMeses[index].disponibleSinIndicadores && !$scope.datos.estadoMeses[index].disponible && $scope.datos.estadoMeses[(index - 1)].indicadores){
+          bool = true;
+          console.log(index)
+          for(var i=0, len=$scope.datos.estadoMeses.length; i<len; i++){
+            if(!$scope.datos.estadoMeses[i].disponible && !$scope.datos.estadoMeses[i].iniciado){
+              if(i===index){
+                bool = true;
+                break;
+              }else{
+                bool = false;
+                break;
+              }
             }
           }
         }
@@ -178,10 +180,14 @@ angular.module('angularjsApp')
     }
 
     $scope.confirmar = function(obj, anio, isIndicadores){
-      if(isIndicadores){
+      if(obj.nombre=='NuevoAnio'){
         openTerminos(obj);
       }else{
-        openConfirmar(obj, anio);
+        if(isIndicadores){
+          openTerminos(obj);
+        }else{
+          openConfirmar(obj, anio);
+        }
       }
     }
 
@@ -253,7 +259,6 @@ angular.module('angularjsApp')
       );
     }
 
-
     $scope.selectAnio = function(){
         $scope.cargado = false;
         $rootScope.cargando = true;
@@ -271,7 +276,6 @@ angular.module('angularjsApp')
         });
     };
   })
-
   .controller('FormConfirmarApertura', function ($scope, $rootScope, $uibModalInstance, objeto, anio) {
 
     $scope.mes = angular.copy(objeto);

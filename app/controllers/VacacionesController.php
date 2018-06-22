@@ -131,6 +131,7 @@ class VacacionesController extends \BaseController {
         $sidTrabajador = $datos['sid'];
         $tomaVacaciones = $datos['tomaVacaciones'];
         $trabajador = Trabajador::whereSid($sidTrabajador)->first();
+        $desde = null;
         
         foreach($tomaVacaciones as $toma){
             $vacaciones = new TomaVacaciones();
@@ -144,9 +145,15 @@ class VacacionesController extends \BaseController {
         }
         
         $ficha = $trabajador->ficha();
-        $dias = $ficha->dias;
+        $dias = $ficha->vacaciones;
         
-        $trabajador->recalcularVacaciones($dias, $tomaVacaciones[0]['mes']);
+        $calcularDesde = $ficha->calculo_vacaciones;
+        if($calcularDesde=='p'){
+            $primerMes = MesDeTrabajo::orderBy('mes')->first();
+            $desde = $primerMes->mes;
+        }
+        
+        $trabajador->recalcularVacaciones($dias, $desde);
         
         Logs::crearLog('#trabajadores-vacaciones', $trabajador->id, $trabajador->rut_formato(), 'Toma Vacaciones', $trabajador->id, $ficha->nombreCompleto(), NULL, $vacaciones->dias, $vacaciones->dias);
         
@@ -155,7 +162,10 @@ class VacacionesController extends \BaseController {
             'mensaje' => "La Información fue almacenada correctamente",
             'sidTrabajador' => $trabajador['sid'],
             'datos' => $datos,
-            'd' => $tomaVacaciones[0]['mes']
+            'd' => $tomaVacaciones[0]['mes'],
+            'dias' => $dias,
+            'calcularDesde' => $calcularDesde,
+            'desde' => $desde
         );
         
         return Response::json($respuesta);
@@ -170,7 +180,7 @@ class VacacionesController extends \BaseController {
         $calcularDesde = $datos['desde'];
 
         $trabajador = Trabajador::whereSid($sidTrabajador)->first();
-        if($calcularDesde=='primerMesSistema'){
+        if($calcularDesde=='p'){
             $primerMes = MesDeTrabajo::orderBy('mes')->first();
             $desde = $primerMes->mes;
             if($dias==0){
@@ -182,6 +192,13 @@ class VacacionesController extends \BaseController {
             }
         }
         $trabajador->recalcularVacaciones($dias, $desde);
+        
+        $fichasTrabajador = $trabajador->fichaTrabajador; 
+        foreach($fichasTrabajador as $fichaTrabajador){
+            $fichaTrabajador->vacaciones = $datos['dias'];
+            $fichaTrabajador->calculo_vacaciones = $calcularDesde;
+            $fichaTrabajador->save();
+        }
         
         $ficha = $trabajador->ficha();
         Logs::crearLog('#trabajadores-vacaciones', $trabajador->id, $trabajador->rut_formato(), 'Recálculo', $trabajador->id, $ficha->nombreCompleto(), NULL, $dias, $dias);

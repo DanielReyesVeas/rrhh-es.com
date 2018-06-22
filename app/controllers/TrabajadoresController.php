@@ -2764,18 +2764,22 @@ class TrabajadoresController extends \BaseController {
             $isapres = array();
             $caja = array(
                 'nombre' => $empresa->caja->glosa,
-                'total' => 0
+                'total' => 0,
+                'trabajadores' => array()
             );
             $mutual = array(
                 'nombre' => $empresa->mutual->glosa,
-                'total' => 0
+                'total' => 0,
+                'trabajadores' => array()
             );
             $ipsFonasa = array(
                 'fonasa' => array(
-                    'total' => 0
+                    'total' => 0,
+                    'trabajadores' => array()
                 ), 
                 'isl' => array(
-                    'total' => 0
+                    'total' => 0,
+                    'trabajadores' => array()
                 )
             );
             $ruts = array();
@@ -2806,11 +2810,30 @@ class TrabajadoresController extends \BaseController {
                         $a = (int) $trab['codigoAPVI'];
                         $totalAfp += $trab['cotizacionAPVI'];
                         if(isset($afps[$a])){
-                            $afps[$a]['total'] = ($afps[$a]['total'] + $trab['cotizacionAPVI']);
+                            $afps[$a]['total'] = ($afps[$a]['total'] + $trab['cotizacionAPVI']);        
+                            $afps[$a]['apvi']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'total' => $trab['cotizacionAPVI']
+                            );
+                            if(isset($afps[$a]['apvi']['total'])){
+                                $afps[$a]['apvi']['total'] = ($afps[$a]['apvi']['total'] + $trab['cotizacionAPVI']);        
+                            }else{
+                                $afps[$a]['apvi']['total'] = $trab['cotizacionAPVI'];   
+                            }
                         }else{
                             $afps[$a] = array(
                                 'codigo' => $a,
                                 'nombre' => $apvi,
+                                'total' => $trab['cotizacionAPVI'],
+                                'apvi' => array(
+                                    'trabajadores' => array(),
+                                    'total' => $trab['cotizacionAPVI']
+                                )
+                            );
+                            $afps[$a]['apvi']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
                                 'total' => $trab['cotizacionAPVI']
                             );
                         }
@@ -2820,10 +2843,29 @@ class TrabajadoresController extends \BaseController {
                         $totalAfp += $totalApvc;
                         if(isset($afps[$a])){
                             $afps[$a]['total'] = ($afps[$a]['total'] + $totalApvc);
+                            $afps[$a]['apvc']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'total' => $totalApvc
+                            );
+                            if(isset($afps[$a]['apvc']['total'])){
+                                $afps[$a]['apvc']['total'] = ($afps[$a]['apvc']['total'] + $totalApvc);        
+                            }else{
+                                $afps[$a]['apvc']['total'] = $totalApvc;   
+                            }
                         }else{
                             $afps[$a] = array(
                                 'codigo' => $a,
                                 'nombre' => 'APVC ' . $apvc,
+                                'total' => $totalApvc,
+                                'apvc' => array(
+                                    'trabajadores' => array(),
+                                    'total' => $totalApvc
+                                )
+                            );
+                            $afps[$a]['apvc']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
                                 'total' => $totalApvc
                             );
                         }
@@ -2833,10 +2875,29 @@ class TrabajadoresController extends \BaseController {
                         $totalAfp += $montoAhorroVoluntario;
                         if(isset($afps[$a])){
                             $afps[$a]['total'] = ($afps[$a]['total'] + $montoAhorroVoluntario);
+                            $afps[$a]['ahorro']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'total' => $montoAhorroVoluntario
+                            );
+                            if(isset($afps[$a]['ahorro']['total'])){
+                                $afps[$a]['ahorro']['total'] = ($afps[$a]['ahorro']['total'] + $montoAhorroVoluntario);        
+                            }else{
+                                $afps[$a]['ahorro']['total'] = $montoAhorroVoluntario;   
+                            }
                         }else{
                             $afps[$a] = array(
                                 'codigo' => $a,
-                                'nombre' => 'Ahorro ' . $afp,
+                                'nombre' => 'Ahorro Voluntario ' . $afp,
+                                'total' => $montoAhorroVoluntario,
+                                'ahorro' => array(
+                                    'trabajadores' => array(),
+                                    'total' => $montoAhorroVoluntario
+                                )
+                            );
+                            $afps[$a]['ahorro']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
                                 'total' => $montoAhorroVoluntario
                             );
                         }
@@ -2851,53 +2912,131 @@ class TrabajadoresController extends \BaseController {
                         if($montoAfp){
                             if(isset($afps[$a])){
                                 $afps[$a]['total'] = ($afps[$a]['total'] + $montoAfp);
-                            }else{
-                                $afps[$a] = array(
-                                    'codigo' => $a,
-                                    'nombre' => $afp,
-                                    'total' => $montoAfp
+                                $afps[$a]['afp']['trabajadores'][] = array(
+                                    'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                    'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                    'trabajador' => $trab['cotizacionAfp'],
+                                    'rentaImponible' => $trab['rentaImponible'],
+                                    'rentaImponibleSeguroCesantia' => $trab['rentaImponibleSeguroCesantia'],
+                                    'afcTrabajador' => $trab['aporteTrabajadorSeguroCesantia'],
+                                    'empleador' => $trab['sis'],
+                                    'afcEmpleador' => $trab['aporteEmpleadorSeguroCesantia']
                                 );
-                            }
-                        }
-                        if($montoAhorroVoluntario){
-                            if(isset($afps[$a])){
-                                $afps[$a]['total'] = ($afps[$a]['total'] + $montoAfp);
+                                if(isset($afps[$a]['afp']['totalTrabajador'])){
+                                    $afps[$a]['afp']['totalTrabajador'] = ($afps[$a]['afp']['totalTrabajador'] + $trab['cotizacionAfp']);        
+                                }else{
+                                    $afps[$a]['afp']['totalTrabajador'] = $trab['cotizacionAfp'];   
+                                }
+                                if(isset($afps[$a]['afp']['totalEmpleador'])){
+                                    $afps[$a]['afp']['totalEmpleador'] = ($afps[$a]['afp']['totalEmpleador'] + $trab['sis']);        
+                                }else{
+                                    $afps[$a]['afp']['totalEmpleador'] = $trab['sis'];   
+                                }
+                                if(isset($afps[$a]['afp']['totalAfcTrabajador'])){
+                                    $afps[$a]['afp']['totalAfcTrabajador'] = ($afps[$a]['afp']['totalAfcTrabajador'] + $trab['aporteTrabajadorSeguroCesantia']);        
+                                }else{
+                                    $afps[$a]['afp']['totalAfcTrabajador'] = $trab['aporteTrabajadorSeguroCesantia'];   
+                                }
+                                if(isset($afps[$a]['afp']['totalAfcEmpleador'])){
+                                    $afps[$a]['afp']['totalAfcEmpleador'] = ($afps[$a]['afp']['totalAfcEmpleador'] + $trab['aporteEmpleadorSeguroCesantia']);        
+                                }else{
+                                    $afps[$a]['afp']['totalAfcEmpleador'] = $trab['aporteEmpleadorSeguroCesantia'];   
+                                }
+                                if(isset($afps[$a]['afp']['total'])){
+                                    $afps[$a]['afp']['total'] = ($afps[$a]['afp']['total'] + $montoAfp);        
+                                }else{
+                                    $afps[$a]['afp']['total'] = $montoAfp;   
+                                }
                             }else{
                                 $afps[$a] = array(
                                     'codigo' => $a,
                                     'nombre' => $afp,
-                                    'total' => $montoAfp
+                                    'total' => $montoAfp,
+                                    'afp' => array(
+                                        'trabajadores' => array(),
+                                        'totalTrabajador' => $trab['cotizacionAfp'],
+                                        'totalEmpleador' => $trab['sis'],
+                                        'rentaImponible' => $trab['rentaImponible'],
+                                        'rentaImponibleSeguroCesantia' => $trab['rentaImponibleSeguroCesantia'],
+                                        'totalAfcTrabajador' => $trab['aporteTrabajadorSeguroCesantia'],
+                                        'totalAfcEmpleador' => $trab['aporteEmpleadorSeguroCesantia'],
+                                        'total' => $montoAfp
+                                    )
+                                );
+                                $afps[$a]['afp']['trabajadores'][] = array(
+                                    'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                    'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                    'trabajador' => $trab['cotizacionAfp'],
+                                    'afcTrabajador' => $trab['aporteTrabajadorSeguroCesantia'],
+                                    'rentaImponible' => $trab['rentaImponible'],
+                                    'rentaImponibleSeguroCesantia' => $trab['rentaImponibleSeguroCesantia'],
+                                    'empleador' => $trab['sis'],
+                                    'afcEmpleador' => $trab['aporteEmpleadorSeguroCesantia']
                                 );
                             }
                         }
                         if($montoIsapre){
                             if(isset($isapres[$trab['codigoInstitucionSalud']])){
                                 $isapres[$trab['codigoInstitucionSalud']]['total'] = ($isapres[$trab['codigoInstitucionSalud']]['total'] + $montoIsapre);
+                                $isapres[$trab['codigoInstitucionSalud']]['trabajadores'][] = array(
+                                    'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                    'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                    'total' => $montoIsapre
+                                );
                             }else{
                                 $isapres[$trab['codigoInstitucionSalud']] = array(
                                     'codigo' => $trab['codigoInstitucionSalud'],
                                     'nombre' => $isapre,
+                                    'total' => $montoIsapre,
+                                    'trabajadores' => array()
+                                );
+                                $isapres[$trab['codigoInstitucionSalud']]['trabajadores'][] = array(
+                                    'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                    'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
                                     'total' => $montoIsapre
                                 );
                             }
                         }
                         if($trab['cotizacionFonasa']){
                             $ipsFonasa['fonasa']['total'] += $trab['cotizacionFonasa'];
+                            $ipsFonasa['fonasa']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'total' => $trab['cotizacionFonasa']
+                            );
                         }
                         if($trab['cotizacionIsl']){
                             $ipsFonasa['isl']['total'] += ($trab['cotizacionIsl'] - $trab['descuentoCargasIsl']);
+                            $ipsFonasa['isl']['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'rentaImponible' => $trab['rentaImponibleCcaf'],
+                                'total' => ($trab['cotizacionIsl'] - $trab['descuentoCargasIsl'])
+                            );
                         }
-                        if($trab['cotizacionCcafNoAfiliadosIsapre']){
-                            $caja['total'] += (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosSeguroCcaf']) - $trab['descuentoCargasFamiliaresCcaf']);
-                        }
+                        //if($trab['cotizacionCcafNoAfiliadosIsapre']){
+                            $caja['total'] += (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf']);
+                            $caja['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'rentaImponible' => $trab['rentaImponibleCcaf'],
+                                'total' => (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf'])
+                            );
+                        //}
                         
                         if($trab['cotizacionAccidenteTrabajo']){
                             $mutual['total'] += $trab['cotizacionAccidenteTrabajo'];
+                            $mutual['trabajadores'][] = array(
+                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                                'total' => $trab['cotizacionAccidenteTrabajo']
+                            );
                         }
+                        
                         $totalAfp += $montoAfp;
                         $totalIsapre += $montoIsapre;
                         $totalIpsFonasa += ($trab['cotizacionIsl'] + $trab['cotizacionFonasa'] - $trab['descuentoCargasIsl']);
-                        $totalCaja += (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosSeguroCcaf']) - $trab['descuentoCargasFamiliaresCcaf']);
+                        $totalCaja += (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf']);
                         $totalMutual += $trab['cotizacionAccidenteTrabajo'];
                     }
                         
@@ -3239,7 +3378,7 @@ class TrabajadoresController extends \BaseController {
         $listaTrabajadores = Funciones::ordenar($listaTrabajadores, 'apellidos');
                 
         $datos = array(
-            'datos' => $listaTrabajadores,
+            'datos' => $listaTrabajadores,            
             'accesos' => $permisos
         );
         
@@ -3316,7 +3455,10 @@ class TrabajadoresController extends \BaseController {
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#trabajadores-vacaciones');
         $mes = \Session::get('mesActivo');
         $empleado = $trabajador->ficha();
+        $empresa = \Session::get('empresa');
         $feriados = Empresa::feriadosVacaciones();
+        $primerMes = $empresa->primerMes();
+        $ultimoMes = $empresa->ultimoMes();
         
         $trabajadorVacaciones = array(
             'id' => $trabajador->id,
@@ -3332,6 +3474,8 @@ class TrabajadoresController extends \BaseController {
         
         $datos = array(
             'accesos' => $permisos,
+            'primerMes' => $primerMes,
+            'ultimoMes' => $ultimoMes,
             'datos' => $trabajadorVacaciones
         );
         
@@ -3633,7 +3777,7 @@ class TrabajadoresController extends \BaseController {
         $mes = \Session::get('mesActivo')->mes;
         $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes)));
         $finMes = \Session::get('mesActivo')->fechaRemuneracion; 
-        $finMesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($finMes)));
+        $finMesAnterior = Funciones::obtenerFechaRemuneracionMes(date('m', strtotime($mesAnterior)), date('Y', strtotime($mesAnterior)));
         $trabajadores = Trabajador::all();
         $liquidaciones = Liquidacion::where('mes', $mes)->orderBy('trabajador_apellidos')->get();
         
@@ -5849,7 +5993,7 @@ class TrabajadoresController extends \BaseController {
     public function trabajadorInasistencias($sid)
     {        
         $trabajador = Trabajador::whereSid($sid)->first();
-        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-inasistencias');
+        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-inasistencias');        
         
         $trabajadorInasistencias = array(
             'id' => $trabajador->id,
@@ -5860,7 +6004,7 @@ class TrabajadoresController extends \BaseController {
             'inasistencias' => $trabajador->misInasistencias()
         );
         $datos = array(
-            'accesos' => $permisos,
+            'accesos' => $permisos,            
             'datos' => $trabajadorInasistencias
         );
         return Response::json($datos);     

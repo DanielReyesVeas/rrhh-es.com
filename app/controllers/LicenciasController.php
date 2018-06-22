@@ -124,6 +124,8 @@ class LicenciasController extends \BaseController {
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-licencias');
         $datosLicencia = null;
         $trabajadores = array();
+        $primerMes = null;
+        $ultimoMes = null;
         
         if($sid){
             $licencia = Licencia::whereSid($sid)->first();
@@ -139,12 +141,17 @@ class LicenciasController extends \BaseController {
                 'trabajador' => $licencia->trabajadorLicencia()
             );
         }else{
+            $empresa = \Session::get('empresa');
+            $primerMes = $empresa->primerMes();
+            $ultimoMes = $empresa->ultimoMes();
             $trabajadores = Trabajador::activosFiniquitados();
         }
         
         $datos = array(
             'accesos' => $permisos,
             'datos' => $datosLicencia,
+            'primerMes' => $primerMes,
+            'ultimoMes' => $ultimoMes,
             'trabajadores' => $trabajadores
         );
         

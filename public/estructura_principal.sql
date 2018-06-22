@@ -810,77 +810,85 @@ CREATE TABLE IF NOT EXISTS `menu` (
   UNIQUE KEY `sid` (`sid`),
   KEY `categoria_id` (`administrador`),
   KEY `padre_id` (`padre_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=157 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=165 ;
 
 --
 -- Volcado de datos para la tabla `menu`
 --
 
 INSERT INTO `menu` (`id`, `sid`, `menu`, `tipo`, `padre_id`, `href`, `onclick`, `title`, `estado`, `administrador`, `posicion`, `fontawesome`, `updated_at`, `created_at`) VALUES
-(1, 'Y20150907235707QBB9055', 'Parámetros / Cierres', 1, 0, '#', '', 'Panel de Administración de Opciones Generales', 1, 1, 9, 'fa fa-cogs', '2017-07-13 15:05:49', '2015-09-08 21:57:09'),
+(1, 'Y20150907235707QBB9055', 'Parámetros', 1, 0, '#', NULL, 'Panel de Administración de Opciones Generales', 1, 1, 11, 'fa fa-cogs', '2018-05-17 16:10:04', '2015-09-08 21:57:09'),
 (101, 'N20170206131259JWX9701', 'Liquidaciones  de Sueldo', 2, 100, '#liquidaciones-de-sueldo', '', 'Liquidaciones  de Sueldo', 1, 2, 2, 'fa-files-o', '2017-07-13 15:05:08', '2017-02-06 16:12:59'),
 (102, 'Z20170206131420POV3731', 'Libro de Remuneraciones', 2, 100, '#libro-remuneraciones', '', 'Libro de Remuneraciones', 1, 2, 3, 'fa-book', '2017-07-13 15:04:57', '2017-02-06 16:14:20'),
 (103, 'P20170206131458PEN2966', 'Planilla Costo Empresa', 2, 100, '#planilla-costo-empresa', '', 'Planilla Costo Empresa', 1, 2, 5, 'fa-table', '2017-07-13 15:05:26', '2017-02-06 16:14:58'),
-(104, 'Y20170206131557LMK4418', 'Planilla de Cotizaciones', 2, 100, '#', '#', 'Planilla de Cotizaciones', 1, 2, 6, NULL, '2017-07-13 15:05:35', '2017-02-06 16:15:57'),
 (105, 'F20170206131638BHD7777', 'Archivo Previred', 2, 100, '#archivo-previred', '', 'Archivo Previred', 1, 2, 7, 'fa-arrow-circle-right', '2017-07-13 15:04:30', '2017-02-06 16:16:38'),
 (106, 'J20170206131840AHN3738', 'Nomina Bancaria', 2, 100, '#nomina-bancaria', '', 'Nomina Bancaria', 1, 2, 1, 'fa-leanpub', '2017-07-13 15:05:17', '2017-02-06 16:18:40'),
-(107, 'R20170206131931ILE9569', 'Tabla Global Mensual', 2, 99, '#tabla-global-mensual', '', 'Tabla Global Mensual', 1, 1, 1, 'fa-line-chart', '2017-10-02 13:08:23', '2017-02-06 16:19:31'),
-(108, 'N20170206132358GLP8680', 'Tabla Impuesto Único', 2, 99, '#tabla-impuesto-unico', '', 'Tabla Impuesto Único', 1, 1, 2, 'fa-calculator', '2017-10-02 13:08:46', '2017-02-06 16:23:58'),
-(109, 'S20170206132453THF2224', 'Tabla de Haberes', 2, 99, '#tabla-haberes', '', 'Tabla de Haberes', 1, 2, 3, 'fa-calendar-plus-o', '2017-07-13 15:00:44', '2017-02-06 16:24:53'),
-(110, 'T20170206132519KJP5451', 'Tabla de Descuentos', 2, 99, '#tabla-descuentos', '', 'Tabla de Descuentos', 1, 2, 4, 'fa-calendar-minus-o', '2017-07-13 15:00:34', '2017-02-06 16:25:19'),
-(111, 'T20170206133100EYI5787', 'Trabajadores', 1, 0, '#', '#', 'Trabajadores', 1, 2, 3, 'fa-user', '2017-07-13 14:58:11', '2017-02-06 16:31:00'),
+(107, 'R20170206131931ILE9569', 'Tabla Global Mensual', 2, 99, '#tabla-global-mensual', '', 'Tabla Global Mensual', 1, 2, 2, 'fa-line-chart', '2017-10-02 13:08:23', '2017-02-06 16:19:31'),
+(108, 'N20170206132358GLP8680', 'Tabla Impuesto Único', 2, 99, '#tabla-impuesto-unico', '', 'Tabla Impuesto Único', 1, 2, 3, 'fa-calculator', '2017-10-02 13:08:46', '2017-02-06 16:23:58'),
+(109, 'S20170206132453THF2224', 'Tabla de Haberes', 2, 99, '#tabla-haberes', '', 'Tabla de Haberes', 1, 2, 4, 'fa-calendar-plus-o', '2017-07-13 15:00:44', '2017-02-06 16:24:53'),
+(110, 'T20170206132519KJP5451', 'Tabla de Descuentos', 2, 99, '#tabla-descuentos', '', 'Tabla de Descuentos', 1, 2, 5, 'fa-calendar-minus-o', '2017-07-13 15:00:34', '2017-02-06 16:25:19'),
+(111, 'T20170206133100EYI5787', 'Trabajadores', 1, 0, '#', NULL, 'Trabajadores', 1, 2, 3, 'fa-user', '2017-07-13 14:58:11', '2017-02-06 16:31:00'),
 (112, 'M20170206133338TQY6202', 'Agregar Nuevo / Recuperar', 2, 111, '#trabajadores', '', 'Agregar Nuevo / Recuperar', 1, 2, 1, 'fa-user-plus', '2017-07-13 14:58:20', '2017-02-06 16:33:38'),
-(30, 'Z20151006010307NZA2853', 'Perfiles de Usuario', 2, 1, '#perfiles', '', 'Administración de Perfiles de Usuario', 1, 1, 8, 'fa-id-card-o', '2017-03-31 18:08:02', '2015-10-06 23:03:08'),
+(30, 'Z20151006010307NZA2853', 'Perfiles de Usuario', 2, 1, '#perfiles', '', 'Administración de Perfiles de Usuario', 1, 1, 9, 'fa-id-card-o', '2017-03-31 18:08:02', '2015-10-06 23:03:08'),
 (31, 'Y20151010022335UUD1861', 'Accesos Rápidos', 2, 0, '#inicio', '', 'Panel de Inicio', 1, 3, 2, 'fa fa-bolt', '2017-03-16 22:16:45', '2015-10-11 00:23:36'),
-(19, 'U20150908002831YHW1075', 'Usuarios', 2, 1, '#funcionarios', '', 'Administrador de Usuarios del Sistema', 1, 1, 7, 'fa-user-circle', '2017-03-29 04:31:13', '2015-09-08 22:28:32'),
+(19, 'U20150908002831YHW1075', 'Usuarios', 2, 1, '#funcionarios', '', 'Administrador de Usuarios del Sistema', 1, 1, 8, 'fa-user-circle', '2017-03-29 04:31:13', '2015-09-08 22:28:32'),
 (131, 'B20170207102343KJS7565', 'Reajuste Global Sueldo Base', 2, 111, '#reajuste-global', '', 'Reajuste Global Sueldo Base', 1, 2, 5, 'fa fa-balance-scale', '2017-07-13 14:58:59', '2017-02-07 13:23:43'),
-(130, 'H20170207102152NMS5017', 'Cláusulas Finiquito', 2, 1, '#clausulas-finiquito', '', 'Cláusulas Finiquito', 1, 2, 21, 'fa-list-ol', '2017-07-13 15:07:22', '2017-02-07 13:21:52'),
-(129, 'Y20170207102117JNF7414', 'Cláusulas de Contrato', 2, 1, '#clausulas-contrato', '', 'Cláusulas de Contrato', 1, 2, 20, 'fa-list-ol', '2017-07-13 15:07:12', '2017-02-07 13:21:17'),
+(130, 'H20170207102152NMS5017', 'Cláusulas Finiquito', 2, 1, '#clausulas-finiquito', '', 'Cláusulas Finiquito', 1, 2, 23, 'fa-list-ol', '2017-07-13 15:07:22', '2017-02-07 13:21:52'),
+(129, 'Y20170207102117JNF7414', 'Cláusulas de Contrato', 2, 1, '#clausulas-contrato', '', 'Cláusulas de Contrato', 1, 2, 22, 'fa-list-ol', '2017-07-13 15:07:12', '2017-02-07 13:21:17'),
 (128, 'T20170207101523GTH5131', 'Asociar Documentos a Trabajador', 2, 111, '#asociar-documentos', '', 'Asociar Documentos a Trabajador', 1, 2, 3, 'fa fa-clipboard', '2017-08-25 16:20:42', '2017-02-07 13:15:23'),
-(127, 'F20170207101402BFX8881', 'Cartas de Notificación', 2, 98, '#cartas-de-notificacion', '', 'Cartas de Notificación', 1, 2, 13, 'fa-envelope-o', '2017-07-13 15:02:23', '2017-02-07 13:14:02'),
-(125, 'M20170206191548UCW3398', 'F 1887', 2, 100, '#f1887', '', 'F 1887', 1, 2, 8, 'fa-table', '2017-07-13 15:04:48', '2017-02-06 22:15:48'),
-(126, 'I20170206191637EFW5213', 'Cargas Familiares', 2, 98, '#cargas-familiares', '', 'Administración de Cargas Familiares', 1, 2, 9, 'fa fa-users', '2017-07-13 15:01:38', '2017-02-06 22:16:37'),
-(124, 'F20170206191505RSL7858', 'Préstamos', 2, 98, '#ingreso-prestamos', '', 'Préstamos', 1, 2, 7, 'fa fa-money', '2017-07-13 15:03:29', '2017-02-06 22:15:05'),
+(127, 'F20170207101402BFX8881', 'Cartas de Notificación', 2, 98, '#cartas-de-notificacion', '', 'Cartas de Notificación', 1, 2, 14, 'fa-envelope-o', '2017-07-13 15:02:23', '2017-02-07 13:14:02'),
+(125, 'M20170206191548UCW3398', 'F 1887', 2, 100, '#f1887', '', 'F 1887', 1, 2, 8, 'fa-table', '2018-02-22 14:46:34', '2017-02-06 22:15:48'),
+(126, 'I20170206191637EFW5213', 'Cargas Familiares', 2, 98, '#cargas-familiares', '', 'Administración de Cargas Familiares', 1, 2, 10, 'fa fa-users', '2017-07-13 15:01:38', '2017-02-06 22:16:37'),
+(124, 'F20170206191505RSL7858', 'Préstamos', 2, 98, '#ingreso-prestamos', '', 'Préstamos', 1, 2, 8, 'fa fa-money', '2017-07-13 15:03:29', '2017-02-06 22:15:05'),
 (123, 'T20170206191431XUN6513', 'Horas Extra', 2, 98, '#ingreso-horas-extra', '', 'Horas Extra', 1, 2, 5, 'fa fa-clock-o', '2017-07-13 15:02:33', '2017-02-06 22:14:31'),
 (122, 'X20170206191224XJQ4201', 'Licencias Médicas', 2, 98, '#ingreso-licencias', '', 'Licencias Médicas', 1, 2, 4, 'fa fa-medkit', '2017-07-13 15:03:11', '2017-02-06 22:12:24'),
 (121, 'W20170206191150MVH9882', 'Inasistencias', 2, 98, '#ingreso-inasistencias', '', 'Inasistencias', 1, 2, 3, 'fa fa-calendar-times-o', '2017-07-13 15:02:41', '2017-02-06 22:11:50'),
 (119, 'O20170206190856YZA4645', 'Ingreso de Haberes', 2, 98, '#ingreso-haberes', '', 'Ingreso de Haberes', 1, 2, 1, 'fa fa-bar-chart', '2017-07-13 15:03:00', '2017-02-06 22:08:56'),
 (120, 'K20170206190937CQP4270', 'Ingreso de Descuentos', 2, 98, '#ingreso-descuentos', '', 'Ingreso de Descuentos', 1, 2, 2, 'fa fa-area-chart', '2017-07-13 15:02:51', '2017-02-06 22:09:37'),
 (118, 'W20170206134220DCM5536', 'Finiquitar Trabajador', 2, 111, '#finiquitar-trabajador', '', 'Finiquitar Trabajador', 1, 2, 4, 'fa-user-times', '2017-07-13 14:58:39', '2017-02-06 16:42:20'),
-(117, 'V20170206134036XLK6617', 'Causales de Finiquito', 2, 1, '#causales-finiquito', '', 'Causales de Finiquito', 1, 2, 18, 'fa-list-alt', '2017-07-13 15:06:30', '2017-02-06 16:40:36'),
-(116, 'S20170206133737PWW3778', 'Tipos de Jornada', 2, 1, '#jornadas', '', 'Tipos de Jornada', 1, 2, 12, 'fa-hourglass-end', '2017-07-13 15:08:09', '2017-02-06 16:37:37'),
-(114, 'R20170206133609UWM6083', 'Causales de Notificación', 2, 1, '#causales-notificacion', '', 'Causales Notificación', 1, 2, 17, 'fa-list-alt', '2017-07-13 15:06:54', '2017-02-06 16:36:09'),
-(115, 'V20170206133658KKB5590', 'Tipos de Contrato', 2, 1, '#tipos-contrato', '', 'Tipos de Contrato', 1, 2, 11, 'fa-handshake-o', '2017-07-13 15:08:00', '2017-02-06 16:36:58'),
+(117, 'V20170206134036XLK6617', 'Causales de Finiquito', 2, 1, '#causales-finiquito', '', 'Causales de Finiquito', 1, 2, 20, 'fa-list-alt', '2017-07-13 15:06:30', '2017-02-06 16:40:36'),
+(116, 'S20170206133737PWW3778', 'Tipos de Jornada', 2, 1, '#jornadas', '', 'Tipos de Jornada', 1, 2, 13, 'fa-hourglass-end', '2017-07-13 15:08:09', '2017-02-06 16:37:37'),
+(114, 'R20170206133609UWM6083', 'Causales de Notificación', 2, 1, '#causales-notificacion', '', 'Causales Notificación', 1, 2, 19, 'fa-list-alt', '2017-07-13 15:06:54', '2017-02-06 16:36:09'),
+(115, 'V20170206133658KKB5590', 'Tipos de Contrato', 2, 1, '#tipos-contrato', '', 'Tipos de Contrato', 1, 2, 12, 'fa-handshake-o', '2017-07-13 15:08:00', '2017-02-06 16:36:58'),
 (113, 'O20170206133443ZVJ3460', 'Vigentes', 2, 111, '#trabajadores-vigentes', '', 'Vigentes', 1, 2, 2, 'fa-check-square-o', '2017-07-13 14:59:09', '2017-02-06 16:34:43'),
-(100, 'J20170206131013IJT1805', 'Reportes y Archivos', 1, 0, '#', '#', 'Reportes y Archivos', 1, 2, 8, 'fa-folder-open', '2017-07-13 15:04:15', '2017-02-06 16:10:13'),
-(97, 'T20170203231417HBO4068', 'Tablas Estructurantes', 2, 1, '#tablas', NULL, 'Tablas Estructurantes', 1, 1, 23, 'fa-database', '2017-03-30 03:53:05', '2017-02-04 02:14:17'),
-(98, 'Y20170206124750RKU2865', 'Movimiento de Mes', 1, 0, '#', '#', 'Movimiento de Mes', 1, 2, 7, 'fa-cloud-upload', '2017-07-13 15:01:29', '2017-02-06 15:47:50'),
-(99, 'H20170206125415BID6522', 'Tablas / Variables Mes', 1, 0, '#', '#', 'Tablas / Variables Mes', 1, 1, 4, 'fa-bullseye', '2017-02-06 16:10:51', '2017-02-06 15:54:15'),
-(132, 'L20170322164630FUK6793', 'Orgánica', 2, 1, '#organica', NULL, 'Administración de la Orgánica', 1, 2, 9, 'fa fa-sitemap', '2017-07-13 15:07:34', '2017-03-22 20:46:31'),
-(133, 'C20170324163703ADA6565', 'Recaudadores', 2, 1, '#recaudadores', NULL, 'Recaudadores', 1, 1, 10, 'fa fa-university', '2017-03-24 20:37:04', '2017-03-24 20:37:04'),
-(134, 'S20170405140728OHL7430', 'Administración Empresas', 2, 1, '#empresas', NULL, 'Administración de Empresas', 1, 1, 5, 'fa-building', '2017-04-05 17:08:02', '2017-04-05 17:07:29'),
-(135, 'A20170502184207NSE7040', 'Vacaciones', 2, 98, '#trabajadores-vacaciones', NULL, 'Vacaciones', 1, 2, 8, 'fa-plane', '2017-07-13 15:03:38', '2017-05-02 21:42:08'),
+(100, 'J20170206131013IJT1805', 'Reportes y Archivos', 1, 0, '#', NULL, 'Reportes y Archivos', 1, 2, 8, 'fa-folder-open', '2017-07-13 15:04:15', '2017-02-06 16:10:13'),
+(97, 'T20170203231417HBO4068', 'Tablas Estructurantes', 2, 99, '#tablas', NULL, 'Tablas Estructurantes', 1, 1, 25, 'fa-database', '2018-05-17 16:19:22', '2017-02-04 02:14:17'),
+(98, 'Y20170206124750RKU2865', 'Movimiento de Mes', 1, 0, '#', NULL, 'Movimiento de Mes', 1, 2, 7, 'fa-cloud-upload', '2017-07-13 15:01:29', '2017-02-06 15:47:50'),
+(99, 'H20170206125415BID6522', 'Tablas / Variables Mes', 1, 0, '#', NULL, 'Tablas / Variables Mes', 1, 2, 4, 'fa-bullseye', '2018-05-17 17:00:20', '2017-02-06 15:54:15'),
+(132, 'L20170322164630FUK6793', 'Orgánica', 2, 1, '#organica', NULL, 'Administración de la Orgánica', 1, 2, 10, 'fa fa-sitemap', '2017-07-13 15:07:34', '2017-03-22 20:46:31'),
+(133, 'C20170324163703ADA6565', 'Recaudadores', 2, 1, '#recaudadores', NULL, 'Recaudadores', 1, 1, 11, 'fa fa-university', '2018-05-17 16:38:21', '2017-03-24 20:37:04'),
+(134, 'S20170405140728OHL7430', 'Administración Empresas', 2, 1, '#empresas', NULL, 'Administración de Empresas', 1, 1, 6, 'fa-building', '2017-04-05 17:08:02', '2017-04-05 17:07:29'),
+(135, 'A20170502184207NSE7040', 'Vacaciones', 2, 98, '#trabajadores-vacaciones', NULL, 'Vacaciones', 1, 2, 9, 'fa-plane', '2017-07-13 15:03:38', '2017-05-02 21:42:08'),
 (136, 'Q20170503122247ZFV2345', 'Certificados', 2, 100, '#certificados', NULL, 'Certificados', 1, 2, 4, 'fa-print', '2017-07-13 15:04:39', '2017-05-03 15:22:48'),
-(137, 'S20170505154919KUC2624', 'Cargos', 2, 1, '#cargos', NULL, 'Cargos', 1, 2, 14, 'fa-black-tie', '2017-07-13 15:06:43', '2017-05-05 18:49:20'),
-(138, 'K20170505155059YEA8746', 'Títulos', 2, 1, '#titulos', NULL, 'Títulos', 1, 2, 13, 'fa-graduation-cap', '2017-07-13 15:08:18', '2017-05-05 18:51:00'),
-(139, 'H20170510154252VKN6926', 'Cierre Mensual', 2, 1, '#cierre-mensual', NULL, 'Cierre Mensual', 1, 2, 24, 'fa-key', '2017-07-13 15:07:02', '2017-05-10 22:42:53'),
-(140, 'K20170802213841IRF9133', 'Tipos de Cargas Familiares', 2, 1, '#tipos-carga', NULL, 'Tipos de Cargas Familiares', 1, 2, 15, 'fa-user-o', '2017-08-03 01:40:52', '2017-08-03 01:38:42'),
-(141, 'L20170816084424KFM8165', 'Gestión de Cuentas', 2, 1, '#gestion-cuentas', NULL, 'Gestión de Cuentas', 1, 2, 6, 'fa-credit-card-alt', '2017-10-26 20:34:20', '2017-08-16 11:44:25'),
-(142, 'X20170822101745ZGF7621', 'Gratificación', 2, 1, '#gratificacion', NULL, 'Gratificación', 1, 2, 19, 'fa-usd', '2017-08-22 13:17:46', '2017-08-22 13:17:46'),
+(137, 'S20170505154919KUC2624', 'Cargos', 2, 1, '#cargos', NULL, 'Cargos', 1, 2, 15, 'fa-black-tie', '2017-07-13 15:06:43', '2017-05-05 18:49:20'),
+(138, 'K20170505155059YEA8746', 'Títulos', 2, 1, '#titulos', NULL, 'Títulos', 1, 2, 14, 'fa-graduation-cap', '2017-07-13 15:08:18', '2017-05-05 18:51:00'),
+(139, 'H20170510154252VKN6926', 'Cierre Mensual', 2, 164, '#cierre-mensual', NULL, 'Cierre Mensual', 1, 2, 26, 'fa-key', '2018-05-17 16:13:10', '2017-05-10 22:42:53'),
+(140, 'K20170802213841IRF9133', 'Tipos de Cargas Familiares', 2, 1, '#tipos-carga', NULL, 'Tipos de Cargas Familiares', 1, 1, 16, 'fa-user-o', '2018-05-17 16:40:23', '2017-08-03 01:38:42'),
+(141, 'L20170816084424KFM8165', 'Gestión de Cuentas', 2, 164, '#gestion-cuentas', NULL, 'Gestión de Cuentas', 1, 2, 7, 'fa-credit-card-alt', '2018-05-17 16:15:05', '2017-08-16 11:44:25'),
+(142, 'X20170822101745ZGF7621', 'Gratificación', 2, 164, '#gratificacion', NULL, 'Gratificación', 1, 2, 21, 'fa-usd', '2018-05-17 16:16:17', '2017-08-22 13:17:46'),
 (143, 'P20170825130728DYW1461', 'Trabajadores Semana Corrida', 2, 98, '#semana-corrida', NULL, 'Trabajadores Semana Corrida', 1, 2, 6, 'fa-calendar', '2017-08-25 16:07:29', '2017-08-25 16:07:29'),
-(144, 'Y20171002100753YES2058', 'Tabla Cajas Ex-Régimen', 2, 99, '#tabla-cajas', NULL, 'Tabla Cajas Ex-Régimen', 1, 2, 5, 'fa-table', '2017-10-02 13:07:54', '2017-10-02 13:07:54'),
+(144, 'Y20171002100753YES2058', 'Tabla Cajas Ex-Régimen', 2, 99, '#tabla-cajas', NULL, 'Tabla Cajas Ex-Régimen', 1, 2, 6, 'fa-table', '2017-10-02 13:07:54', '2017-10-02 13:07:54'),
 (145, 'Y20171024164752RJH7230', 'Empleados', 1, 0, '#empleados', NULL, 'Empleados', 1, 4, 2, 'fa-id-card-o', '2017-10-24 19:47:54', '2017-10-24 19:47:54'),
-(146, 'G20171026131847KSR3005', 'Centros de Costo', 2, 1, '#centro-costos', NULL, 'Centros de Costo', 1, 2, 4, 'fa-pie-chart', '2017-10-26 16:18:48', '2017-10-26 16:18:48'),
-(147, 'M20171026161204LEB6454', 'Tiendas', 2, 1, '#tiendas', NULL, 'Tiendas', 1, 2, 3, 'fa-shopping-bag', '2017-10-26 19:12:05', '2017-10-26 19:12:05'),
-(148, 'A20171026173315HXN9206', 'Cuentas', 2, 1, '#cuentas', NULL, 'Cuentas', 1, 2, 2, 'fa-usd', '2017-10-26 20:33:16', '2017-10-26 20:33:16'),
-(149, 'B20171031100246KTG2769', 'Documentos Empresa', 2, 1, '#documentos-empresa', NULL, 'Documentos Empresa', 1, 1, 1, 'fa-folder-open-o', '2017-10-31 13:02:47', '2017-10-31 13:02:47'),
-(150, 'T20171114115512ZQD3639', 'Acceso Empleados', 2, 1, '#empleados', NULL, 'Acceso Empleados', 1, 2, 16, 'fa fa-address-book', '2017-11-14 14:55:13', '2017-11-14 14:55:13'),
+(146, 'G20171026131847KSR3005', 'Centros de Costo', 2, 1, '#centro-costos', NULL, 'Centros de Costo', 1, 2, 5, 'fa-pie-chart', '2017-10-26 16:18:48', '2017-10-26 16:18:48'),
+(147, 'M20171026161204LEB6454', 'Tiendas', 2, 1, '#tiendas', NULL, 'Tiendas', 1, 2, 4, 'fa-shopping-bag', '2017-10-26 19:12:05', '2017-10-26 19:12:05'),
+(148, 'A20171026173315HXN9206', 'Cuentas', 2, 164, '#cuentas', NULL, 'Cuentas', 1, 2, 3, 'fa-usd', '2018-05-17 16:11:35', '2017-10-26 20:33:16'),
+(149, 'B20171031100246KTG2769', 'Documentos Empresa', 2, 100, '#documentos-empresa', NULL, 'Documentos Empresa', 1, 2, 2, 'fa-folder-open-o', '2018-05-17 17:00:46', '2017-10-31 13:02:47'),
+(150, 'T20171114115512ZQD3639', 'Acceso Empleados', 2, 1, '#empleados', NULL, 'Acceso Empleados', 1, 2, 18, 'fa fa-address-book', '2017-11-14 14:55:13', '2017-11-14 14:55:13'),
 (151, 'T20171114170008WMA6009', 'Documentos de la Empresa', 2, 145, '#documentos-de-empresa', NULL, 'Documentos de la Empresa', 1, 4, 1, 'fa fa-folder-open-o', '2017-11-14 20:00:09', '2017-11-14 20:00:09'),
 (152, 'B20171114170145CJV9340', 'Mis Liquidaciones de Sueldo', 2, 145, '#mis-liquidaciones', NULL, 'Mis Liquidaciones de Sueldo', 1, 4, 2, 'fa-files-o', '2017-11-14 20:01:46', '2017-11-14 20:01:46'),
 (153, 'B20171114170257QBE2209', 'Mis Cartas de Notificación', 2, 145, '#mis-cartas-notificacion', NULL, 'Mis Cartas de Notificación', 1, 4, 3, 'fa-envelope-o', '2017-11-14 20:02:58', '2017-11-14 20:02:58'),
 (154, 'I20171114170341BMC2728', 'Mis Certificados', 2, 145, '#mis-certificados', NULL, 'Mis Certificados', 1, 4, 5, 'fa-print', '2017-11-14 20:03:42', '2017-11-14 20:03:42'),
 (155, 'S20171114170557VKI3439', 'Solicitudes', 2, 145, '#solicitudes', NULL, 'Solicitudes', 1, 4, 7, 'fa fa-inbox', '2017-11-14 20:05:58', '2017-11-14 20:05:58'),
-(156, 'G20171204130334AAX7548', 'APVs', 2, 98, '#apvs', NULL, 'APVs', 1, 2, 7, 'fa-usd', '2017-12-04 16:03:35', '2017-12-04 16:03:35');
+(156, 'G20171204130334AAX7548', 'APVs', 2, 98, '#apvs', NULL, 'APVs', 1, 2, 7, 'fa-usd', '2017-12-04 16:03:35', '2017-12-04 16:03:35'),
+(157, 'D20171226094631JLM4606', 'Centralización', 2, 164, '#centralizacion', NULL, 'Centralización', 1, 2, 17, 'fa-refresh', '2018-05-17 16:11:10', '2017-12-26 12:46:32'),
+(158, 'U20180226160633FGZ1048', 'Factores de Actualización', 2, 99, '#factores-actualizacion', NULL, 'Factores de Actualización', 1, 2, 1, 'fa-thermometer-half', '2018-02-26 19:06:34', '2018-02-26 19:06:34'),
+(159, 'P20180404130333FMJ1237', 'Soporte Online', 2, 161, 'javascript:void(0)', 'openSoporteOnline', 'Soporte Online', 1, 3, 1, 'fa-external-link-square', '2018-05-07 19:45:03', '2018-04-04 16:03:34'),
+(160, 'D20180502144219UET1238', 'Atrasos', 2, 98, '#atrasos', NULL, 'Atrasos', 1, 2, 18, 'fa-hourglass-half', '2018-05-02 17:42:21', '2018-05-02 17:42:21'),
+(161, 'J20180507161828UXK9513', 'Soporte', 1, 0, '#', NULL, 'Soporte', 1, 3, 13, 'fa fa-child', '2018-05-07 19:25:38', '2018-05-07 19:18:29'),
+(162, 'U20180507163002MZG2945', 'Manual de Usuario', 2, 161, 'javascript:void(0)', 'openManualUsuario', 'Manual de Usuario', 1, 3, 2, 'fa fa-print', '2018-05-08 12:57:11', '2018-05-07 19:30:03'),
+(163, 'N20180507165256KDO9892', 'Configuración', 2, 1, '#configuracion', '', 'Configuración', 1, 2, 1, 'fa-cog', '2018-05-08 12:57:36', '2018-05-07 19:52:57'),
+(164, 'V20180517120847CLO5995', 'Cierres', 1, 0, '#', '', 'Cierres', 1, 2, 9, 'fa-toggle-on', '2018-05-17 16:09:40', '2018-05-17 16:08:48');
+
 
 -- --------------------------------------------------------
 
@@ -896,7 +904,7 @@ CREATE TABLE IF NOT EXISTS `menu_permisos` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `menu_id` (`menu_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=425 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=457 ;
 
 --
 -- Volcado de datos para la tabla `menu_permisos`
@@ -1323,9 +1331,42 @@ INSERT INTO `menu_permisos` (`id`, `menu_id`, `opcion`, `created_at`, `updated_a
 (418, 155, 'crear', '2017-11-14 17:05:58', '2017-11-14 17:05:58'),
 (419, 155, 'eliminar', '2017-11-14 17:05:58', '2017-11-14 17:05:58'),
 (420, 155, 'modificar', '2017-11-14 17:05:58', '2017-11-14 17:05:58'),
+(421, 156, 'ver', '2017-12-04 13:03:35', '2017-12-04 13:03:35'),
 (422, 156, 'crear', '2017-12-04 13:03:35', '2017-12-04 13:03:35'),
 (423, 156, 'eliminar', '2017-12-04 13:03:35', '2017-12-04 13:03:35'),
-(424, 156, 'modificar', '2017-12-04 13:03:35', '2017-12-04 13:03:35');
+(424, 156, 'modificar', '2017-12-04 13:03:35', '2017-12-04 13:03:35'),
+(425, 157, 'ver', '2017-12-26 09:46:32', '2017-12-26 09:46:32'),
+(426, 157, 'crear', '2017-12-26 09:46:32', '2017-12-26 09:46:32'),
+(427, 157, 'eliminar', '2017-12-26 09:46:32', '2017-12-26 09:46:32'),
+(428, 157, 'modificar', '2017-12-26 09:46:32', '2017-12-26 09:46:32'),
+(429, 158, 'ver', '2018-02-26 16:06:34', '2018-02-26 16:06:34'),
+(430, 158, 'crear', '2018-02-26 16:06:34', '2018-02-26 16:06:34'),
+(431, 158, 'eliminar', '2018-02-26 16:06:34', '2018-02-26 16:06:34'),
+(432, 158, 'modificar', '2018-02-26 16:06:34', '2018-02-26 16:06:34'),
+(433, 159, 'ver', '2018-04-04 13:03:34', '2018-04-04 13:03:34'),
+(434, 159, 'crear', '2018-04-04 13:03:34', '2018-04-04 13:03:34'),
+(435, 159, 'eliminar', '2018-04-04 13:03:34', '2018-04-04 13:03:34'),
+(436, 159, 'modificar', '2018-04-04 13:03:34', '2018-04-04 13:03:34'),
+(437, 160, 'ver', '2018-05-02 14:42:21', '2018-05-02 14:42:21'),
+(438, 160, 'crear', '2018-05-02 14:42:21', '2018-05-02 14:42:21'),
+(439, 160, 'eliminar', '2018-05-02 14:42:21', '2018-05-02 14:42:21'),
+(440, 160, 'modificar', '2018-05-02 14:42:21', '2018-05-02 14:42:21'),
+(441, 161, 'ver', '2018-05-07 16:18:29', '2018-05-07 16:18:29'),
+(442, 161, 'crear', '2018-05-07 16:18:29', '2018-05-07 16:18:29'),
+(443, 161, 'eliminar', '2018-05-07 16:18:29', '2018-05-07 16:18:29'),
+(444, 161, 'modificar', '2018-05-07 16:18:29', '2018-05-07 16:18:29'),
+(445, 162, 'ver', '2018-05-07 16:30:03', '2018-05-07 16:30:03'),
+(446, 162, 'crear', '2018-05-07 16:30:03', '2018-05-07 16:30:03'),
+(447, 162, 'eliminar', '2018-05-07 16:30:03', '2018-05-07 16:30:03'),
+(448, 162, 'modificar', '2018-05-07 16:30:04', '2018-05-07 16:30:04'),
+(449, 163, 'ver', '2018-05-07 16:52:57', '2018-05-07 16:52:57'),
+(450, 163, 'crear', '2018-05-07 16:52:57', '2018-05-07 16:52:57'),
+(451, 163, 'eliminar', '2018-05-07 16:52:57', '2018-05-07 16:52:57'),
+(452, 163, 'modificar', '2018-05-07 16:52:57', '2018-05-07 16:52:57'),
+(453, 164, 'ver', '2018-05-17 12:08:48', '2018-05-17 12:08:48'),
+(454, 164, 'crear', '2018-05-17 12:08:48', '2018-05-17 12:08:48'),
+(455, 164, 'eliminar', '2018-05-17 12:08:48', '2018-05-17 12:08:48'),
+(456, 164, 'modificar', '2018-05-17 12:08:48', '2018-05-17 12:08:48');
 
 
 -- --------------------------------------------------------
@@ -2527,6 +2568,8 @@ CREATE TABLE IF NOT EXISTS `usuarios_perfil_detalles` (
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+
 
 -- --------------------------------------------------------
 

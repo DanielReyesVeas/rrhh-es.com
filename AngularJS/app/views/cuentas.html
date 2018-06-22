@@ -26,8 +26,8 @@
               <span ng-if="cuenta.comportamiento===2">Haber</span>
             </td>
             <td class="text-right">
-              <a href="" ng-if="accesos.editar" ng-click="open(cuenta)"><i class="fa fa fa fa-pencil"></i></a>
-              <a href="" ng-if="accesos.eliminar" confirmation-click="eliminar(cuenta)" confirmation-needed="La Cuenta <b>{{cuenta.nombre}}</b> será eliminada del sistema. ¿Desea continuar?"><i class="fa fa fa fa-trash"></i></a>
+              <a href="" ng-if="accesos.editar" ng-click="open(cuenta)" uib-tooltip-html="toolTipEditar(cuenta.nombre)"><i class="fa fa fa fa-pencil"></i></a>
+              <a href="" ng-if="accesos.eliminar" confirmation-click="eliminar(cuenta)" confirmation-needed="La Cuenta <b>{{cuenta.nombre}}</b> será eliminada del sistema. ¿Desea continuar?" uib-tooltip-html="toolTipEliminar(cuenta.nombre)"><i class="fa fa fa fa-trash"></i></a>
             </td>
           </tr>
         </tbody>

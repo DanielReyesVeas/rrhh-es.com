@@ -22,7 +22,7 @@ angular.module('angularjsApp')
       var datos = trabajador.trabajadoresVacaciones().get();
       datos.$promise.then(function(response){
         $scope.datos = response.datos;
-        $scope.accesos = response.accesos;
+        $scope.accesos = response.accesos;        
         $rootScope.cargando = false;
         $scope.cargado = true;
       });
@@ -64,7 +64,8 @@ angular.module('angularjsApp')
       $rootScope.cargando=true;
       var datos = trabajador.vacaciones().get({sid: obj.sid});
       datos.$promise.then(function(response){
-        var fechas = crearModels(response.datos);
+        var fechas = crearModels(response.datos);        
+        $scope.fechas = { primerMes : response.primerMes, ultimoMes : response.ultimoMes };
         openDetalleVacaciones( response, fechas );
         $rootScope.cargando=false;
       });
@@ -109,6 +110,9 @@ angular.module('angularjsApp')
           },
           feriados: function () {
             return fechas.feriados;          
+          },
+          fechas: function () {
+            return $scope.fechas;          
           }
         }
       });
@@ -263,7 +267,7 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormDetalleVacacionesCtrl', function ($rootScope, vacaciones, fecha, tomadas, feriados, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, trabajador) { 
+  .controller('FormDetalleVacacionesCtrl', function ($rootScope, vacaciones, fechas, fecha, tomadas, feriados, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, trabajador) { 
     
     $scope.trabajador = angular.copy(objeto.datos);
     $scope.accesos = angular.copy(objeto.accesos);
@@ -271,6 +275,7 @@ angular.module('angularjsApp')
     $scope.vacaciones = { dias : null };
     $scope.tomadas = angular.copy(tomadas);
     $scope.feriados = angular.copy(feriados);
+    $scope.fechas = angular.copy(fechas);
 
     function cargarDatos(tra){
       $rootScope.cargando=true;
@@ -282,7 +287,9 @@ angular.module('angularjsApp')
         var fechas = crearModels(response.datos);
         $scope.tomadas = fechas.tomadas;
         $scope.feriados = fechas.feriados;
+        $scope.fechas = { primerMes : response.primerMes, ultimoMes : response.ultimoMes };
         $rootScope.cargando=false;
+        console.log($scope.fechas)
       });
     };
 
@@ -356,6 +363,9 @@ angular.module('angularjsApp')
           },
           feriados: function () {
             return $scope.feriados;          
+          },
+          fechas: function () {
+            return $scope.fechas;          
           }
         }
       });
@@ -409,7 +419,7 @@ angular.module('angularjsApp')
       dias = $scope.trabajador.vacacionesIniciales;
     }
     
-    $scope.vacaciones = { dias : dias, desde : 'mesIngreso' };
+    $scope.vacaciones = { dias : dias, desde : 'i' };
     console.log($scope.vacaciones)
 
     $scope.recalcular = function(){
@@ -417,18 +427,15 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormIngresoVacacionesCtrl', function ($rootScope, tomadas, feriados, fecha, $uibModal, vacaciones, $filter, Notification, $scope, $uibModalInstance, objeto) { 
+  .controller('FormIngresoVacacionesCtrl', function ($rootScope, fechas, tomadas, feriados, fecha, $uibModal, vacaciones, $filter, Notification, $scope, $uibModalInstance, objeto) { 
 
     $scope.trabajador = angular.copy(objeto);
     $scope.selectedDates = [];
     var disabledDates = angular.copy(tomadas.concat(feriados));
-    console.log(feriados)
-    console.log(tomadas)
-    console.log(disabledDates)
     $scope.totalDias = 0;
     $scope.activeDate = fecha.fechaActiva();
-    var ultimoMes = $rootScope.globals.currentUser.empresa.ultimoMes.fechaRemuneracion;
-    var primerMes = $rootScope.globals.currentUser.empresa.primerMes.mes;
+    var ultimoMes = fechas.ultimoMes.fechaRemuneracion;
+    var primerMes = fechas.primerMes.mes;
     
     $scope.isSelect = false;
 
@@ -439,9 +446,11 @@ angular.module('angularjsApp')
       minDate: fecha.convertirFecha(primerMes),
       customClass: function(data) {
         if(tomadas.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
-          return '';
+          return 'selected2';
         }else if(feriados.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
           return 'selected';
+        }else if($scope.selectedDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
+          return 'selected3';
         }else{
           return '';
         }
@@ -468,6 +477,7 @@ angular.module('angularjsApp')
         $scope.selectedDates.splice($scope.selectedDates.indexOf(dt), 1);
         $scope.activeDate = null;
       }
+      $scope.select();
     }
 
     $scope.select = function(){

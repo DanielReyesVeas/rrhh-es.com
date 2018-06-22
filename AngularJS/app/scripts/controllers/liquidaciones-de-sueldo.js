@@ -410,6 +410,18 @@ angular.module('angularjsApp')
       });
     };
 
+    $scope.toolTipGenerar = function( nombre ){
+      return 'Generar liquidación de <b>' + nombre + '</b>';
+    };
+
+    $scope.toolTipRegenerar = function( nombre ){
+      return 'Regenerar liquidación de <b>' + nombre + '</b>';
+    };
+
+    $scope.toolTipEliminar = function( nombre ){
+      return 'Eliminar liquidación de <b>' + nombre + '</b>';
+    };
+
   })
   .controller('FormFrameCtrl', function ($scope, $sce, masivo, $uibModal, constantes, $filter, $uibModalInstance, objeto, Notification, $rootScope) {    
     $scope.masivo = angular.copy(masivo);

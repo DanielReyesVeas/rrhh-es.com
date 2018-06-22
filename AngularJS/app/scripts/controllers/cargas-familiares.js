@@ -328,7 +328,8 @@ angular.module('angularjsApp')
       }else{
         var car = $scope.cargaGeneral;        
       }
-      var Carga = { idTrabajador : $scope.trabajador.id, esCarga : car.esCarga, rut : car.rut, parentesco : car.parentesco, nombreCompleto : car.nombreCompleto, fechaNacimiento : car.fechaNacimiento, fechaAutorizacion : car.fechaAutorizacion, fechaPagoDesde : car.fechaPagoDesde, fechaPagoHasta : car.fechaPagoHasta, sexo : car.sexo, tipo : car.tipo.id };
+
+      var Carga = { idTrabajador : $scope.carga.trabajador.id, esCarga : car.esCarga, rut : car.rut, parentesco : car.parentesco, nombreCompleto : car.nombreCompleto, fechaNacimiento : car.fechaNacimiento, fechaAutorizacion : car.fechaAutorizacion, fechaPagoDesde : car.fechaPagoDesde, fechaPagoHasta : car.fechaPagoHasta, sexo : car.sexo, tipo : car.tipo.id };
 
       if( car.sid ){
         response = carga.datos().update({sid:car.sid}, Carga);
@@ -338,7 +339,7 @@ angular.module('angularjsApp')
       response.$promise.then(
         function(response){
           if(response.success){
-            $uibModalInstance.close({ mensaje : response.mensaje, sidTrabajador : $scope.trabajador.sid });
+            $uibModalInstance.close({ mensaje : response.mensaje, sidTrabajador : $scope.carga.trabajador.sid });
           }else{
             // error
             $scope.erroresDatos = response.errores;

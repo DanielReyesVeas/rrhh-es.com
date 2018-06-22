@@ -147,25 +147,26 @@ angular.module('angularjsApp')
   })
   .controller('FormInasistenciasCtrl', function ($rootScope, Notification, trabajador, $scope, $uibModalInstance, objeto, inasistencia, fecha) {
 
-    var mesActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
-
-    $scope.selectedDates = [];
     var disabledDates = [];
     $scope.totalDias = 0;
-    $scope.activeDate = fecha.fechaActiva();
-    var ultimoMes = $rootScope.globals.currentUser.empresa.ultimoMes.fechaRemuneracion;
-    var primerMes = $rootScope.globals.currentUser.empresa.primerMes.mes;
     $scope.isTrabajador = false;
 
     if(objeto.datos){
       $scope.titulo = 'Inasistencias';
       $scope.encabezado = 'Modificación Inasistencia';
-      $scope.inasistencia = angular.copy(objeto.datos)
+      $scope.inasistencia = angular.copy(objeto.datos);
+      $scope.inasistencia.selectedDates = [];
+      $scope.inasistencia.activeDate = fecha.fechaActiva();
       $scope.isEdit = true;
-    }else{
+    }else{      
       $scope.isEdit = false;
       $scope.inasistencia = { observacion : null };
       $scope.trabajadores = angular.copy(objeto.trabajadores);
+      $scope.inasistencia.selectedDates = [];
+      $scope.inasistencia.activeDate = fecha.fechaActiva();
+      $scope.fechas = { primerMes : objeto.primerMes, ultimoMes : objeto.ultimoMes };
+      var ultimoMes = $scope.fechas.ultimoMes.fechaRemuneracion;
+      var primerMes = $scope.fechas.primerMes.mes;
       $scope.titulo = 'Inasistencias';
       $scope.encabezado = 'Nueva Inasistencia';
     }
@@ -181,10 +182,13 @@ angular.module('angularjsApp')
       maxDate: fecha.convertirFecha(ultimoMes),
       minDate: fecha.convertirFecha(primerMes),
       customClass: function(data) {
-        if($scope.selectedDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
-          return 'selected';
+        if($scope.inasistencia.selectedDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
+          return 'selected3';
+        }else if(disabledDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
+          return 'selected2';
+        }else{
+          return '';
         }
-        return '';
       }
     }    
 
@@ -196,28 +200,29 @@ angular.module('angularjsApp')
 
     $scope.removeFromSelected = function(dt) {
       var otherDate;
-      if($scope.selectedDates.length>1){
-        if($scope.selectedDates.indexOf(dt)==1){
-          otherDate = $scope.selectedDates[0];
+      if($scope.inasistencia.selectedDates.length>1){
+        if($scope.inasistencia.selectedDates.indexOf(dt)==1){
+          otherDate = $scope.inasistencia.selectedDates[0];
         }else{
-          otherDate = $scope.selectedDates[1];
+          otherDate = $scope.inasistencia.selectedDates[1];
         }
-        $scope.selectedDates = [otherDate];
-        $scope.activeDate = otherDate;
+        $scope.inasistencia.selectedDates = [otherDate];
+        $scope.inasistencia.activeDate = otherDate;
       }else{
-        $scope.selectedDates.splice($scope.selectedDates.indexOf(dt), 1);
-        $scope.activeDate = null;
+        $scope.inasistencia.selectedDates.splice($scope.inasistencia.selectedDates.indexOf(dt), 1);
+        $scope.inasistencia.activeDate = null;
       }
+      $scope.select();
     }
 
     $scope.select = function(){
       $scope.totalDias = contarDias();
-      $scope.isSelect = ($scope.selectedDates.length > 0);
+      $scope.isSelect = ($scope.inasistencia.selectedDates.length > 0);
     }
 
     function contarDias(){
       var cont = 0;
-      for(var i=0,len=$scope.selectedDates.length; i<len; i++){
+      for(var i=0,len=$scope.inasistencia.selectedDates.length; i<len; i++){
         cont++;
       }
       return cont;
@@ -264,8 +269,7 @@ angular.module('angularjsApp')
       $rootScope.cargando=true;
       var datos = trabajador.inasistencias().get({sid: $scope.inasistencia.trabajador.sid});
       datos.$promise.then(function(response){
-        disabledDates = crearModels(response.datos);
-        console.log(disabledDates)
+        disabledDates = crearModels(response.datos);        
         $scope.isTrabajador = true;
         $scope.trabajador = response.datos;
         $rootScope.cargando=false;
@@ -276,19 +280,19 @@ angular.module('angularjsApp')
       var mes, desde, hasta;
       var arr = []; 
 
-      if($scope.selectedDates.length==1){
-        var desde = fecha.convertirFechaFormato($scope.selectedDates[0]);
+      if($scope.inasistencia.selectedDates.length==1){
+        var desde = fecha.convertirFechaFormato($scope.inasistencia.selectedDates[0]);
         var obj = { idTrabajador : $scope.trabajador.id, motivo : $scope.inasistencia.motivo, observacion : $scope.inasistencia.observacion, mes : fecha.convertirFechaFormato((fecha.obtenerMes(desde))), desde : desde, hasta : desde, dias : 1 };
         arr.push(obj);
       }else{        
         var mesGuardado;
         var mesAnterior = null;
-        $scope.selectedDates.sort();
-        for(var i=0,len=$scope.selectedDates.length; i<len; i++){
-          mes = new Date($scope.selectedDates[i]).getMonth();
+        $scope.inasistencia.selectedDates.sort();
+        for(var i=0,len=$scope.inasistencia.selectedDates.length; i<len; i++){
+          mes = new Date($scope.inasistencia.selectedDates[i]).getMonth();
 
           if(i==0){
-            desde = fecha.convertirFechaFormato($scope.selectedDates[0]);
+            desde = fecha.convertirFechaFormato($scope.inasistencia.selectedDates[0]);
           }else{
             if(mes==mesAnterior){       
               if((i + 1)==len){
@@ -299,9 +303,9 @@ angular.module('angularjsApp')
                   obj.idTrabajador = $scope.trabajador.id;
                   obj.observacion = $scope.inasistencia.observacion;
                   obj.motivo = $scope.inasistencia.motivo;
-                  obj.hasta = fecha.convertirFechaFormato($scope.selectedDates[i]);
+                  obj.hasta = fecha.convertirFechaFormato($scope.inasistencia.selectedDates[i]);
                   obj.dias = contarDiasMes(obj.desde, obj.hasta);
-                  desde = fecha.convertirFechaFormato($scope.selectedDates[i]);
+                  desde = fecha.convertirFechaFormato($scope.inasistencia.selectedDates[i]);
                   mesGuardado = obj.mes;
                   arr.push(obj);
                 }
@@ -314,7 +318,7 @@ angular.module('angularjsApp')
                 obj.idTrabajador = $scope.trabajador.id;
                 obj.observacion = $scope.inasistencia.observacion;
                 obj.motivo = $scope.inasistencia.motivo;
-                obj.hasta = fecha.convertirFechaFormato($scope.selectedDates[i-1]);
+                obj.hasta = fecha.convertirFechaFormato($scope.inasistencia.selectedDates[i-1]);
                 obj.dias = contarDiasMes(obj.desde, obj.hasta);
                 mesGuardado = obj.mes;
                 arr.push(obj);
@@ -361,116 +365,5 @@ angular.module('angularjsApp')
         }
       }
     }
-
-    // Fecha
-    $scope.dateOptions = {
-      formatYear: 'yy',
-      maxDate: fecha.convertirFecha(mesActual.fechaRemuneracion),
-      minDate: fecha.convertirFecha(mesActual.mes),
-      startingDay: 1
-    };  
-
-    $scope.openFechaHasta = function() {
-      $scope.popupFechaHasta.opened = true;
-    };
-
-    $scope.openFechaDesde = function() {
-      $scope.popupFechaDesde.opened = true;
-    };
-
-    $scope.format = ['dd-MMMM-yyyy'];
-
-    $scope.popupFechaHasta = {
-      opened: false
-    };
-    $scope.popupFechaDesde = {
-      opened: false
-    };
-
-    /*var mesActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
-    
-    if(objeto.trabajador){
-      $scope.trabajador = angular.copy(objeto.trabajador);
-      $scope.inasistencia = angular.copy(objeto);
-      $scope.inasistencia.desde = fecha.convertirFecha($scope.inasistencia.desde);
-      $scope.inasistencia.hasta = fecha.convertirFecha($scope.inasistencia.hasta);
-      $scope.isEdit = true;
-      $scope.titulo = 'Modificación Inasistencia';
-    }else{
-      $scope.trabajador = angular.copy(objeto);
-      $scope.isEdit = false;
-      $scope.titulo = 'Ingreso Inasistencia';
-      $scope.inasistencia = { desde : fecha.fechaActiva(), hasta : fecha.fechaActiva() };
-    }
-
-    $scope.motivos = [
-                      { id : 1, nombre : 'Falta sin aviso' },
-                      { id : 2, nombre : 'Permiso sin goce de sueldo' }
-    ];
-
-    $scope.guardar = function(inasist, trabajador){
-      console.log(inasist)
-      $rootScope.cargando=true;
-      var mes = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
-      var response;
-      if(inasist.desde==fecha.fechaActiva()){
-        inasist.desde = fecha.convertirFecha(fecha.convertirFechaFormato(inasist.desde));
-      }
-      if(inasist.hasta==fecha.fechaActiva()){
-        inasist.hasta = fecha.convertirFecha(fecha.convertirFechaFormato(inasist.hasta));
-      }
-      var Inasistencia = { idTrabajador : trabajador.id, idMes : mes.id, desde : inasist.desde, hasta : inasist.hasta, dias : inasist.dias, motivo : inasist.motivo, observacion : inasist.observacion };
-
-      if( $scope.inasistencia.sid ){
-        response = inasistencia.datos().update({sid:$scope.inasistencia.sid}, Inasistencia);
-      }else{
-        response = inasistencia.datos().create({}, Inasistencia);
-      }
-      response.$promise.then(
-        function(response){
-          if(response.success){
-            $uibModalInstance.close({ mensaje : response.mensaje, sidTrabajador : trabajador.sid });
-          }else{
-            // error
-            $scope.erroresDatos = response.errores;
-            Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
-          }
-          $rootScope.cargando=false;
-        }
-      );
-    }
-
-    $scope.calcularDias = function(){
-      if($scope.inasistencia.desde && $scope.inasistencia.hasta){
-        $scope.inasistencia.dias = (($scope.inasistencia.hasta - $scope.inasistencia.desde) / 86400000 + 1);
-      }
-    }
-    
-    // Fecha
-
-    $scope.dateOptions = {
-      formatYear: 'yy',
-      maxDate: fecha.convertirFecha(mesActual.fechaRemuneracion),
-      minDate: fecha.convertirFecha(mesActual.mes),
-      startingDay: 1
-    };  
-
-    $scope.openFechaHasta = function() {
-      $scope.popupFechaHasta.opened = true;
-    };
-
-    $scope.openFechaDesde = function() {
-      $scope.popupFechaDesde.opened = true;
-    };
-
-    $scope.format = ['dd-MMMM-yyyy'];
-
-    $scope.popupFechaHasta = {
-      opened: false
-    };
-
-    $scope.popupFechaDesde = {
-      opened: false
-    };*/
 
   });

@@ -184,10 +184,7 @@ class Usuario extends Eloquent implements UserInterface, RemindableInterface {
         $opciones[4]->check = true;
         
         return $opciones;
-    }
-    
-    
-    
+    }    
     
     public function misLiquidaciones($anioRemuneracion)
     {        

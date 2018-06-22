@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.7.4');
+define('VERSION_SISTEMA', '1.7.5');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -1249,6 +1249,36 @@ Route::get('crear-cuentas-centros-costo', function(){
                         }
                     }
                 }
+            }
+        }
+        
+    }else{
+        echo "Sin Usuarios";
+    }
+});
+
+Route::get('crear-cuentas', function(){
+
+    Config::set('database.default', 'principal' );
+    $empresas = Empresa::all();
+    
+    if($empresas->count()){
+        foreach($empresas as $empresa){
+            Config::set('database.default', $empresa->base_datos);
+            $aportes = Aporte::all();
+            $haberes = TipoHaber::all();
+            $descuentos = TipoDescuento::all();
+            foreach($aportes as $aporte){
+                $aporte->cuenta_id = 176;
+                $aporte->save();
+            }
+            foreach($haberes as $haber){
+                $haber->cuenta_id = 172;
+                $haber->save();
+            }
+            foreach($descuentos as $descuento){
+                $descuento->cuenta_id = 176;
+                $descuento->save();
             }
         }
         

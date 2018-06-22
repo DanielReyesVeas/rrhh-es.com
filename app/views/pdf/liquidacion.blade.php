@@ -403,7 +403,7 @@
                   <tr>
                     <td width="400">Trabajador : <b>{{ $liquidacion['nombreCompleto'] }}</b></td>
                     <td rowspan="3">
-                        <img align="center" height="70" width="150" style="margin:0 auto; display: block;" src="<?php echo $liquidacion['logoEmpresa']; ?>" alt="<?php echo $liquidacion['empresa']['razon_social']; ?>" tabindex="0">  
+                        <img align="center" height="100" width="100" style="margin:0 auto; display: block;" src="<?php echo $liquidacion['logoEmpresa']; ?>" alt="<?php echo $liquidacion['empresa']['razon_social']; ?>" tabindex="0">  
                     </td>
                   </tr>
                   <tr>
@@ -418,7 +418,7 @@
                             Sección :  <b>{{ $liquidacion['seccion']['nombre'] }}</b>
                         @endif
                     </td>
-                    <td>RUT : <b>{{ $liquidacion['rutEmpresa'] }}</b></td> 
+                    <td></td> 
                   </tr>
                   <tr>
                     <td>
@@ -426,7 +426,7 @@
                             Cargo :  <b>{{ $liquidacion['cargo']['nombre'] }}</b>
                         @endif
                     </td>
-                    <td></td>                
+                    <td>RUT : <b>{{ $liquidacion['rutEmpresa'] }}</b></td>                
                   </tr>
                 @else
                     <tr>

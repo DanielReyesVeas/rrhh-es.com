@@ -147,7 +147,6 @@ angular.module('angularjsApp')
   })
   .controller('FormAtrasoCtrl', function ($rootScope, Notification, trabajador, $scope, $uibModalInstance, objeto, atraso, fecha) {
 
-    var mesActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
     $scope.isTrabajador = false;
 
     if(objeto.datos){
@@ -166,6 +165,8 @@ angular.module('angularjsApp')
       $scope.encabezado = 'Ingreso Atraso';
       $scope.atraso = { fecha : fecha.fechaActiva(), hora : fecha.fechaActiva(), observacion : null };
     }
+
+    var mesActual = objeto.mesActual;
 
     $scope.selectTrabajador = function(){
       $rootScope.cargando=true;

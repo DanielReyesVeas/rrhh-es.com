@@ -648,6 +648,7 @@ angular
                 function( response ) {
                     if(response.data.success){
                       $rootScope.globals.currentUser.empresa = response.data.empresa;
+                      console.log(response)
                       console.log($rootScope.globals.currentUser.empresa)
                       
                       $rootScope.globals.currentUser.menu = response.data.menu.menu;
@@ -697,8 +698,10 @@ angular
             request.then(
                 function( response ) {                
                     if(response.data.success){
+                      console.log(response)
                       $rootScope.globals.currentUser.empresa.mesDeTrabajo = response.data.mesActual;
                       $rootScope.globals.currentUser.listaMesesDeTrabajo = response.data.listaMesesDeTrabajo;
+                      console.log($rootScope.globals.currentUser)
                       $rootScope.globals.indicadores.uf = response.data.uf;
                       $rootScope.globals.indicadores.utm = response.data.utm;
                       $rootScope.globals.indicadores.uta = response.data.uta;                        

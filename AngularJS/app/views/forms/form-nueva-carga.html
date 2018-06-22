@@ -23,7 +23,7 @@
         </div>
       </div> 
 
-      <div class="col-sm-12" style="margin-top: 20px; padding: 0" ng-if="isTrabajador || carga.sid || cargaGeneral.sid">
+      <div class="col-sm-12" style="margin-top: 20px; padding: 0" ng-if="carga.trabajador || carga.sid || cargaGeneral.sid">
 
         <ul class="nav nav-tabs form-tabs" style="margin-bottom: 40px;">
           <li ng-class="{ 'active' : tabGeneral }"><a data-toggle="tab" ng-click="openTab('general')" ng-hide="tab==='detalle'"><label>General</label></a></li>

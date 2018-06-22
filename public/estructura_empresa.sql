@@ -1301,6 +1301,7 @@ CREATE TABLE IF NOT EXISTS `fichas_trabajadores` (
   `moneda_sindicato` varchar(50) DEFAULT NULL,
   `monto_sindicato` decimal(13,3) DEFAULT '0.000',
   `vacaciones` decimal(6,2) DEFAULT NULL,
+  `calculo_vacaciones` CHAR( 1 ) NULL DEFAULT  'i',
   `tramo_id` TINYTEXT NULL DEFAULT NULL,
   `zona_id` int(11) DEFAULT NULL,
   `estado` varchar(50) DEFAULT NULL,

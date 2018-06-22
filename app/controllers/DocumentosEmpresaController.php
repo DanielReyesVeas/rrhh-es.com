@@ -226,8 +226,7 @@ class DocumentosEmpresaController extends \BaseController {
                     'success' => true,
                     'mensaje' => "La Información fue almacenada correctamente",
                     'nombre' => $name,
-                    'a' => $datos,
-                    'as' => gettype($datos['publico'])
+                    'a' => $datos
                 );
             }else{
                 $respuesta=array(

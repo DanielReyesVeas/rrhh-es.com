@@ -1258,16 +1258,11 @@ class Trabajador extends Eloquent {
             $inicio = $desde;
             DB::table('vacaciones')->where('trabajador_id', $id)->delete();
         }else{
-            $inicio = $fichas['fecha_reconocimiento'];          
+            $inicio = $fichas['fecha_ingreso'];          
             DB::table('vacaciones')->where('trabajador_id', $id)->delete();
         }
         
-        if(count($fichas)){
-            $fichasTrabajador = FichaTrabajador::where('trabajador_id', $id)->get(); 
-            foreach($fichasTrabajador as $fichaTrabajador){
-                $fichaTrabajador->vacaciones = $dias;
-                $fichaTrabajador->save();
-            }
+        if(count($fichas)){            
             $inicio = Funciones::primerDia($inicio);
             $this->recalcularMisVacaciones($inicio, $fin->mes, $dias);
             
@@ -2390,7 +2385,7 @@ class Trabajador extends Eloquent {
     }
     
     public function sueldoDiario()
-    {        
+    {
         $sueldoBase = Funciones::convertir($this->ficha()->sueldo_base, $this->ficha()->moneda_sueldo);
         $sueldo_diario = ($sueldoBase / 30);
         
@@ -2399,13 +2394,11 @@ class Trabajador extends Eloquent {
     
     public function descuentoAtrasos()
     {
-        $mes = \Session::get('mesActivo');
-        $atrasos = Atraso::where('trabajador_id', $this->id)->where('fecha', $mes->mes)->get();
+        $totalAtrasos = $this->totalAtrasos();
         $total = 0;
         $descuento = 0;
         
-        if($atrasos->count()){
-            $totalAtrasos = $this->totalAtrasos();
+        if($totalAtrasos['atrasos']>0){
             $totalMinutos = $totalAtrasos['minutos'];
             $total = $totalAtrasos['total'];
             $ficha = $this->ficha();
@@ -2911,8 +2904,6 @@ class Trabajador extends Eloquent {
                         $descuentosLeasing += $descuento['montoPesos'];
                     }else if($descuento['tipo']['id']==9){
                         $descuentosSeguro += $descuento['montoPesos'];
-                    }else if($descuento['tipo']['id']==6){
-                        $otrosDescuentos += $descuento['montoPesos'];
                     }
                 }
             }
@@ -4026,16 +4017,17 @@ class Trabajador extends Eloquent {
                         if($gratificacion > $topeGratificacion){
                             $gratificacion = $topeGratificacion;
                         }  
-                        if($proporcional['licencias']){
-                            if($this->totalDiasLicencias()>0){
+                        if($proporcional['licencias'] || $proporcional['inasistencias']){
+                            if($proporcional['licencias'] && $this->totalDiasLicencias()>0){
                                 $diasTrabajados = $this->diasTrabajados();
                                 $gratificacion = (($gratificacion / 30) * $diasTrabajados);
+                            }else{
+                                if($proporcional['inasistencias'] && $this->totalInasistencias()>0){
+                                    $diasTrabajados = $this->diasTrabajados();
+                                    $gratificacion = (($gratificacion / 30) * $diasTrabajados);
+                                    
+                                } 
                             }
-                        }else if($proporcional['inasistencias']){
-                            if($this->totalInasistencias()>0){
-                                $diasTrabajados = $this->diasTrabajados();
-                                $gratificacion = (($gratificacion / 30) * $diasTrabajados);
-                            }   
                         }
                     }else{
                         $mes = \Session::get('mesActivo');

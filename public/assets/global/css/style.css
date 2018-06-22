@@ -132,7 +132,7 @@ body {
 
   height: 100%;
 
-  background: #F5F5F5;
+  background: #FFFFFF;
 
   color: #5B5B5B;
 
@@ -8400,7 +8400,7 @@ body:not(.fixed-sidebar):not(.fixed-topbar):not(.sidebar-top) .sidebar .logopane
 
 .main-content {
 
-  background: #F5F5F5;
+  background: #FFFFFF;
 
   margin-left: 240px;
 
@@ -8410,7 +8410,7 @@ body:not(.fixed-sidebar):not(.fixed-topbar):not(.sidebar-top) .sidebar .logopane
 
 .main-content .page-content {
 
-  background: #F5F5F5;
+  background: #FFFFFF;
 
   margin-top: 50px;
 

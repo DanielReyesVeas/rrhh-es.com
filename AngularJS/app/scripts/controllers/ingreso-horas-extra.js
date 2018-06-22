@@ -153,7 +153,6 @@ angular.module('angularjsApp')
   })
   .controller('FormHorasExtraCtrl', function ($rootScope, $filter, trabajador, Notification, tramos, $scope, $uibModalInstance, objeto, horaExtra, fecha) {
 
-    var mesActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
     $scope.isTrabajador = false;
 
     if(objeto.datos){
@@ -173,6 +172,7 @@ angular.module('angularjsApp')
       $scope.encabezado = 'Nueva Hora Extra';
       $scope.horaExtra = { fecha : fecha.fechaActiva() };
     }    
+    var mesActual = objeto.mesActual;
 
     $scope.jornadas = [
                       { id : 1, nombre : '4 x 3' },

@@ -16,17 +16,19 @@
             <thead>
               <tr>
                 <th class="col-sm-8">Institución</th>
-                <th class="col-sm-4">Total a Pagar</th>
+                <th class="col-sm-3">Total a Pagar</th>
+                <th class="col-sm-1"></th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="dato in afps">
-                <td>{{ dato.nombre }}</td>
+                <td>{{ dato.nombre }}</a></td>
                 <td>${{ dato.total | currency :"":0 }}</td>
+                <td><a href="" ng-click="detalleLarge(dato, 'afp')"><i class="fa fa-search"></i></td>
               </tr>
               <tr>
                 <td><b>SubTotal AFP:</b></td>
-                <td><b>${{ detalles.totalAfp | currency :"":0 }}</b></td>
+                <td colspan="2"><b>${{ detalles.totalAfp | currency :"":0 }}</b></td>
               </tr>
             </tbody>
           </table>
@@ -42,17 +44,19 @@
             <thead>
               <tr>
                 <th class="col-sm-8">Institución</th>
-                <th class="col-sm-4">Total a Pagar</th>
+                <th class="col-sm-3">Total a Pagar</th>
+                <th class="col-sm-1"></th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="dato in isapres">
                 <td>{{ dato.nombre }}</td>
                 <td>${{ dato.total | currency :"":0 }}</td>
+                <td><a href="" ng-click="detalle(dato)"><i class="fa fa-search"></i></td>
               </tr>
               <tr>
                 <td><b>SubTotal ISAPRE:</b></td>
-                <td><b>${{ detalles.totalIsapre | currency :"":0 }}</b></td>
+                <td colspan="2"><b>${{ detalles.totalIsapre | currency :"":0 }}</b></td>
               </tr>
             </tbody>
           </table>
@@ -68,21 +72,24 @@
             <thead>
               <tr>
                 <th class="col-sm-8">Institución</th>
-                <th class="col-sm-4">Total a Pagar</th>
+                <th class="col-sm-3">Total a Pagar</th>
+                <th class="col-sm-1"></th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>FONASA</td>
                 <td>${{ ipsFonasa.fonasa.total | currency :"":0 }}</td>
+                <td><a href="" ng-click="detalle(ipsFonasa.fonasa)"><i class="fa fa-search"></i></td>
               </tr>
               <tr ng-if="!empresa.isMutual">
                 <td>IPS</td>
                 <td>${{ ipsFonasa.isl.total | currency :"":0 }}</td>
+                <td><a href="" ng-click="detalle(ipsFonasa.isl)"><i class="fa fa-search"></i></td>
               </tr>
               <tr>
                 <td><b>SubTotal IPS / FONASA:</b></td>
-                <td><b>${{ detalles.totalIpsFonasa | currency :"":0 }}</b></td>
+                <td colspan="2"><b>${{ detalles.totalIpsFonasa | currency :"":0 }}</b></td>
               </tr>
             </tbody>
           </table>
@@ -98,17 +105,19 @@
             <thead>
               <tr>
                 <th class="col-sm-8">Institución</th>
-                <th class="col-sm-4">Total a Pagar</th>
+                <th class="col-sm-3">Total a Pagar</th>
+                <th class="col-sm-1"></th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>{{ mutual.nombre }}</td>
                 <td>${{ mutual.total | currency :"":0 }}</td>
+                <td><a href="" ng-click="detalle(mutual)"><i class="fa fa-search"></i></td>
               </tr>
               <tr>
                 <td><b>SubTotal MUTUAL:</b></td>
-                <td><b>${{ detalles.totalMutual | currency :"":0 }}</b></td>
+                <td colspan="2"><b>${{ detalles.totalMutual | currency :"":0 }}</b></td>
               </tr>
             </tbody>
           </table>
@@ -124,17 +133,19 @@
             <thead>
               <tr>
                 <th class="col-sm-8">Institución</th>
-                <th class="col-sm-4">Total a Pagar</th>
+                <th class="col-sm-3">Total a Pagar</th>
+                <th class="col-sm-1"></th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>{{ caja.nombre }}</td>
                 <td>${{ caja.total | currency :"":0 }}</td>
+                <td><a href="" ng-click="detalleLarge(caja, 'ccaf')"><i class="fa fa-search"></i></td>
               </tr>
               <tr>
                 <td><b>SubTotal CCAF:</b></td>
-                <td><b>${{ detalles.totalCaja | currency :"":0 }}</b></td>
+                <td colspan="2"><b>${{ detalles.totalCaja | currency :"":0 }}</b></td>
               </tr>
             </tbody>
           </table>

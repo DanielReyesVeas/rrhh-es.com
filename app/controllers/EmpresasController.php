@@ -192,8 +192,6 @@ class EmpresasController extends \BaseController {
         $empresas = Empresa::all();
         if($empresas->count() < $varGlobal->valor ){
 
-
-
             // al guardar una empresa se genera una base de datos nueva
             Config::set('database.default', 'principal' );
             $datos = $this->get_datos_formulario();
