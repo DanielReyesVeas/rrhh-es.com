@@ -356,6 +356,11 @@ angular
         controller: 'ConfiguracionCtrl',
         controllerAs: 'configuracion'
       })
+      .when('/sueldo-hora', {
+        templateUrl: 'views/sueldo-hora.html',
+        controller: 'SueldoHoraCtrl',
+        controllerAs: 'sueldoHora'
+      })
       .otherwise({
         redirectTo: '/login'
       });

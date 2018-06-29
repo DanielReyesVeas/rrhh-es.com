@@ -16,6 +16,9 @@
           <select class="form-control form-white" ng-model="calendario.anio" ng-options="anio as anio.nombre for anio in anios" ng-change="selectAnio()"> 
           </select>                
         </div>
+        <div class="col-sm-3 pull-right">
+          <a ng-click="openFestivos()" ng-if="accesos.crear && accesos.abierto" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-calendar"></i> Festivos</a>
+        </div>
 
         <div class="col-sm-12 text-center" style="margin-top: 40px; padding: 0;">
           <div class="btn-group">

@@ -255,6 +255,7 @@ angular.module('angularjsApp')
       datos.$promise.then(function(response){
         if(response.success){
           Notification.success({message: response.mensaje, title: 'Mensaje del Sistema'});
+          console.log(response)
           openLiquidacion(response.datos, true);
         }else{
           Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});

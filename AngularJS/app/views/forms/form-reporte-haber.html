@@ -17,16 +17,18 @@
         <table class="table table-striped table-hover" ng-show="haber.haberes.length>0">
           <thead>
             <tr>
+              <th class="col-sm-1">#</th>
               <th class="col-sm-2">RUT</th>
               <th class="col-sm-3">Nombre</th>
               <th class="col-sm-1">Temporalidad</th>
-              <th class="col-sm-3 text-center">Meses</th>
+              <th class="col-sm-2 text-center">Meses</th>
               <th class="col-sm-1">Monto</th>
               <th class="col-sm-1"></th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="dato in haber.haberes">
+              <td>{{ $index + 1 }}</td>
               <td>{{ dato.trabajador.rutFormato }}</td>
               <td>
                 <a href="javascript:void(0);" ng-click="reporteTrabajador(dato.trabajador)">{{ dato.trabajador.nombreCompleto }}</a>
@@ -42,8 +44,8 @@
                 <span ng-if="dato.permanente">
                   <span ng-if="dato.hasta && dato.desde">
                     <span style="color: #0a0;">{{ dato.desde }}</span>
-                     - 
-                     <span style="color: #ff3300;">{{ dato.hasta }}</span>
+                    - 
+                    <span style="color: #ff3300;">{{ dato.hasta }}</span>
                   </span>
                   <span ng-if="!dato.hasta && dato.desde">
                     <span style="color: #0a0;">Desde</span>

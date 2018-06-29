@@ -100,32 +100,42 @@ class TipoHaber extends Eloquent {
     	return $listaTiposHaber;
     }
     
-    public function misHaberes(){
-        
+    public function misHaberes()
+    {        
         $idTipoHaber = $this->id;
         $listaHaberes = array();
         $idMes = \Session::get('mesActivo')->id;
         $mes = \Session::get('mesActivo')->mes;
-        $misHaberes = Haber::where('tipo_haber_id', $idTipoHaber)->where('mes_id', $idMes)->orWhere('tipo_haber_id', $idTipoHaber)->where('permanente', 1)->orWhere('tipo_haber_id', $idTipoHaber)->where('rango_meses', 1)->where('desde', '<=', $mes)->where('hasta', '>=', $mes)->get();
+        $misHaberes = Haber::where('tipo_haber_id', $idTipoHaber)->where('mes_id', $idMes)
+                ->orWhere('permanente', 1)->where('tipo_haber_id', $idTipoHaber)
+                ->orWhere('hasta', '>=', $mes)->where('tipo_haber_id', $idTipoHaber)->get();
         
         if( $misHaberes->count() ){
             foreach($misHaberes as $haber){
-                $listaHaberes[] = array(
-                    'id' => $haber->id,
-                    'sid' => $haber->sid,
-                    'moneda' => $haber->moneda,
-                    'permanente' => $haber->permanente ? true : false,
-                    'porMes' => $haber->por_mes ? true : false,
-                    'rangoMeses' => $haber->rango_meses ? true : false,
-                    'monto' => $haber->monto,
-                    'trabajador' => $haber->trabajadorHaber(),
-                    'mes' => $haber->mes ? Funciones::obtenerMesAnioTextoAbr($haber->mes) : '',
-                    'desde' => $haber->desde ? Funciones::obtenerMesAnioTextoAbr($haber->desde) : '',
-                    'hasta' => $haber->hasta ? Funciones::obtenerMesAnioTextoAbr($haber->hasta) : '',
-                    'fechaIngreso' => date('Y-m-d H:i:s', strtotime($haber->created_at))
-                );
+                if($haber->permanente && !$haber->desde && !$haber->hasta 
+                || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
+                || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
+                || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
+                || !$haber->permanente){
+                    
+                    $listaHaberes[] = array(
+                        'id' => $haber->id,
+                        'sid' => $haber->sid,
+                        'moneda' => $haber->moneda,
+                        'permanente' => $haber->permanente ? true : false,
+                        'porMes' => $haber->por_mes ? true : false,
+                        'rangoMeses' => $haber->rango_meses ? true : false,
+                        'monto' => $haber->monto,
+                        'trabajador' => $haber->trabajadorHaber(),
+                        'mes' => $haber->mes ? Funciones::obtenerMesAnioTextoAbr($haber->mes) : '',
+                        'desde' => $haber->desde ? Funciones::obtenerMesAnioTextoAbr($haber->desde) : '',
+                        'hasta' => $haber->hasta ? Funciones::obtenerMesAnioTextoAbr($haber->hasta) : '',
+                        'fechaIngreso' => date('Y-m-d H:i:s', strtotime($haber->created_at))
+                    );
+                }
             }
         }
+        
         return $listaHaberes;
     }
     

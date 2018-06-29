@@ -191,6 +191,15 @@ return array(
         array('id'=>11, 'mes' => '11', 'value'=>'Noviembre'),
         array('id'=>12, 'mes' => '12', 'value'=>'Diciembre')
     ),
+    'dias' =>  array(
+        array('id'=>1, 'dia' => 'lunes', 'value'=>'Lunes'),
+        array('id'=>2, 'dia' => 'martes', 'value'=>'Martes'),
+        array('id'=>3, 'dia' => 'miercoles', 'value'=>'Miércoles'),
+        array('id'=>4, 'dia' => 'jueves', 'value'=>'Jueves'),
+        array('id'=>5, 'dia' => 'viernes', 'value'=>'Viernes'),
+        array('id'=>6, 'dia' => 'sabado', 'value'=>'Sábado'),
+        array('id'=>7, 'dia' => 'domingo', 'value'=>'Domingo')   
+    ),
     'tipo_menu'=> array(
         array( 'id' => 1, 'value' => 'Titulo'),
         array( 'id' => 2, 'value' => 'Opción')

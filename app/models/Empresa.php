@@ -219,6 +219,8 @@ class Empresa extends \Eloquent {
         }else{
             $configuraciones = new stdClass();
             $variables = DB::table('variables_globales')->get();
+            Config::set('database.default', $bd);
+            $festivos = DB::table('variables_sistema')->where('variable', 'festivos')->first();
             foreach($variables as $variable){
                 $nombre = $variable->variable;
                 if($variable->valor==1){
@@ -230,13 +232,42 @@ class Empresa extends \Eloquent {
                 }
                 $configuraciones->$nombre = $valor;
             }
+            $configuraciones->festivos = $festivos->valor1;
             $configuraciones->configuracion = $configuracion->valor;
-        }
+        }                
         
         \Session::set('configuracion', $configuraciones);
         Config::set('database.default', $bd);
         
         return $configuraciones;
+    }
+    
+    public function totalFestivos()
+    {
+        $configuracion = \Session::get('configuracion');
+        $festivos = $configuracion->festivos;
+        $total = substr_count($festivos, '1');
+        
+        return total;
+    }
+    
+    public function festivos()
+    {
+        $configuracion = \Session::get('configuracion');
+        $festivos = $configuracion->festivos;
+        $datos = array();
+        $dias = $meses = Config::get('constants.dias');
+        
+        for($i=0,$len=strlen($festivos); $i<$len; $i++){
+            $datos[] = array(
+                'id' => $dias[$i]['id'],
+                'dia' => $dias[$i]['dia'],
+                'nombre' => $dias[$i]['value'],
+                'festivo' => $festivos[$i] ? true : false
+            );
+        }
+            
+        return $datos;
     }
     
     static function variableConfiguracion($var)

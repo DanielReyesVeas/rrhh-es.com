@@ -274,7 +274,7 @@ angular.module('angularjsApp')
       $scope.objeto.fotografiaBase64='';      
       console.log($scope.objeto)
     }
-    
+    console.log($scope.objeto)
     $scope.imagen={};
     $scope.erroresDatos = {};
 
@@ -450,12 +450,13 @@ angular.module('angularjsApp')
       }, 1000);
     };
 
-    $scope.agregarZona = function(){
+    $scope.agregarZona = function(){      
       if($scope.isZona){
         $scope.isZona = false;
         $scope.isEdit = false;
       }else{
         $scope.tituloZona = 'Agregar Zona';
+        $scope.zona = { nombre : "", porcentaje : null };
         $scope.isZona = true;
       }
     }
@@ -472,6 +473,7 @@ angular.module('angularjsApp')
     }
 
     $scope.guardarZona = function(){
+      console.log($scope.zona)
       var zona = angular.copy($scope.zona);
       $scope.objeto.zonasImpuestoUnico.push(zona);
       $scope.isZona = false;

@@ -2765,6 +2765,12 @@ class TrabajadoresController extends \BaseController {
             $caja = array(
                 'nombre' => $empresa->caja->glosa,
                 'total' => 0,
+                'totalCotizacion' => 0,
+                'totalCreditos' => 0,
+                'totalDescuentoDental' => 0,
+                'totalLeasing' => 0,
+                'totalSeguro' => 0,
+                'totalOtros' => 0,
                 'trabajadores' => array()
             );
             $mutual = array(
@@ -3015,13 +3021,25 @@ class TrabajadoresController extends \BaseController {
                             );
                         }
                         //if($trab['cotizacionCcafNoAfiliadosIsapre']){
-                            $caja['total'] += (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf']);
-                            $caja['trabajadores'][] = array(
-                                'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
-                                'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
-                                'rentaImponible' => $trab['rentaImponibleCcaf'],
-                                'total' => (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf'])
-                            );
+                        $caja['total'] += (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf']);
+                        $caja['totalCotizacion'] += $trab['cotizacionCcafNoAfiliadosIsapre'];
+                        $caja['totalCreditos'] += $trab['creditosPersonalesCcaf'];
+                        $caja['totalDescuentoDental'] += $trab['descuentoDentalCcaf'];
+                        $caja['totalLeasing'] += $trab['descuentosLeasing'];
+                        $caja['totalSeguro'] += $trab['descuentosSeguroCcaf'];
+                        $caja['totalOtros'] += $trab['otrosDescuentosCcaf'];
+                        $caja['trabajadores'][] = array(
+                            'rut' => Funciones::formatear_rut($trab['rutSinDigito'] . $trab['rutDigito']),
+                            'nombreCompleto' => $trab['nombres'] . ' ' . $trab['apellidoPaterno'] . ' ' . $trab['apellidoMaterno'],
+                            'rentaImponible' => $trab['rentaImponibleCcaf'],
+                            'cotizacion' => $trab['cotizacionCcafNoAfiliadosIsapre'],
+                            'creditos' => $trab['creditosPersonalesCcaf'],
+                            'descuentoDental' => $trab['descuentoDentalCcaf'],
+                            'descuentosLeasing' => $trab['descuentosLeasing'],
+                            'descuentosSeguro' => $trab['descuentosSeguroCcaf'],
+                            'otrosDescuentos' => $trab['otrosDescuentosCcaf'],
+                            'total' => (($trab['cotizacionCcafNoAfiliadosIsapre'] + $trab['creditosPersonalesCcaf'] + $trab['descuentoDentalCcaf'] + $trab['descuentosLeasing'] + $trab['descuentosSeguroCcaf'] + $trab['otrosDescuentosCcaf']) - $trab['descuentoCargasFamiliaresCcaf'])
+                        );
                         //}
                         
                         if($trab['cotizacionAccidenteTrabajo']){
@@ -3133,6 +3151,7 @@ class TrabajadoresController extends \BaseController {
                             ),             
                             'fechaIngreso' => $empleado->fecha_ingreso,
                             'monedaSueldo' => $empleado->moneda_sueldo,
+                            'tipoSueldo' => $empleado->tipo_sueldo,
                             'sueldoBase' => $empleado->sueldo_base,
                             'contratoOrden' => $empleado->tipoContrato ? ucwords(strtolower($empleado->tipoContrato->nombre)) : "", 
                             'tipoContrato' => array(
@@ -3420,6 +3439,55 @@ class TrabajadoresController extends \BaseController {
         $datos = array(
             'datos' => $listaTrabajadores,
             'semanas' => $semanas,
+            'accesos' => $permisos
+        );
+        
+        return Response::json($datos);
+    }
+    
+    public function trabajadoresSueldoHora()
+    {
+        if(!\Session::get('empresa')){
+            return Response::json(array('datos' => array(), 'permisos' => array()));
+        }
+        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#sueldo-hora');
+        $trabajadores = Trabajador::all();        
+        $mes = \Session::get('mesActivo');
+        $finMes = $mes->fechaRemuneracion;
+        $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes->mes)));
+        
+        $listaTrabajadores=array();
+        if( $trabajadores->count() ){
+            foreach( $trabajadores as $trabajador ){
+                $empleado = $trabajador->ficha();
+                if($empleado){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes && $empleado->tipo_sueldo=='Por Hora' || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior && $empleado->tipo_sueldo=='Por Hora'){
+                        $listaTrabajadores[]=array(
+                            'id' => $trabajador->id,
+                            'sid' => $trabajador->sid,
+                            'rut' => $trabajador->rut,
+                            'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
+                            'cargo' => array(
+                                'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                            ),                     
+                            'fechaIngreso' => $empleado->fecha_ingreso, 
+                            'rutFormato' => $trabajador->rut_formato(),
+                            'sueldo' => $empleado->sueldo_base,
+                            'moneda' => $empleado->moneda_sueldo,
+                            'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                            'nombreCompleto' => $empleado->nombreCompleto(),
+                            'horas' => $empleado->horas
+                        );
+                    }
+                }
+            }
+        }        
+        
+        $listaTrabajadores = Funciones::ordenar($listaTrabajadores, 'apellidos');
+                
+        $datos = array(
+            'datos' => $listaTrabajadores,
             'accesos' => $permisos
         );
         
@@ -5765,6 +5833,8 @@ class TrabajadoresController extends \BaseController {
             $ficha->fecha_vencimiento = $datos['fecha_vencimiento'];
             $ficha->tipo_jornada_id = $datos['tipo_jornada_id'];
             $ficha->semana_corrida = $datos['semana_corrida'];
+            $ficha->tipo_sueldo = $datos['tipo_sueldo'];
+            $ficha->horas = $datos['horas'];
             $ficha->moneda_sueldo = $datos['moneda_sueldo'];
             $ficha->sueldo_base = $datos['sueldo_base'];
             $ficha->tipo_trabajador = $datos['tipo_trabajador'];
@@ -6701,6 +6771,8 @@ class TrabajadoresController extends \BaseController {
                 'montoGratificacion' => $gratificacion,
                 'proporcionalInasistencias' => $empleado->gratificacion_proporcional_inasistencias ? true : false,
                 'proporcionalLicencias' => $empleado->gratificacion_proporcional_licencias ? true : false,
+                'tipoSueldo' => $empleado->tipo_sueldo,
+                'horas' => $empleado->horas,
                 'sueldoBase' => $sueldoBase,
                 'tipoTrabajador' => $empleado->tipo_trabajador,
                 'excesoRetiro' => $empleado->exceso_retiro,
@@ -7255,7 +7327,8 @@ class TrabajadoresController extends \BaseController {
                     'totalSeguroCesantia' => $totalSeguroCesantia,
                     'totalDescuentosPrevisionales' => $totalDescuentosPrevisionales,
                     'totalDescuentos' => ($totalDescuentosPrevisionales + $totalOtrosDescuentos + $impuestoDeterminado),
-                    'baseImpuestoUnico' => $baseImpuestoUnico,
+                    'baseImpuestoUnico' => $baseImpuestoUnico['base'],
+                    'rebaja' => $baseImpuestoUnico['rebaja'],
                     'tramoImpuesto' => $tramoImpuesto,
                     'impuestoDeterminado' => $impuestoDeterminado,
                     'totalOtrosDescuentos' => $totalOtrosDescuentos,
@@ -7278,7 +7351,8 @@ class TrabajadoresController extends \BaseController {
                     'nombreDocumento' => $filename,
                     'aliasDocumento' => $alias,
                     'atrasos' => $atrasos,
-                    'logoEmpresa' => $logo
+                    'logoEmpresa' => $logo,
+                    'z' => $totalAfp
                 );
 
                 $documento = new Documento();
@@ -7334,7 +7408,8 @@ class TrabajadoresController extends \BaseController {
                 $liquidacion->tipo_contrato = $empleado->tipoContrato->nombre;
                 $liquidacion->sueldo_base = Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo);
                 $liquidacion->seguro_cesantia = $empleado->seguro_desempleo ? $empleado->seguro_desempleo : 0;
-                $liquidacion->base_impuesto_unico = $baseImpuestoUnico;
+                $liquidacion->base_impuesto_unico = $baseImpuestoUnico['base'];
+                $liquidacion->rebaja_zona = $baseImpuestoUnico['rebaja'];
                 $liquidacion->impuesto_determinado = $impuestoDeterminado;
                 $liquidacion->tramo_impuesto = $tramoImpuesto;
                 $liquidacion->imponibles = $sumaImponibles;
@@ -7890,6 +7965,8 @@ class TrabajadoresController extends \BaseController {
             $ficha->fecha_vencimiento = $datos['fecha_vencimiento'];
             $ficha->tipo_jornada_id = $datos['tipo_jornada_id'];
             $ficha->semana_corrida = $datos['semana_corrida'];
+            $ficha->tipo_sueldo = $datos['tipo_sueldo'];
+            $ficha->horas = $datos['horas'];
             $ficha->moneda_sueldo = $datos['moneda_sueldo'];
             $ficha->sueldo_base = $datos['sueldo_base'];
             $ficha->tipo_trabajador = $datos['tipo_trabajador'];
@@ -7993,6 +8070,8 @@ class TrabajadoresController extends \BaseController {
             'fecha_vencimiento' => Input::get('fechaVencimiento'),
             'tipo_jornada_id' => Input::get('tipoJornada')['id'],
             'semana_corrida' => Input::get('semanaCorrida'),
+            'tipo_sueldo' => Input::get('tipoSueldo'),
+            'horas' => Input::get('horas'),
             'moneda_sueldo' => Input::get('monedaSueldo'),
             'sueldo_base' => Input::get('sueldoBase'),
             'tipo_trabajador' => Input::get('tipoTrabajador'),

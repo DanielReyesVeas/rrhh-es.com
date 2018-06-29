@@ -199,6 +199,9 @@ angular.module('angularjsApp')
         resolve: {
           objeto: function () {
             return datos;          
+          },
+          detalle: function () {
+            return null;          
           }
         }
       });

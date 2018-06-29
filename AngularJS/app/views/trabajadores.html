@@ -83,6 +83,7 @@
               <td>
                 <span ng-if="trabajador.monedaSueldo==='$' && trabajador.sueldoBase>0">${{ trabajador.sueldoBase | currency :"":0 }}</span>
                 <span ng-if="trabajador.monedaSueldo!=='$' && trabajador.sueldoBase>0">{{ trabajador.sueldoBase }} {{ trabajador.monedaSueldo }}</span>
+                <span ng-if="trabajador.tipoSueldo=='Por Hora'"> / x hora</span>
               </td>
               <td>
                 <span class="text-success" ng-if="trabajador.estado==='Ingresado'">{{ trabajador.estado }}</span>

@@ -57,11 +57,11 @@ angular.module('angularjsApp')
         $scope.anios = response.anios;
         $scope.accesos = response.accesos;
         $rootScope.cargando = false;
-        open($scope.anios, $scope.accesos)
+        open($scope.anios, $scope.accesos, response.festivos)
       });
     }
 
-    function open(anios, accesos){
+    function open(anios, accesos, festivos){
       var miModal = $uibModal.open({
         animation: true,
         templateUrl: 'views/forms/form-calendario-semana-corrida.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
@@ -72,6 +72,9 @@ angular.module('angularjsApp')
           },
           anios: function () {
             return anios;          
+          },
+          festivos: function () {
+            return festivos;          
           }
         }
       });
@@ -89,10 +92,11 @@ angular.module('angularjsApp')
     };
 
   })
-  .controller('FormCalendarioSemanaCorridaCtrl', function ($rootScope, anio, fecha, anios, accesos, $uibModal, $filter, Notification, $scope, $uibModalInstance) { 
+  .controller('FormCalendarioSemanaCorridaCtrl', function ($rootScope, anio, fecha, anios, festivos, accesos, $uibModal, $filter, Notification, $scope, $uibModalInstance) { 
     
     var anioActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo.idAnio;
     $scope.anios = angular.copy(anios);
+    $scope.festivos = angular.copy(festivos);
     $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual }, true )[0] };
     $scope.accesos = angular.copy(accesos);
 
@@ -100,8 +104,11 @@ angular.module('angularjsApp')
       $rootScope.cargando = true;
       var datos = anio.calendario().get();
       datos.$promise.then(function(response){
+        console.log(response)
         $scope.anios = response.anios;
+        $scope.festivos = response.festivos;
         $scope.accesos = response.accesos;
+        $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual.id }, true )[0] };
         $rootScope.cargando = false;
       });
       anioActual = anioActual;
@@ -109,8 +116,28 @@ angular.module('angularjsApp')
     }
 
     $scope.selectAnio = function(){
-      $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual }, true )[0] };
       $scope.meses = $scope.calendario.anio.meses;
+    }
+
+    $scope.openFestivos = function(){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-festivos.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormFestivosCtrl',
+        resolve: {
+          objeto: function () {
+            return $scope.festivos;          
+          },
+          anioActual: function () {
+            return $scope.calendario.anio;          
+          }
+        }
+      });
+      miModal.result.then(function (obj) {
+        Notification.success({message: obj.mensaje, title: 'Mensaje del Sistema'});
+        cargarDatos(obj);
+      }, function () {
+      });
     }
 
     $scope.detalle = function(obj){
@@ -138,13 +165,37 @@ angular.module('angularjsApp')
       });
       miModal.result.then(function (obj) {
         Notification.success({message: obj.mensaje, title: 'Mensaje del Sistema'});
-        cargarDatos(obj.anio);
+        console.log(obj);
       }, function () {
       });
     };
 
     $scope.selectAnio();
-    
+  
+  })
+  .controller('FormFestivosCtrl', function ($rootScope, fecha, $uibModal, anioActual, anio, $filter, Notification, $scope, $uibModalInstance, objeto) { 
+
+    $scope.festivos = angular.copy(objeto);
+    $scope.anio = angular.copy(anioActual);
+
+    $scope.guardar = function(){
+      $rootScope.cargando=true;
+      var response;
+      response = anio.modificarFestivos().post({}, $scope.festivos);
+      response.$promise.then(
+        function(response){
+          if(response.success){
+            $uibModalInstance.close({ mensaje : response.mensaje, anio : $scope.anio});
+          }else{
+            // error
+            $scope.erroresDatos = response.errores;
+            Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
+          }
+          $rootScope.cargando=false;       
+        }
+      );
+    }
+  
   })
   .controller('FormMesFestivosCtrl', function ($rootScope, anio, anioActual, fecha, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, trabajador) { 
 

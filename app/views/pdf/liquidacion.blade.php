@@ -403,7 +403,7 @@
                   <tr>
                     <td width="400">Trabajador : <b>{{ $liquidacion['nombreCompleto'] }}</b></td>
                     <td rowspan="3">
-                        <img align="center" height="100" width="100" style="margin:0 auto; display: block;" src="<?php echo $liquidacion['logoEmpresa']; ?>" alt="<?php echo $liquidacion['empresa']['razon_social']; ?>" tabindex="0">  
+                        <img align="center" height="100" width="100" style="margin:0 auto;" src="<?php echo $liquidacion['logoEmpresa']; ?>" alt="<?php echo $liquidacion['empresa']['razon_social']; ?>" tabindex="0">  
                     </td>
                   </tr>
                   <tr>
@@ -479,7 +479,9 @@
                 <td>No Imponibles</td>
                 <td>Renta Imponible</td>
                 <td>Afec. Impuesto</td>
-                <td>Pacto Isapre</td>
+                @if($liquidacion['isapre']['id']!=246)
+                  <td>Pacto Isapre</td>
+                @endif
                 @if($configuracion->uf_liquidacion)
                   <td>UF</td>
                 @endif
@@ -496,13 +498,15 @@
                     {{ Funciones::formatoPesos(0) }} 
                   @endif
                 </td>
-                <td>
-                  @if($liquidacion['isapre']['id']!=240)
-                      {{ Funciones::formatoPesos($liquidacion['totalSalud']['total']) }}
-                  @else
-                      Funciones::formatoPesos(0) 
+                  @if($liquidacion['isapre']['id']!=246)
+                    <td>
+                      @if($liquidacion['isapre']['id']!=240)
+                          {{ Funciones::formatoPesos($liquidacion['totalSalud']['total']) }}
+                      @else
+                          Funciones::formatoPesos(0) 
+                      @endif
+                    </td>
                   @endif
-                </td>
                 @if($configuracion->uf_liquidacion)
                     <td> {{ Funciones::formatoPesos($liquidacion['uf'], true, false) }}</td>
                 @endif
@@ -688,7 +692,7 @@
                         <tr>
                           <td>Impuesto Único</td>
                           <td>{{ Funciones::formatoPesos($liquidacion['impuestoDeterminado']) }}</td>
-                        </tr> 
+                        </tr>   
                       @endif
                       @if(count($liquidacion['descuentos'])>0 || count($liquidacion['apvs'])>0 || count($liquidacion['prestamos'])>0)
                         <tr>
@@ -703,7 +707,7 @@
                         @endforeach
                         @foreach($liquidacion['prestamos'] as $prestamo)
                           <tr>
-                            <td style="padding-left: 10px;">{{ $prestamo['glosa'] }} ({{ $prestamo['numeroCuotaPagar'] }}/{{ $prestamo['cuotas'] }})</td>
+                            <td style="padding-left: 10px;">{{ $prestamo['nombreLiquidacion'] }} ({{ $prestamo['numeroCuotaPagar'] }}/{{ $prestamo['cuotas'] }})</td>
                             <td>{{ Funciones::formatoPesos($prestamo['montoCuotaPagar']) }}</td>
                           </tr>
                         @endforeach

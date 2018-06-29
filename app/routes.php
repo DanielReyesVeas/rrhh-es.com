@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.7.5');
+define('VERSION_SISTEMA', '1.7.6');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -1878,6 +1878,7 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::get('trabajadores/trabajadores-certificados/obtener', 'TrabajadoresController@trabajadoresCertificados');
     Route::get('trabajadores/trabajadores-vacaciones/obtener', 'TrabajadoresController@trabajadoresVacaciones');
     Route::get('trabajadores/trabajadores-semana-corrida/obtener', 'TrabajadoresController@trabajadoresSemanaCorrida');
+    Route::get('trabajadores/trabajadores-sueldo-hora/obtener', 'TrabajadoresController@trabajadoresSueldoHora');
     Route::get('trabajadores/vacaciones/obtener/{sid}', 'TrabajadoresController@trabajadorVacaciones');
     Route::get('trabajadores/cartas-notificacion/obtener/{sid}', 'TrabajadoresController@trabajadorCartasNotificacion');
     Route::get('trabajadores/finiquitos/obtener/{sid}', 'TrabajadoresController@trabajadorFiniquitos');
@@ -2057,6 +2058,7 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::post('anio-remuneracion/feriados/generar', 'AniosRemuneracionesController@feriados');
     Route::get('anio-remuneracion/calendario/obtener', 'AniosRemuneracionesController@calendario');
     Route::post('anio-remuneracion/feriados-vacaciones/generar', 'AniosRemuneracionesController@feriadosVacaciones');
+    Route::post('anio-remuneracion/feriados-semana-corrida/modificar', 'AniosRemuneracionesController@modificarFestivosSemanaCorrida');
     Route::get('anio-remuneracion/calendario-vacaciones/obtener', 'AniosRemuneracionesController@calendarioVacaciones');
     Route::post('anio-remuneracion/gratificacion/generar', 'AniosRemuneracionesController@gratificacion');
     Route::get('anio-remuneracion/datos-centralizacion/obtener/{sid}', 'AniosRemuneracionesController@datosCentralizacion');

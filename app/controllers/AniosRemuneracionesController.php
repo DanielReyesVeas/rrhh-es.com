@@ -198,8 +198,9 @@ class AniosRemuneracionesController extends \BaseController {
     
     public function calendario()
     {
-        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#semana-corrida');
-        
+        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#semana-corrida');        
+        $empresa = \Session::get('empresa');
+        $festivos = $empresa->festivos();
         $aniosRemuneraciones = AnioRemuneracion::all();
         $listaAniosRemuneraciones=array();
         
@@ -216,6 +217,7 @@ class AniosRemuneracionesController extends \BaseController {
 
         $datos=array(
             'anios' => $listaAniosRemuneraciones,
+            'festivos' => $festivos,
             'accesos' => $permisos
         );
         
@@ -437,6 +439,34 @@ class AniosRemuneracionesController extends \BaseController {
             );
         } 
         return Response::json($respuesta);*/
+    }
+    
+    public function modificarFestivosSemanaCorrida()
+    {
+        $datos = Input::all();
+        $festivos = '';
+        
+        foreach($datos as $dato){
+            if($dato['festivo']){
+                $festivos .= '1';
+            }else{
+                $festivos .= '0';
+            }
+        }
+        
+        $configuracion = VariableSistema::where('variable', 'festivos')->first();
+        $configuracion->valor1 = $festivos;
+        $configuracion->save();
+        Empresa::configuracion();
+        
+        $respuesta = array(
+            'success' => true,
+            'mensaje' => "La Información fue actualizada correctamente",
+            'datos' => $festivos,
+            'conf' => $configuracion
+        );
+
+        return Response::json($respuesta);
     }
 
     /**

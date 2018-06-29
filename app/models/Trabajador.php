@@ -778,15 +778,24 @@ class Trabajador extends Eloquent {
             $idTrabajador = $this->id;
             $listaHaberes = array();
             $idMes = \Session::get('mesActivo')->id;
-            $mes = \Session::get('mesActivo')->mes;
-            $misHaberes = Haber::where('trabajador_id', $idTrabajador)->where('mes_id', $idMes)->orWhere('permanente', 1)->where('trabajador_id', $idTrabajador)->orWhere('hasta', '>=', $mes)->where('trabajador_id', $idTrabajador)->get();
+            $mes = \Session::get('mesActivo')->mes;      
+            
+            $misHaberes = Haber::where('trabajador_id', $idTrabajador)->where('mes_id', $idMes)
+                ->orWhere('permanente', 1)->where('trabajador_id', $idTrabajador)
+                ->orWhere('hasta', '>=', $mes)->where('trabajador_id', $idTrabajador)->get();               
+            
             $diasTrabajados = $this->diasTrabajados();
             $empleado = $this->ficha();
 
-            if( $misHaberes->count() ){
+            if($misHaberes->count()){
                 if($diasTrabajados<30){
                     foreach($misHaberes as $haber){
-                        if($haber->permanente && !$haber->desde && !$haber->hasta || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes || !$haber->permanente){
+                        if($haber->permanente && !$haber->desde && !$haber->hasta 
+                           || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
+                           || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
+                           || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
+                           || !$haber->permanente){
+                            
                             $monto = Funciones::convertir($haber->monto, $haber->moneda);                                        
                             if($haber->tipoHaber->id==2){
                                 if($diasTrabajados<25){
@@ -837,7 +846,12 @@ class Trabajador extends Eloquent {
                     }
                 }else{
                     foreach($misHaberes as $haber){
-                        if($haber->permanente && !$haber->desde && !$haber->hasta || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes || !$haber->permanente){
+                        if($haber->permanente && !$haber->desde && !$haber->hasta 
+                           || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
+                           || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
+                           || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
+                           || !$haber->permanente){
+                            
                             $listaHaberes[] = array(
                                 'id' => $haber->id,
                                 'sid' => $haber->sid,
@@ -1367,11 +1381,19 @@ class Trabajador extends Eloquent {
             $listaDescuentos = array();
             $idMes = \Session::get('mesActivo')->id;
             $mes = \Session::get('mesActivo')->mes;
-            $misDescuentos = Descuento::where('trabajador_id', $idTrabajador)->where('mes_id', $idMes)->orWhere('permanente', 1)->where('trabajador_id', $idTrabajador)->orWhere('rango_meses', 1)->where('desde', '<=', $mes)->where('hasta', '>=', $mes)->where('trabajador_id', $idTrabajador)->get();
+            
+            $misDescuentos = Descuento::where('trabajador_id', $idTrabajador)->where('mes_id', $idMes)
+                ->orWhere('permanente', 1)->where('trabajador_id', $idTrabajador)
+                ->orWhere('hasta', '>=', $mes)->where('trabajador_id', $idTrabajador)->get();
 
             if( $misDescuentos->count() ){
                 foreach($misDescuentos as $descuento){
-                    if($descuento->permanente && !$descuento->desde && !$descuento->hasta || $descuento->permanente && $descuento->hasta && $descuento->hasta >= $mes && !$descuento->desde || $descuento->permanente && $descuento->desde && $descuento->desde <= $mes && !$descuento->hasta || $descuento->permanente && $descuento->desde && $descuento->desde <= $mes && $descuento->hasta && $descuento->hasta >= $mes || !$descuento->permanente){
+                    if($descuento->permanente && !$descuento->desde && !$descuento->hasta 
+                       || $descuento->permanente && !$descuento->desde && $descuento->hasta && $descuento->hasta >= $mes 
+                       || $descuento->permanente && !$descuento->hasta && $descuento->desde && $descuento->desde <= $mes 
+                       || $descuento->permanente && $descuento->desde && $descuento->desde <= $mes && $descuento->hasta && $descuento->hasta >= $mes 
+                       || !$descuento->permanente){
+                                                
                         if($descuento->tipoDescuento->estructuraDescuento->id==3){                        
                             $nombre = 'APVC AFP ' . $descuento->tipoDescuento->nombreAfp();
                         }else if($descuento->tipoDescuento->estructuraDescuento->id==7){                        
@@ -2460,8 +2482,10 @@ class Trabajador extends Eloquent {
     public function totalSemanaCorrida()
     {        
         $semanaCorrida = $this->semanaCorrida();
-        $id = $this->id;
+        $empresa = \Session::get('empresa');
         $mes = \Session::get('mesActivo');
+        //$festivos = $empresa->totalFestivos();
+        $id = $this->id;
         $idMes = $mes->id;
         $inasistencias = Inasistencia::where('trabajador_id', $id)->where('mes_id', $idMes)->get();
         $feriados = Feriado::feriados($mes->mes, $mes->fechaRemuneracion);
@@ -2593,11 +2617,11 @@ class Trabajador extends Eloquent {
     public function totalFeriados($feriados)
     {
         $fechas = new stdClass();
-        $fechas->semana_1 = 0;
-        $fechas->semana_2 = 0;
-        $fechas->semana_3 = 0;
-        $fechas->semana_4 = 0;
-        $fechas->semana_5 = 0;
+        $fechas->semana_1 = 1;
+        $fechas->semana_2 = 1;
+        $fechas->semana_3 = 1;
+        $fechas->semana_4 = 1;
+        $fechas->semana_5 = 1;
         
         if(count($feriados)){
             $semanaAnterior = 0;
@@ -2947,7 +2971,7 @@ class Trabajador extends Eloquent {
     
     public function totalAfp($nuevaRentaImponible=null)
     {                
-        $diasLicencia = $this->totalLicencias(); 
+        $diasLicencia = $this->totalDiasLicencias(); 
         $tasa = $this->tasaAfp();
         $rentaImponible = $this->rentaImponible();
         $rentaImponibleIngresada = NULL;
@@ -2956,20 +2980,23 @@ class Trabajador extends Eloquent {
         $cotizacion = (( $tasa['tasaObligatoria'] * $rentaImponible ) / 100);
         $isSIS = false;
         $sis = 0;
-        $a = 0;
         
         if($nuevaRentaImponible){
             $isSIS = true;
-            $sis = (( $tasa['tasaSis'] * $nuevaRentaImponible ) / 100);
             $rentaImponibleIngresada = $nuevaRentaImponible;
-            $a = 1;
+            $sisLicencia = (( $tasa['tasaSis'] * (($nuevaRentaImponible / 30) * $diasLicencia)) / 100);
+            $sisActual = (( $tasa['tasaSis'] * $rentaImponible ) / 100);
+            $sis = ($sisLicencia + $sisActual);
         }else{
             $empleado = $this->ficha();
             if($empleado->prevision_id==8){
-                if($diasLicencia){
+                if($diasLicencia > 0){
                     $mesActual = \Session::get('mesActivo')->mes;
+                    $diasTrabajados = $this->diasTrabajados(); 
                     $rentaImponibleAnterior = $this->rentaImponibleAnteriorAfp($mesActual);
-                    $sis = (( $tasa['tasaSis'] * $rentaImponibleAnterior['rentaImponible'] ) / 100);
+                    $sisLicencia = (( $tasa['tasaSis'] * (($rentaImponibleAnterior['rentaImponible'] / 30) * $diasLicencia)) / 100);
+                    $sisActual = (( $tasa['tasaSis'] * $rentaImponible ) / 100);
+                    $sis = ($sisLicencia + $sisActual);
                     $isSIS = $rentaImponibleAnterior['isSIS'];
                 }else{
                     $isSIS = true;
@@ -2990,8 +3017,7 @@ class Trabajador extends Eloquent {
             'porcentajeCotizacion' => $tasa['tasaObligatoria'],
             'cuentaAhorroVoluntario' => $this->cuentaAhorroVoluntario(),
             'pagaSis' => $tasa['pagaSis'],
-            'rentaImponibleIngresada' => $rentaImponibleIngresada,
-            'a' => $a
+            'rentaImponibleIngresada' => $rentaImponibleIngresada
         );
         
         return $datos;
@@ -3519,6 +3545,7 @@ class Trabajador extends Eloquent {
     {        
         $mes = \Session::get('mesActivo')->mes;
         $totalSeguroCesantiaTrabajador = 0;
+        $diasLicencia = $this->totalDiasLicencias();
         $totalSeguroCesantiaEmpleador = 0;
         $empleado = $this->ficha();
         $afcTrabajador = 0;
@@ -3542,16 +3569,16 @@ class Trabajador extends Eloquent {
             $topeSeguroPesos = Funciones::convertirUF($topeSeguro);        
             
             if($nuevaRentaImponible){
-                $rentaImponibleEmpleador = $nuevaRentaImponible;
+                $rentaImponibleEmpleador = (($nuevaRentaImponible / 30) * $diasLicencia);
                 $isSC = true;
             }else{
                 if($empleado->estado=='Ingresado'){
-                    if($this->totalDiasLicencias()){
+                    if($diasLicencia > 0){
                         $mesActual = \Session::get('mesActivo')->mes;
                         $rentaImponibleAnterior = $this->rentaImponibleAnteriorSC($mesActual);
                         $rentaImponibleEmpleador = $rentaImponibleAnterior['rentaImponible'];
                         $isSC = $rentaImponibleAnterior['isSC'];
-                        $rentaImponibleEmpleador = $rentaImponible;
+                        $rentaImponibleEmpleador = (($rentaImponibleEmpleador / 30) * $diasLicencia);
                         if($todosImponibles > $topeSeguroPesos && $diasTrabajados < 30){
                             $diasTrabajados = $this->diasTrabajados();
                             $rentaImponible = (($topeSeguroPesos / 30) * $diasTrabajados);
@@ -3564,14 +3591,12 @@ class Trabajador extends Eloquent {
                         if($rentaImponible > $topeSeguroPesos){
                             $rentaImponible = $topeSeguroPesos;
                         }
-                        $rentaImponibleEmpleador = $rentaImponible;
                         $isSC = true;
                     }
                 }else{
                     if($rentaImponible > $topeSeguroPesos){
                         $rentaImponible = $topeSeguroPesos;
                     }   
-                    $rentaImponibleEmpleador = $rentaImponible;
                     $isSC = true;
                 }
             }
@@ -3582,24 +3607,24 @@ class Trabajador extends Eloquent {
                   $afcTrabajador = SeguroDeCesantia::valor('Contrato Plazo Indefinido', 'trabajador');    
                   $afcEmpleador = SeguroDeCesantia::valor('Contrato Plazo Indefinido', 'empleador');    
                   $totalSeguroCesantiaTrabajador = round((( $afcTrabajador * $rentaImponible ) / 100 ));
-                  $totalSeguroCesantiaEmpleador = round((( $afcEmpleador * $rentaImponibleEmpleador ) / 100 ));
+                  $totalSeguroCesantiaEmpleador = round(( $afcEmpleador * ($rentaImponibleEmpleador + $rentaImponible ) / 100 ));
               }else{
                   $afcTrabajador = SeguroDeCesantia::valor('Contrato Plazo Fijo', 'trabajador');    
                   $afcEmpleador = SeguroDeCesantia::valor('Contrato Plazo Fijo', 'empleador');  
                   $totalSeguroCesantiaTrabajador = round((( $afcTrabajador * $rentaImponible ) / 100 ));
-                  $totalSeguroCesantiaEmpleador = round((( $afcEmpleador * $rentaImponibleEmpleador ) / 100 ));
+                  $totalSeguroCesantiaEmpleador = round(( $afcEmpleador * ($rentaImponibleEmpleador + $rentaImponible ) / 100 ));
               }
             }else{
               if($indefinido){
                   $afcTrabajador = SeguroDeCesantia::valor('Contrato Plazo Indefinido 11 años o más ', 'trabajador');    
                   $afcEmpleador = SeguroDeCesantia::valor('Contrato Plazo Indefinido 11 años o más ', 'empleador');  
                   $totalSeguroCesantiaTrabajador = round((( $afcTrabajador * $rentaImponible ) / 100 ));
-                  $totalSeguroCesantiaEmpleador = round((( $afcEmpleador * $rentaImponibleEmpleador ) / 100 ));
+                  $totalSeguroCesantiaEmpleador = round(( $afcEmpleador * ($rentaImponibleEmpleador + $rentaImponible ) / 100 ));
               }else{
                   $afcTrabajador = SeguroDeCesantia::valor('Contrato Plazo Fijo', 'trabajador');    
                   $afcEmpleador = SeguroDeCesantia::valor('Contrato Plazo Fijo', 'empleador'); 
                   $totalSeguroCesantiaTrabajador = round((( $afcTrabajador * $rentaImponible ) / 100 ));
-                  $totalSeguroCesantiaEmpleador = round((( $afcEmpleador * $rentaImponibleEmpleador ) / 100 ));
+                  $totalSeguroCesantiaEmpleador = round(( $afcEmpleador * ($rentaImponibleEmpleador + $rentaImponible ) / 100 ));
               }
             }
         }else{
@@ -3743,6 +3768,7 @@ class Trabajador extends Eloquent {
         $mes = \Session::get('mesActivo')->mes;
         $zona = $this->zonaImpuestoUnico();
         $sis = 0;
+        $rebaja = 0;
         
         if($rentaImponibleTributable > 0){
             $rentaImp = RentaTopeImponible::valor('Para afiliados a una AFP');
@@ -3751,7 +3777,6 @@ class Trabajador extends Eloquent {
             }else{
                 $topeImponible = 0;
             }
-
             
             $topeImponible = ($topeImponible * 0.07);
             $salud = $this->totalSalud()['total'];
@@ -3771,14 +3796,20 @@ class Trabajador extends Eloquent {
             }
 
             $baseImpuestoUnico = ($rentaImponibleTributable - $totalDescuentosPrevisionales - $apvsRegimenB - $sis);
-            $baseImpuestoUnico = round($baseImpuestoUnico - ($baseImpuestoUnico * ($zona / 100)));
+            $rebaja = ($baseImpuestoUnico * ($zona / 100));
+            $baseImpuestoUnico = round($baseImpuestoUnico - $rebaja);
             
             if($baseImpuestoUnico<1){
                 $baseImpuestoUnico = 1;
             }
         }
         
-        return $baseImpuestoUnico;
+        $datos = array(
+            'base' => $baseImpuestoUnico,
+            'rebaja' => $rebaja
+        );
+        
+        return $datos;
     }
     
     public function tramoImpuesto()
@@ -3790,7 +3821,7 @@ class Trabajador extends Eloquent {
         }
         $tramos = TablaImpuestoUnico::where('mes', $fecha)->get();
         $factor = 0;
-        $baseImpuestoUnico = $this->baseImpuestoUnico();
+        $baseImpuestoUnico = $this->baseImpuestoUnico()['base'];
         foreach($tramos as $tramo){
             $desde = Funciones::convertirUTM($tramo->imponible_mensual_desde, false);
             $hasta = Funciones::convertirUTM($tramo->imponible_mensual_hasta, false);
@@ -3848,7 +3879,7 @@ class Trabajador extends Eloquent {
         $tramo = $this->tramoImpuesto();
         $factor = $tramo->factor;
         $cantidadARebajar = Funciones::convertirUTM($tramo->cantidad_a_rebajar, false);
-        $baseImpuestoUnico = $this->baseImpuestoUnico();        
+        $baseImpuestoUnico = $this->baseImpuestoUnico()['base'];        
         
         $impuestoDeterminado = round((($factor / 100) * $baseImpuestoUnico) - $cantidadARebajar);
         

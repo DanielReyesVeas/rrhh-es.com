@@ -140,6 +140,9 @@ angular.module('angularjsApp')
             trabajadoresSemanaCorrida : function(){
               return $resource(constantes.URL + 'trabajadores/trabajadores-semana-corrida/obtener');
             },
+            trabajadoresSueldoHora : function(){
+              return $resource(constantes.URL + 'trabajadores/trabajadores-sueldo-hora/obtener');
+            },
             planillaCostoEmpresa : function(){
               return $resource(constantes.URL + 'trabajadores/planilla-costo-empresa/obtener');
             },

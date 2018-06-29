@@ -44,6 +44,12 @@ angular.module('angularjsApp')
                   { post : { 'method': 'POST' } }
               );
             },
+            modificarFestivos : function(){
+              return $resource(constantes.URL + 'anio-remuneracion/feriados-semana-corrida/modificar',
+                  {},
+                  { post : { 'method': 'POST' } }
+              );
+            },
             gratificacion : function(){
               return $resource(constantes.URL + 'anio-remuneracion/gratificacion/generar',
                   {},

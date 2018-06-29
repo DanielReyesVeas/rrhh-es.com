@@ -842,6 +842,8 @@ angular.module('angularjsApp')
                 { id : 3, nombre : 'UTM' } 
     ];
 
+    $scope.sueldos = [ 'Mensual', 'Por Hora' ];
+
     $scope.cotizaciones = [
                       { id : 1, nombre : 'UF' }, 
                       { id : 2, nombre : '$' },
@@ -2051,6 +2053,8 @@ angular.module('angularjsApp')
               { id : 10, nombre : 'Otro' }
     ];
 
+    $scope.sueldos = [ 'Mensual', 'Por Hora' ]; 
+
     $scope.monedas = [
                 { id : 1, nombre : '$' }, 
                 { id : 2, nombre : 'UF' }, 
@@ -2148,6 +2152,7 @@ angular.module('angularjsApp')
         monedaViatico : $scope.monedas[0].nombre, 
         proporcionalViatico : true,
         tipoTrabajador : 'Normal',     
+        tipoSueldo : $scope.sueldos[0],     
         gratificacion : 'm',   
         gratificacionEspecial : false,
         monedaGratificacion : $scope.monedas[0].nombre,

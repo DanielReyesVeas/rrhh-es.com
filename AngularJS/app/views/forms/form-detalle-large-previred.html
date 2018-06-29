@@ -8,7 +8,7 @@
 
     <div class="panel-body">   
 
-      <fieldset ng-if="detalle=='ccaf' && datos.total>0">
+      <fieldset ng-if="detalle=='ccaf' && datos.total!=0">
         <legend>Caja de Compensación</legend>
         
         <div class="table-responsive">
@@ -18,8 +18,12 @@
                 <th class="col-sm-2">RUT</th>
                 <th class="col-sm-2">Nombre</th>
                 <th class="col-sm-2">Renta Imponible</th>
-                <th class="col-sm-2">Renta Imponible</th>
-                <th class="col-sm-2">Renta Imponible</th>
+                <th class="col-sm-2">Cotización</th>
+                <th class="col-sm-2">Créditos Personales</th>
+                <th class="col-sm-2">Descuento Dental</th>
+                <th class="col-sm-2">Leasing</th>
+                <th class="col-sm-2">Seguro</th>
+                <th class="col-sm-2">Otros</th>
                 <th class="col-sm-2">Total</th>
               </tr>
             </thead>
@@ -28,16 +32,24 @@
                 <td>{{ dato.rut }}</td>
                 <td>{{ dato.nombreCompleto }}</td>
                 <td>${{ dato.rentaImponible | currency :"":0 }}</td>
-                <td>${{ dato.rentaImponible | currency :"":0 }}</td>
-                <td>${{ dato.rentaImponible | currency :"":0 }}</td>
+                <td>${{ dato.cotizacion | currency :"":0 }}</td>
+                <td>${{ dato.creditos | currency :"":0 }}</td>
+                <td>${{ dato.descuentoDental | currency :"":0 }}</td>
+                <td>${{ dato.descuentosLeasing | currency :"":0 }}</td>
+                <td>${{ dato.descuentosSeguro | currency :"":0 }}</td>
+                <td>${{ dato.otrosDescuentos | currency :"":0 }}</td>
                 <td>${{ dato.total | currency :"":0 }}</td>
               </tr>
               <tr>
                 <td></td>
                 <td></td>
-                <td></td>
-                <td></td>
                 <td><b>Total:</b></td>
+                <td><b>${{ datos.totalCotizacion | currency :"":0 }}</b></td>
+                <td><b>${{ datos.totalCreditos | currency :"":0 }}</b></td>
+                <td><b>${{ datos.totalDescuentoDental | currency :"":0 }}</b></td>
+                <td><b>${{ datos.totalLeasing | currency :"":0 }}</b></td>
+                <td><b>${{ datos.totalSeguro | currency :"":0 }}</b></td>
+                <td><b>${{ datos.totalOtros | currency :"":0 }}</b></td>
                 <td><b>${{ datos.total | currency :"":0 }}</b></td>
               </tr>
             </tbody>
