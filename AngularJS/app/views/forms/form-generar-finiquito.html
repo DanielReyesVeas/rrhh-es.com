@@ -30,6 +30,6 @@
   </div>
 </div>
 <div class="modal-footer" style="margin-top: 20px;">
-  <button class="btn btn-primary" type="button" ng-if="isIndicadores" confirmation-click="ingresar()" confirmation-needed="El Finiquito será ingresado al trabajador <b>{{ trabajador.nombreCompleto }}</b>. ¿Desea continuar?">Ingresar</button>
+  <button class="btn btn-primary" type="button" confirmation-click="ingresar()" confirmation-needed="El Finiquito será ingresado al trabajador <b>{{ trabajador.nombreCompleto }}</b>. ¿Desea continuar?">Ingresar</button>
   <button class="btn btn-warning" type="button" confirmation-click="$dismiss()" confirmation-needed="El Finiquito no ha sido ingresado, los datos se perderán al cerrar esta ventana. ¿Desea continuar?">Cerrar</button>
 </div>

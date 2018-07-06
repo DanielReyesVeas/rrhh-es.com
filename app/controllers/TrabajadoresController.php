@@ -2314,11 +2314,7 @@ class TrabajadoresController extends \BaseController {
                             $detallesMutual = $liquidacion->miDetalleMutual();
                             $detallesSeguroCesantia = $liquidacion->miDetalleSeguroCesantia();
                             $detallesPagadorSubsidio = $liquidacion->miDetallePagadorSubsidio();
-                            $dias = $liquidacion->dias_trabajados;
-                            if($liquidacion->diasTotales()>30){
-                                $dias = ($dias - 1);
-                            }
-                            //$dias = $liquidacion->diasTotales();
+                            $diasTrabajados = $liquidacion->diasTrabajados();
 
                             $listaTrabajadores[] = array(
                                 /*'id' => $trabajador->id,
@@ -2337,7 +2333,7 @@ class TrabajadoresController extends \BaseController {
                                 'periodoHasta' => 0, 
                                 'regimenPrevisional' => $liquidacion->regimenPrevisional(), 
                                 'tipoTrabajador' => $empleado->tipoTrabajador(), 
-                                'diasTrabajados' => $dias, 
+                                'diasTrabajados' => $diasTrabajados, 
                                 'tipoLinea' => '00', 
                                 'movimientoPersonal' => $liquidacion->movimiento_personal, 
                                 'movimientoPersonalDesde' => $liquidacion->movimientoPersonal()['desde'],
@@ -2482,7 +2478,7 @@ class TrabajadoresController extends \BaseController {
                                         'periodoHasta' => 0, 
                                         'regimenPrevisional' => $liquidacion->regimenPrevisional(), 
                                         'tipoTrabajador' => $empleado->tipoTrabajador(), 
-                                        'diasTrabajados' => $dias,
+                                        'diasTrabajados' => $diasTrabajados,
                                         'tipoLinea' => '01', 
                                         'movimientoPersonal' => $liquidacion->movimiento_personal, 
                                         'movimientoPersonalDesde' => $licencia['desde'],
@@ -2622,7 +2618,7 @@ class TrabajadoresController extends \BaseController {
                                         'periodoHasta' => 0, 
                                         'regimenPrevisional' => $liquidacion->regimenPrevisional(), 
                                         'tipoTrabajador' => $empleado->tipoTrabajador(), 
-                                        'diasTrabajados' => $dias,
+                                        'diasTrabajados' => $diasTrabajados,
                                         'tipoLinea' => '01', 
                                         'movimientoPersonal' => $liquidacion->movimiento_personal, 
                                         'movimientoPersonalDesde' => '',
@@ -3110,12 +3106,25 @@ class TrabajadoresController extends \BaseController {
     
     public function descargarPrevired()
     {
-        $filename = "ArchivoPrevired.xls";        
-        $destination = public_path('stories/' . $filename);
+        $mes = \Session::get('mesActivo');
+        $filename = "Archivo Previred " . $mes->mesActivo . ".csv";
+        $destination = public_path('stories/ArchivoPrevired.xls');
         
         return Response::make(file_get_contents($destination), 200, [
             'Content-Type' => 'text/plain',
-            'Content-Disposition' => 'attachment; filename="ArchivoPrevired.csv"'
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+        ]);
+    }
+    
+    public function descargarProvision()
+    {
+        $mes = \Session::get('mesActivo');
+        $filename = "Provision Vacaciones " . $mes->mesActivo . ".xls";        
+        $destination = public_path('stories/Vacaciones.xls');
+        
+        return Response::make(file_get_contents($destination), 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"'
         ]);
     }
     
@@ -3414,30 +3423,47 @@ class TrabajadoresController extends \BaseController {
         $trabajadores = Trabajador::all();
         $semanas = MesDeTrabajo::semanas();        
         
-        $listaTrabajadores=array();
+        $listaTrabajadoresSemanal=array();
+        $listaTrabajadoresMensual=array();
+        
         if( $trabajadores->count() ){
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
                     if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes && $empleado->semana_corrida==1){
-                        $listaTrabajadores[]=array(
-                            'id' => $trabajador->id,
-                            'sid' => $trabajador->sid,
-                            'rut' => $trabajador->rut,
-                            'rutFormato' => $trabajador->rut_formato(),
-                            'apellidos' => ucwords(strtolower($empleado->apellidos)),
-                            'nombreCompleto' => $empleado->nombreCompleto(),
-                            'semanaCorrida' => $trabajador->semanaCorrida()
-                        );
+                        if($empleado->tipo_semana=='s'){
+                            $listaTrabajadoresSemanal[]=array(
+                                'id' => $trabajador->id,
+                                'sid' => $trabajador->sid,
+                                'rut' => $trabajador->rut,
+                                'rutFormato' => $trabajador->rut_formato(),
+                                'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                                'nombreCompleto' => $empleado->nombreCompleto(),
+                                'semanaCorrida' => $trabajador->semanaCorrida()
+                            );
+                        }else{
+                            $listaTrabajadoresMensual[]=array(
+                                'id' => $trabajador->id,
+                                'sid' => $trabajador->sid,
+                                'rut' => $trabajador->rut,
+                                'rutFormato' => $trabajador->rut_formato(),
+                                'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                                'nombreCompleto' => $empleado->nombreCompleto(),
+                                'semanaCorrida' => $trabajador->semanaCorrida()
+                            );
+                        }
                     }
                 }
             }
+            $listaTrabajadoresSemanal = Funciones::ordenar($listaTrabajadoresSemanal, 'apellidos');
+            $listaTrabajadoresMensual = Funciones::ordenar($listaTrabajadoresMensual, 'apellidos');
         }        
         
-        $listaTrabajadores = Funciones::ordenar($listaTrabajadores, 'apellidos');
+        
                 
         $datos = array(
-            'datos' => $listaTrabajadores,
+            'trabajadoresSemanal' => $listaTrabajadoresSemanal,
+            'trabajadoresMensual' => $listaTrabajadoresMensual,
             'semanas' => $semanas,
             'accesos' => $permisos
         );
@@ -3488,6 +3514,21 @@ class TrabajadoresController extends \BaseController {
                 
         $datos = array(
             'datos' => $listaTrabajadores,
+            'accesos' => $permisos
+        );
+        
+        return Response::json($datos);
+    }
+    
+    public function trabajadorSueldoHora($sid)
+    {
+        if(!\Session::get('empresa')){
+            return Response::json(array('datos' => array(), 'permisos' => array()));
+        }
+        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#sueldo-hora');
+                            
+        $datos = array(
+            'datos' => $sid,
             'accesos' => $permisos
         );
         
@@ -5833,6 +5874,7 @@ class TrabajadoresController extends \BaseController {
             $ficha->fecha_vencimiento = $datos['fecha_vencimiento'];
             $ficha->tipo_jornada_id = $datos['tipo_jornada_id'];
             $ficha->semana_corrida = $datos['semana_corrida'];
+            $ficha->tipo_semana = $datos['tipo_semana'];
             $ficha->tipo_sueldo = $datos['tipo_sueldo'];
             $ficha->horas = $datos['horas'];
             $ficha->moneda_sueldo = $datos['moneda_sueldo'];
@@ -6764,6 +6806,7 @@ class TrabajadoresController extends \BaseController {
                     'nombre' => $empleado->tipoJornada ? $empleado->tipoJornada->nombre : ""
                 ),
                 'semanaCorrida' => $empleado->semana_corrida ? true : false,
+                'tipoSemana' => $empleado->tipo_semana,
                 'monedaSueldo' => $empleado->moneda_sueldo,
                 'gratificacion' => $empleado->gratificacion,
                 'gratificacionEspecial' => $empleado->gratificacion_especial ? true : false,
@@ -6934,6 +6977,63 @@ class TrabajadoresController extends \BaseController {
         return Response::json($datos); 
     }
     
+    public function provisionVacaciones()
+    {
+        $mesActual = \Session::get('mesActivo');
+        $finMes = $mesActual->fechaRemuneracion;
+        $mes = $mesActual->mes;
+        $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes)));
+        $empresa = \Session::get('empresa');
+        $trabajadores = Trabajador::all();
+        
+        $listaTrabajadores = array();
+        
+        if($trabajadores){
+            foreach($trabajadores as $trabajador){
+                $empleado = $trabajador->ficha();
+                if($empleado){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito >= $mesAnterior && $empleado->fecha_ingreso<=$finMes){
+                        $listaTrabajadores[] = array(
+                            'id' => $trabajador->id,
+                            'sid' => $trabajador->sid,
+                            'rutFormato' => $trabajador->rut_formato(),
+                            'rut' => $trabajador->rut,
+                            'nombreCompleto' => $empleado->nombreCompleto(),
+                            'apellidos' => ucwords(strtolower($empleado->apellidos)),    
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
+                            'cargo' => array(
+                                'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                            ),             
+                            'fechaIngreso' => date('d-m-Y', strtotime($empleado->fecha_ingreso)),
+                            'provision' => $trabajador->provisionVacaciones()
+                        );
+                    }
+                }
+            }
+        }
+        
+        $listaTrabajadores = Funciones::ordenar($listaTrabajadores, 'apellidos');
+         
+        Excel::create('Vacaciones', function($excel) use($listaTrabajadores, $mesActual, $empresa) {
+            $excel->sheet('Vacaciones', function($sheet) use($listaTrabajadores, $mesActual, $empresa) {
+                $sheet->loadView('excel.vacaciones')->with(array('datos' => $listaTrabajadores, 'mes' => $mesActual, 'empresa' => $empresa));
+            });
+        })->store('xls', public_path('stories'));                
+        
+        $datos = array(
+            'datos' => $listaTrabajadores,
+            'mes' => $mesActual
+        );
+        
+        return Response::json($datos);
+    }
+    
     public function archivoPrevired()
     {        
         if(!\Session::get('empresa')){
@@ -6944,6 +7044,7 @@ class TrabajadoresController extends \BaseController {
         $finMes = $mesActual->fechaRemuneracion;
         $mes = $mesActual->mes;
         $mostrarFiniquitados = Empresa::variableConfiguracion('finiquitados_liquidacion');
+        
         if($mostrarFiniquitados){
             $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes)));
         }else{
@@ -7198,7 +7299,9 @@ class TrabajadoresController extends \BaseController {
             if($comprobarRentaImponibleAnterior){
                 $totalAfp = $trabajador->totalAfp($listaRentaImponibleAnteriorSIS[0]);
                 $totalSeguroCesantia = $trabajador->totalSeguroCesantia($listaRentaImponibleAnteriorSC[0]);
+                $totalMutual = $trabajador->totalMutual();  
             }else{
+                $totalMutual = $trabajador->totalMutual();  
                 $totalAfp = $trabajador->totalAfp();
                 $totalSeguroCesantia = $trabajador->totalSeguroCesantia();
             }
@@ -7230,8 +7333,7 @@ class TrabajadoresController extends \BaseController {
                 $gratificacion = $trabajador->gratificacion();
                 $totalColacion = 0;
                 $totalMovilizacion = 0;
-                $totalViatico = 0;
-                $totalMutual = $trabajador->totalMutual();        
+                $totalViatico = 0;                      
                 $semanaCorrida = $trabajador->miSemanaCorrida();
                 $semanaCorridas = $trabajador->miSemanaCorridas();
                 $descuentos = $trabajador->misDescuentos();
@@ -7352,7 +7454,7 @@ class TrabajadoresController extends \BaseController {
                     'aliasDocumento' => $alias,
                     'atrasos' => $atrasos,
                     'logoEmpresa' => $logo,
-                    'z' => $totalAfp
+                    'z' => $isValida
                 );
 
                 $documento = new Documento();
@@ -7570,37 +7672,39 @@ class TrabajadoresController extends \BaseController {
                 if($descuentos){                    
                     foreach($descuentos as $descuento)
                     {
-                        $detalleLiquidacion = new DetalleLiquidacion();
-                        $detalleLiquidacion->sid = Funciones::generarSID();
-                        $detalleLiquidacion->liquidacion_id = $liquidacion->id;
-                        $detalleLiquidacion->nombre = $descuento['tipo']['nombre'];
-                        $detalleLiquidacion->tipo = 'descuento';
-                        $detalleLiquidacion->tipo_id = 2;
-                        $detalleLiquidacion->valor = $descuento['montoPesos'];
-                        $detalleLiquidacion->valor_2 = $descuento['monto'];
-                        $detalleLiquidacion->valor_3 = $descuento['moneda'];
-                        if($descuento['tipo']['estructura']['id']==2){
-                            $detalleLiquidacion->valor_4 = 1;   
-                            $detalleLiquidacion->valor_5 = null;
-                            $detalleLiquidacion->valor_6 = null;
-                        }else if($descuento['tipo']['estructura']['id']==3){
-                            $detalleLiquidacion->valor_4 = 2;   
-                            $detalleLiquidacion->valor_5 = $descuento['tipo']['formaPago']['id'];
-                            $detalleLiquidacion->valor_6 = $descuento['tipo']['afp']['id'];
-                        }else{
-                            if($descuento['tipo']['id']==2){                            
-                                $detalleLiquidacion->valor_4 = 3;                              
+                        //if($descuento->estructura_descuento_id!=3){
+                            $detalleLiquidacion = new DetalleLiquidacion();
+                            $detalleLiquidacion->sid = Funciones::generarSID();
+                            $detalleLiquidacion->liquidacion_id = $liquidacion->id;
+                            $detalleLiquidacion->nombre = $descuento['tipo']['nombre'];
+                            $detalleLiquidacion->tipo = 'descuento';
+                            $detalleLiquidacion->tipo_id = 2;
+                            $detalleLiquidacion->valor = $descuento['montoPesos'];
+                            $detalleLiquidacion->valor_2 = $descuento['monto'];
+                            $detalleLiquidacion->valor_3 = $descuento['moneda'];
+                            if($descuento['tipo']['estructura']['id']==2){
+                                $detalleLiquidacion->valor_4 = 1;   
+                                $detalleLiquidacion->valor_5 = null;
+                                $detalleLiquidacion->valor_6 = null;
+                            }else if($descuento['tipo']['estructura']['id']==3){
+                                $detalleLiquidacion->valor_4 = 2;   
+                                $detalleLiquidacion->valor_5 = $descuento['tipo']['formaPago']['id'];
+                                $detalleLiquidacion->valor_6 = $descuento['tipo']['afp']['id'];
                             }else{
-                                $detalleLiquidacion->valor_4 = null;                              
+                                if($descuento['tipo']['id']==2){                            
+                                    $detalleLiquidacion->valor_4 = 3;                              
+                                }else{
+                                    $detalleLiquidacion->valor_4 = null;                              
+                                }
+                                $detalleLiquidacion->valor_5 = null;
+                                $detalleLiquidacion->valor_6 = null;
                             }
-                            $detalleLiquidacion->valor_5 = null;
-                            $detalleLiquidacion->valor_6 = null;
-                        }
-                        $detalleLiquidacion->detalle_id = $descuento['tipo']['id'];
+                            $detalleLiquidacion->detalle_id = $descuento['tipo']['id'];
 
-                        //$detalleLiquidacion->save(); 
+                            //$detalleLiquidacion->save(); 
 
-                        $liquidacion->detalles->add($detalleLiquidacion);
+                            $liquidacion->detalles->add($detalleLiquidacion);
+                        //}
                     }
                 }
 
@@ -7965,6 +8069,7 @@ class TrabajadoresController extends \BaseController {
             $ficha->fecha_vencimiento = $datos['fecha_vencimiento'];
             $ficha->tipo_jornada_id = $datos['tipo_jornada_id'];
             $ficha->semana_corrida = $datos['semana_corrida'];
+            $ficha->tipo_semana = $datos['tipo_semana'];
             $ficha->tipo_sueldo = $datos['tipo_sueldo'];
             $ficha->horas = $datos['horas'];
             $ficha->moneda_sueldo = $datos['moneda_sueldo'];
@@ -8070,6 +8175,7 @@ class TrabajadoresController extends \BaseController {
             'fecha_vencimiento' => Input::get('fechaVencimiento'),
             'tipo_jornada_id' => Input::get('tipoJornada')['id'],
             'semana_corrida' => Input::get('semanaCorrida'),
+            'tipo_semana' => Input::get('tipoSemana'),
             'tipo_sueldo' => Input::get('tipoSueldo'),
             'horas' => Input::get('horas'),
             'moneda_sueldo' => Input::get('monedaSueldo'),

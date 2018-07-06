@@ -248,7 +248,7 @@ class Empresa extends \Eloquent {
         $festivos = $configuracion->festivos;
         $total = substr_count($festivos, '1');
         
-        return total;
+        return $total;
     }
     
     public function festivos()

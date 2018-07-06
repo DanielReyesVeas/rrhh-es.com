@@ -16,12 +16,29 @@ angular.module('angularjsApp')
     $scope.cargado = false;
     $scope.empresa = $rootScope.globals.currentUser.empresa;
 
+    $scope.tabSemanal = true;
+    $scope.tabMensual = false;
+
+    $scope.openTab = function(tab){
+      switch (tab) {
+        case 'semanal':
+          $scope.tabSemanal = true;
+          $scope.tabMensual = false;
+          break;
+        case 'mensual':
+          $scope.tabSemanal = false;
+          $scope.tabMensual = true;
+          break;
+      }
+    }
+
     function cargarDatos(){
       $rootScope.cargando = true;
       $scope.cargado = false;
       var datos = trabajador.trabajadoresSemanaCorrida().get();
       datos.$promise.then(function(response){
-        $scope.datos = response.datos;
+        $scope.trabajadoresSemanal = response.trabajadoresSemanal;
+        $scope.trabajadoresMensual = response.trabajadoresMensual;
         $scope.accesos = response.accesos;
         $scope.semanas = response.semanas;
         $rootScope.cargando = false;
@@ -29,10 +46,39 @@ angular.module('angularjsApp')
       });
     }
 
-    $scope.detalle = function(obj){
+    $scope.detalle = function(tra, tipo){
+      if(tipo=='s'){
+        openDetalleSemanal(tra);
+      }else{
+        openDetalleMensual(tra);        
+      }
+    }
+
+    function openDetalleSemanal(obj){
       var miModal = $uibModal.open({
         animation: true,
-        templateUrl: 'views/forms/form-semana-corrida.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        templateUrl: 'views/forms/form-semana-corrida-semanal.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormSemanaCorridaCtrl',
+        resolve: {
+          objeto: function () {
+            return obj;          
+          },
+          accesos: function () {
+            return $scope.accesos;          
+          }
+        }
+      });
+      miModal.result.then(function (mensaje) {
+        Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
+        cargarDatos();         
+        }, function () {
+      });
+    };
+
+    function openDetalleMensual(obj){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-semana-corrida-mensual.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
         controller: 'FormSemanaCorridaCtrl',
         resolve: {
           objeto: function () {
@@ -94,6 +140,7 @@ angular.module('angularjsApp')
   })
   .controller('FormCalendarioSemanaCorridaCtrl', function ($rootScope, anio, fecha, anios, festivos, accesos, $uibModal, $filter, Notification, $scope, $uibModalInstance) { 
     
+    $scope.semanaCorrida = true;
     var anioActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo.idAnio;
     $scope.anios = angular.copy(anios);
     $scope.festivos = angular.copy(festivos);
@@ -104,7 +151,6 @@ angular.module('angularjsApp')
       $rootScope.cargando = true;
       var datos = anio.calendario().get();
       datos.$promise.then(function(response){
-        console.log(response)
         $scope.anios = response.anios;
         $scope.festivos = response.festivos;
         $scope.accesos = response.accesos;

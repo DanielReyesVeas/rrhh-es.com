@@ -83,7 +83,7 @@ class RespaldoController extends \BaseController {
 			// se envia a los correos electronicos
 			Mail::send('correo_respaldos', $data, function($message) use($pathToFile, $datosCliente, $archivoStories)
 			{
-				$message->to('dreyes@easysystems.cl');
+				$message->to('easysystems.rrhh@yahoo.com');
 				$message->attach($pathToFile);
 				if( $archivoStories ){
 					$message->attach($archivoStories);

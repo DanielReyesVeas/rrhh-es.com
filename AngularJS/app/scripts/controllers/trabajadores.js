@@ -2154,6 +2154,7 @@ angular.module('angularjsApp')
         tipoTrabajador : 'Normal',     
         tipoSueldo : $scope.sueldos[0],     
         gratificacion : 'm',   
+        tipoSemana : 's',   
         gratificacionEspecial : false,
         monedaGratificacion : $scope.monedas[0].nombre,
         monedaSindicato : $scope.monedas[0].nombre,

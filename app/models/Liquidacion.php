@@ -83,10 +83,14 @@ class Liquidacion extends Eloquent {
     public function generarCuerpo()
     {
         $mes = \Session::get('mesActivo');
+        $empresa = \Session::get('empresa');
         $semanaCorrida = $this->semanaCorrida();
         $tasaAfp = $this->tasaAfp();
         $detalles = $this->misDetalles();
         $empleado = $this->trabajador->ficha();
+        $isValida = $mes->indicadores;
+        $configuracion = \Session::get('configuracion');
+        $logo = $empresa->logo ? URL::to("stories/".$empresa->logo) : NULL;
         
         $miLiquidacion = array(
             'mes' => $mes->nombre . ' del ' . $mes->anio,
@@ -166,7 +170,7 @@ class Liquidacion extends Eloquent {
             'haberesImponibles' => $detalles['imponibles'],
             'haberesNoImponibles' => $detalles['noImponibles'],
             'descuentos' => $detalles['descuentos'],
-            'prestamos' => $detalles['prestamos'],
+            'prestamos' => array(),
             'sueldoLiquidoPalabras' => strtoupper(Funciones::convertirPalabras($this->sueldo_liquido)),
             'sueldoLiquido' => $this->sueldo_liquido,
             'banco' => $empleado->banco ? $empleado->banco->nombre : "",
@@ -175,11 +179,19 @@ class Liquidacion extends Eloquent {
             'observacion' => $this->observacion,
             'nombreDocumento' => $this->documento->nombre,
             'aliasDocumento' => $this->documento->alias,
-            'a' => $detalles
+            'a' => $detalles,
+            'logoEmpresa' => $logo,
+            'uf' => $this->uf,
+            'atrasos' => array(
+                'total' => 0,
+                'descuento' => 0
+            )
         );    
         
         $view = View::make('pdf.liquidacion', [
-            'liquidacion' => $miLiquidacion
+            'liquidacion' => $miLiquidacion,
+            'isValida' => $isValida,
+            'configuracion' => $configuracion
         ]);
         $html = $view->render();
         
@@ -1470,6 +1482,11 @@ class Liquidacion extends Eloquent {
         $inasistenciasAtrasos = (30 - $diasTrabajados);
         
         return $inasistenciasAtrasos;
+    }
+    
+    public function diasTrabajados()
+    {
+        
     }
     
     public function totalHaberes()

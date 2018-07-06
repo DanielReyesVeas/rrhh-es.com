@@ -183,6 +183,7 @@ class Trabajador extends Eloquent {
         $mes = MesDeTrabajo::where('mes', $fecha)->first();
         $liquidaciones = Liquidacion::where('mes', $mes['mes'])->orderBy('trabajador_apellidos')->get();
         $lista = array();
+        $totalLiquido = 0;
 
         $listaCuentas = Cuenta::listaCuentas();
         
@@ -190,6 +191,7 @@ class Trabajador extends Eloquent {
             $descuentos = array();
             $empleado = $liquidacion->trabajador->ficha();
             $detalles = $liquidacion->detallesLiquidacion($empresa->base_datos, $listaCuentas, $empleado->centro_costo_id );
+            $totalLiquido += $liquidacion->sueldo_liquido;
             $lista[] = array(
                 'idTrabajador' => $liquidacion->trabajador_id,
                 'rut' => $liquidacion->trabajador_rut,
@@ -212,6 +214,7 @@ class Trabajador extends Eloquent {
                 'nombre' => 'Usuario Admin',
                 'periodo' => $fecha,
                 'cuentas' => $listaCuentas,
+                'totalLiquido' => $totalLiquido,
                 'comentario' => 'Centralización '.$mes.' '.date("Y", strtotime($fecha))
             ),
             'detalle' => $lista                
@@ -1173,6 +1176,112 @@ class Trabajador extends Eloquent {
         }
     }
     
+    public function misVacacionesFiniquito()
+    {
+        $mes = \Session::get('mesActivo');
+        $hasta = $mes->mes;
+        $ficha = $this->ficha();
+        $dias = $ficha->vacaciones;
+        $calcularDesde = $ficha->calculo_vacaciones;                
+        $i = 0;
+            
+        if($calcularDesde=='p'){
+            $primerMes = MesDeTrabajo::orderBy('mes')->first();
+            $desde = $primerMes->mes;
+            if($dias==0){
+                $dias = 1.25;   
+            }
+        }else{
+            if($dias==0){
+                $dias = $this->diasInicialesVacaciones();   
+            }
+            $desde = Funciones::primerDia($ficha->fecha_ingreso);
+        }
+        
+        $fecha = $desde;
+
+        while($fecha!=$hasta){            
+            $fecha = date('Y-m-d', strtotime('+' . $i . ' month', strtotime($desde)));
+            $diasVacaciones = $this->diasVacaciones($fecha);
+            if($diasVacaciones>0){
+                $dias = ($dias - $diasVacaciones);
+            }
+            $dias = ($dias + 1.25);
+            $i++;            
+        }
+        
+        return $dias;
+    }
+    
+    public function provisionVacaciones()
+    {
+        $mes = \Session::get('mesActivo')->mes;
+        $ficha = $this->ficha();
+        $vacaciones = Vacaciones::where('trabajador_id', $this->id)->where('mes', $mes)->first();
+        $sueldoDiario = $this->sueldoDiario();
+        $sueldoBase = $this->sueldoBase();
+        $tomadas = $vacaciones->sumaTomaVacaciones();
+        $diasMes = 1.25;
+        $factor = 1.4;
+        
+        $datos = array(
+            'saldo' => ($tomadas + $vacaciones->dias - $diasMes),
+            'dias' => $diasMes,
+            'diasHabiles' => $vacaciones->dias,
+            'tomadas' => $tomadas,
+            'sueldoDiario' => round($sueldoDiario),
+            'sueldoBase' => $sueldoBase,
+            'tomadas' => $tomadas,
+            'diasCorridos' => ($factor * $vacaciones->dias),
+            'acumuladas' => ($tomadas + $vacaciones->dias),
+            'provision' => round($sueldoDiario * $vacaciones->dias)
+        );
+        
+        return $datos;
+    }
+    
+    public function misVacacionesFiniquitos()
+    {
+        $mes = \Session::get('mesActivo');
+        $hasta = $mes->mes;
+        $ficha = $this->ficha();
+        $dias = $ficha->vacaciones;
+        $calcularDesde = $ficha->calculo_vacaciones;                
+        $i = 0;
+            
+        if($calcularDesde=='p'){
+            $primerMes = MesDeTrabajo::orderBy('mes')->first();
+            $desde = $primerMes->mes;
+            if($dias==0){
+                $dias = 1.25;   
+            }
+        }else{
+            if($dias==0){
+                $dias = $this->diasInicialesVacaciones();   
+            }
+            $desde = Funciones::primerDia($ficha->fecha_ingreso);
+        }
+        
+        $fecha = $desde;
+
+        while($fecha!=$hasta){            
+            $fecha = date('Y-m-d', strtotime('+' . $i . ' month', strtotime($desde)));
+            $diasVacaciones = $this->diasVacaciones($fecha);
+            if($diasVacaciones>0){
+                $dias = ($dias - $diasVacaciones);
+            }
+            $dias = ($dias + 1.25);
+            $i++;            
+        }
+        $datos = array(
+            'dias' => $dias,
+            'hasta' => $hasta,
+            'calcularDesde' => $calcularDesde,
+            'desde' => $desde
+        );
+        return $datos;
+    }
+    
     public function mesActualVacaciones()
     {
         $mes = \Session::get('mesActivo')->mes;
@@ -1195,8 +1304,8 @@ class Trabajador extends Eloquent {
     public function miHistorialVacaciones()
     {
         $listaVacaciones = array();
-        $vacaciones = Vacaciones::where('trabajador_id', $this->id)->orderBy('mes')->get();
-        $mes = \Session::get('mesActivo')->mes;        
+        $mes = \Session::get('mesActivo');        
+        $vacaciones = Vacaciones::where('trabajador_id', $this->id)->where('mes', '<=', $mes->mes)->orderBy('mes')->get();
         
         if($vacaciones->count()){
             foreach($vacaciones as $vacacion){
@@ -1254,6 +1363,9 @@ class Trabajador extends Eloquent {
         $diasMes = (int) date('d', strtotime($fecha));
         $diaIngreso = (( (int) date('d', strtotime($ficha->fecha_ingreso) )) - 1);
         $diasTrabajados = ($diasMes - $diaIngreso);
+        if($diasTrabajados > 30){
+            $diasTrabajados = 30;
+        }
         $dias = (($dias / 30) * $diasTrabajados);
         
         return $dias;
@@ -1274,7 +1386,7 @@ class Trabajador extends Eloquent {
         }else{
             $inicio = $fichas['fecha_ingreso'];          
             DB::table('vacaciones')->where('trabajador_id', $id)->delete();
-        }
+        }        
         
         if(count($fichas)){            
             $inicio = Funciones::primerDia($inicio);
@@ -1286,7 +1398,8 @@ class Trabajador extends Eloquent {
         return;
     }
     
-    public function diasVacaciones($mes){
+    public function diasVacaciones($mes)
+    {
         $dias = TomaVacaciones::where('trabajador_id', $this->id)->where('mes', $mes)->get();
         $diasVacaciones = 0;
         
@@ -1302,7 +1415,6 @@ class Trabajador extends Eloquent {
     public function recalcularMisVacaciones($desde, $hasta, $dias)
     {
         $i = 0;
-        $dias = $dias;
         $fecha = date('Y-m-d', strtotime('+' . $i . ' month', strtotime($desde)));
         $primerMes = MesDeTrabajo::orderBy('mes')->first();
         do{            
@@ -2479,12 +2591,17 @@ class Trabajador extends Eloquent {
         return $total;
     }
     
+    public function diasDeTrabajo()
+    {
+        return 5;
+    }
+    
     public function totalSemanaCorrida()
     {        
         $semanaCorrida = $this->semanaCorrida();
         $empresa = \Session::get('empresa');
         $mes = \Session::get('mesActivo');
-        //$festivos = $empresa->totalFestivos();
+        $festivos = $empresa->totalFestivos();
         $id = $this->id;
         $idMes = $mes->id;
         $inasistencias = Inasistencia::where('trabajador_id', $id)->where('mes_id', $idMes)->get();
@@ -2493,29 +2610,30 @@ class Trabajador extends Eloquent {
         $fechasFeriados = $this->totalFeriados($feriados);
         $fechasInasistencias = $this->totalFaltas($inasistencias);
         $fechasLicencias = $this->totalFaltas($licencias);
+        $diasDeTrabajo = $this->diasDeTrabajo();
 
         $montoSemana1=$montoSemana2=$montoSemana3=$montoSemana4=$montoSemana5=0;
-        if( 5 - ($fechasLicencias->semana_1 + $fechasFeriados->semana_1) > 0 ){        
-            $montoSemana1 = ($semanaCorrida['semanas'][0]['comision'] / (5 - ($fechasLicencias->semana_1 + $fechasFeriados->semana_1)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_1 + $fechasFeriados->semana_1) > 0 ){        
+            $montoSemana1 = ($semanaCorrida['semanas'][0]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_2 + $fechasFeriados->semana_2) > 0){
-            $montoSemana2 = ($semanaCorrida['semanas'][1]['comision'] / (5 - ($fechasLicencias->semana_2 + $fechasFeriados->semana_2)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_2 + $fechasFeriados->semana_2) > 0){
+            $montoSemana2 = ($semanaCorrida['semanas'][1]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_3 + $fechasFeriados->semana_3) > 0){
-            $montoSemana3 = ($semanaCorrida['semanas'][2]['comision'] / (5 - ($fechasLicencias->semana_3 + $fechasFeriados->semana_3)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_3 + $fechasFeriados->semana_3) > 0){
+            $montoSemana3 = ($semanaCorrida['semanas'][2]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_4 + $fechasFeriados->semana_4) > 0){
-            $montoSemana4 = ($semanaCorrida['semanas'][3]['comision'] / (5 - ($fechasLicencias->semana_4 + $fechasFeriados->semana_4)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_4 + $fechasFeriados->semana_4) > 0){
+            $montoSemana4 = ($semanaCorrida['semanas'][3]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_5 + $fechasFeriados->semana_5) > 0){
-            $montoSemana5 = ($semanaCorrida['semanas'][4]['comision'] / (5 - ($fechasLicencias->semana_5 + $fechasFeriados->semana_5)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_5 + $fechasFeriados->semana_5) > 0){
+            $montoSemana5 = ($semanaCorrida['semanas'][4]['comision'] / $diasDeTrabajo);
         }
-
-        $semana1 = ($montoSemana1 + ($montoSemana1 * $fechasFeriados->semana_1) + $semanaCorrida['semanas'][0]['comision']);
-        $semana2 = ($montoSemana1 + ($montoSemana2 * $fechasFeriados->semana_2) + $semanaCorrida['semanas'][1]['comision']);
-        $semana3 = ($montoSemana1 + ($montoSemana3 * $fechasFeriados->semana_3) + $semanaCorrida['semanas'][2]['comision']);
-        $semana4 = ($montoSemana1 + ($montoSemana4 * $fechasFeriados->semana_4) + $semanaCorrida['semanas'][3]['comision']);
-        $semana5 = ($montoSemana1 + ($montoSemana5 * $fechasFeriados->semana_5) + $semanaCorrida['semanas'][4]['comision']);
+        
+        $semana1 = ($montoSemana1 * ($fechasFeriados->semana_1 + $fechasLicencias->semana_1 + $festivos));
+        $semana2 = ($montoSemana2 * ($fechasFeriados->semana_2 + $fechasLicencias->semana_2 + $festivos));
+        $semana3 = ($montoSemana3 * ($fechasFeriados->semana_3 + $fechasLicencias->semana_3 + $festivos));
+        $semana4 = ($montoSemana4 * ($fechasFeriados->semana_4 + $fechasLicencias->semana_4 + $festivos));
+        $semana5 = ($montoSemana5 * ($fechasFeriados->semana_5 + $fechasLicencias->semana_5 + $festivos));
 
         $total = ($semana1 + $semana2 + $semana3 + $semana4 + $semana5);
         
@@ -2525,8 +2643,10 @@ class Trabajador extends Eloquent {
     public function totalSemanaCorridas()
     {        
         $semanaCorrida = $this->semanaCorrida();
-        $id = $this->id;
+        $empresa = \Session::get('empresa');
         $mes = \Session::get('mesActivo');
+        $festivos = $empresa->totalFestivos();
+        $id = $this->id;
         $idMes = $mes->id;
         $inasistencias = Inasistencia::where('trabajador_id', $id)->where('mes_id', $idMes)->get();
         $feriados = Feriado::feriados($mes->mes, $mes->fechaRemuneracion);
@@ -2534,31 +2654,32 @@ class Trabajador extends Eloquent {
         $fechasFeriados = $this->totalFeriados($feriados);
         $fechasInasistencias = $this->totalFaltas($inasistencias);
         $fechasLicencias = $this->totalFaltas($licencias);
+        $diasDeTrabajo = $this->diasDeTrabajo();
        
 
         $montoSemana1=$montoSemana2=$montoSemana3=$montoSemana4=$montoSemana5=0;
-        if( 5 - ($fechasLicencias->semana_1 + $fechasFeriados->semana_1) > 0 ){        
-            $montoSemana1 = ($semanaCorrida['semanas'][0]['comision'] / (5 - ($fechasLicencias->semana_1 + $fechasFeriados->semana_1)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_1 + $fechasFeriados->semana_1) > 0 ){        
+            $montoSemana1 = ($semanaCorrida['semanas'][0]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_2 + $fechasFeriados->semana_2) > 0){
-            $montoSemana2 = ($semanaCorrida['semanas'][1]['comision'] / (5 - ($fechasLicencias->semana_2 + $fechasFeriados->semana_2)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_2 + $fechasFeriados->semana_2) > 0){
+            $montoSemana2 = ($semanaCorrida['semanas'][1]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_3 + $fechasFeriados->semana_3) > 0){
-            $montoSemana3 = ($semanaCorrida['semanas'][2]['comision'] / (5 - ($fechasLicencias->semana_3 + $fechasFeriados->semana_3)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_3 + $fechasFeriados->semana_3) > 0){
+            $montoSemana3 = ($semanaCorrida['semanas'][2]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_4 + $fechasFeriados->semana_4) > 0){
-            $montoSemana4 = ($semanaCorrida['semanas'][3]['comision'] / (5 - ($fechasLicencias->semana_4 + $fechasFeriados->semana_4)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_4 + $fechasFeriados->semana_4) > 0){
+            $montoSemana4 = ($semanaCorrida['semanas'][3]['comision'] / $diasDeTrabajo);
         }
-        if( 5 - ($fechasLicencias->semana_5 + $fechasFeriados->semana_5) > 0){
-            $montoSemana5 = ($semanaCorrida['semanas'][4]['comision'] / (5 - ($fechasLicencias->semana_5 + $fechasFeriados->semana_5)));
+        if($diasDeTrabajo - ($fechasLicencias->semana_5 + $fechasFeriados->semana_5) > 0){
+            $montoSemana5 = ($semanaCorrida['semanas'][4]['comision'] / $diasDeTrabajo);
         }
 
         
-        $semana1 = ($montoSemana1 + ($montoSemana1 * $fechasFeriados->semana_1) + $semanaCorrida['semanas'][0]['comision']);
-        $semana2 = ($montoSemana1 + ($montoSemana2 * $fechasFeriados->semana_2) + $semanaCorrida['semanas'][1]['comision']);
-        $semana3 = ($montoSemana1 + ($montoSemana3 * $fechasFeriados->semana_3) + $semanaCorrida['semanas'][2]['comision']);
-        $semana4 = ($montoSemana1 + ($montoSemana4 * $fechasFeriados->semana_4) + $semanaCorrida['semanas'][3]['comision']);
-        $semana5 = ($montoSemana1 + ($montoSemana5 * $fechasFeriados->semana_5) + $semanaCorrida['semanas'][4]['comision']);
+        $semana1 = ($montoSemana1 * ($fechasFeriados->semana_1 + $fechasLicencias->semana_1 + $festivos));
+        $semana2 = ($montoSemana2 * ($fechasFeriados->semana_2 + $fechasLicencias->semana_2 + $festivos));
+        $semana3 = ($montoSemana3 * ($fechasFeriados->semana_3 + $fechasLicencias->semana_3 + $festivos));
+        $semana4 = ($montoSemana4 * ($fechasFeriados->semana_4 + $fechasLicencias->semana_4 + $festivos));
+        $semana5 = ($montoSemana5 * ($fechasFeriados->semana_5 + $fechasLicencias->semana_5 + $festivos));
 
         $total = ($semana1 + $semana2 + $semana3 + $semana4 + $semana5);
         
@@ -2569,7 +2690,13 @@ class Trabajador extends Eloquent {
             'semana4' => $semana4,
             'semana5' => $semana5,
             'feriados' => $fechasFeriados,
-            'licencias' => $fechasLicencias
+            'licencias' => $fechasLicencias,
+            'festivos' => $festivos,
+            'montoSemana1' => $montoSemana1,
+            'montoSemana2' => $montoSemana2,
+            'montoSemana3' => $montoSemana3,
+            'montoSemana4' => $montoSemana4,
+            'montoSemana5' => $montoSemana5
         );
         
         return $datos;
@@ -2617,11 +2744,11 @@ class Trabajador extends Eloquent {
     public function totalFeriados($feriados)
     {
         $fechas = new stdClass();
-        $fechas->semana_1 = 1;
-        $fechas->semana_2 = 1;
-        $fechas->semana_3 = 1;
-        $fechas->semana_4 = 1;
-        $fechas->semana_5 = 1;
+        $fechas->semana_1 = 0;
+        $fechas->semana_2 = 0;
+        $fechas->semana_3 = 0;
+        $fechas->semana_4 = 0;
+        $fechas->semana_5 = 0;
         
         if(count($feriados)){
             $semanaAnterior = 0;
@@ -3553,6 +3680,7 @@ class Trabajador extends Eloquent {
         $rentaImponibleEmpleador = NULL;
         $afcEmpleador = 0;
         $isSC = false;
+        $ri = 0;
         
         if($empleado->seguro_desempleo && strtolower($empleado->tipo_trabajador)=='normal'){
             if($empleado->tipoContrato['id']==2){
@@ -3569,6 +3697,7 @@ class Trabajador extends Eloquent {
             $topeSeguroPesos = Funciones::convertirUF($topeSeguro);        
             
             if($nuevaRentaImponible){
+                $ri = $nuevaRentaImponible;
                 $rentaImponibleEmpleador = (($nuevaRentaImponible / 30) * $diasLicencia);
                 $isSC = true;
             }else{
@@ -3577,7 +3706,11 @@ class Trabajador extends Eloquent {
                         $mesActual = \Session::get('mesActivo')->mes;
                         $rentaImponibleAnterior = $this->rentaImponibleAnteriorSC($mesActual);
                         $rentaImponibleEmpleador = $rentaImponibleAnterior['rentaImponible'];
+                        if($rentaImponibleEmpleador > $topeSeguroPesos){
+                            $rentaImponibleEmpleador = $topeSeguroPesos;
+                        }
                         $isSC = $rentaImponibleAnterior['isSC'];
+                        $ri = $rentaImponibleEmpleador;
                         $rentaImponibleEmpleador = (($rentaImponibleEmpleador / 30) * $diasLicencia);
                         if($todosImponibles > $topeSeguroPesos && $diasTrabajados < 30){
                             $diasTrabajados = $this->diasTrabajados();
@@ -3629,14 +3762,14 @@ class Trabajador extends Eloquent {
             }
         }else{
             $isSC = true;
-        }
+        }                
       
         $datos = array(
             'afc' => $afcTrabajador,
             'afcEmpleador' => $afcEmpleador,
             'total' => $totalSeguroCesantiaTrabajador,
             'totalEmpleador' => $totalSeguroCesantiaEmpleador,
-            'rentaImponible' => $rentaImponible,
+            'rentaImponible' => $rentaImponible ? $rentaImponible : $ri,
             'rentaImponibleIngresada' => $nuevaRentaImponible ? $rentaImponibleEmpleador : NULL,
             'isSC' => $isSC
         );

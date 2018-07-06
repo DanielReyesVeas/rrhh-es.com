@@ -39,6 +39,15 @@ angular.module('angularjsApp')
       });
     }
 
+    $scope.provision = function(){
+      $rootScope.cargando = true;
+      var datos = trabajador.provision().post({}, {});
+      datos.$promise.then(function(response){
+        $rootScope.cargando = false;
+        openProvision(response)
+      });
+    }
+
     function open(anios, accesos){
       var miModal = $uibModal.open({
         animation: true,
@@ -56,6 +65,24 @@ angular.module('angularjsApp')
      miModal.result.then(function (mensaje) {
         Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
         cargarDatos();         
+      }, function () {
+      });
+    };
+
+    function openProvision(obj){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-provision-vacaciones.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormProvisionCtrl',
+        resolve: {
+          objeto: function () {
+            return obj;          
+          }
+        },
+        size: 'lg'
+      });
+     miModal.result.then(function (mensaje) {
+        Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
       }, function () {
       });
     };
@@ -131,8 +158,21 @@ angular.module('angularjsApp')
     };
 
   })
+  .controller('FormProvisionCtrl', function ($rootScope, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, constantes) { 
+  
+    $scope.datos = angular.copy(objeto.datos);
+    $scope.mes = angular.copy(objeto.mes);
+    $scope.constantes = constantes;
+
+    $scope.descargar = function(){
+      var url = $scope.constantes.URL + 'trabajadores/provision-vacaciones/descargar/';
+      window.open(url, "_self");
+    }
+
+  })
   .controller('FormCalendarioFeriadosCtrl', function ($rootScope, anio, fecha, anios, accesos, $uibModal, $filter, Notification, $scope, $uibModalInstance) { 
     
+    $scope.semanaCorrida = false;
     var anioActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo.idAnio;
     $scope.anios = angular.copy(anios);
     $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual }, true )[0] };
@@ -488,11 +528,10 @@ angular.module('angularjsApp')
     function contarDias(){
       var cont = 0;
       for(var i=0,len=$scope.selectedDates.length; i<len; i++){
-        if(new Date($scope.selectedDates[i]).getDay()!=0 && new Date($scope.selectedDates[i]).getDay()!=6){
+        if((disabledDates.indexOf($scope.selectedDates[i]) < 1) && new Date($scope.selectedDates[i]).getDay()!=0 && new Date($scope.selectedDates[i]).getDay()!=6){
           cont++;
         }
       }
-
       return cont;
     }
 
@@ -505,7 +544,7 @@ angular.module('angularjsApp')
         nuevaFecha = angular.copy(desde);
         tiempo = (i * 86400);
         nuevaFecha.setSeconds(tiempo);
-        if(nuevaFecha.getDay()!=0 && nuevaFecha.getDay()!=6){
+        if((disabledDates.indexOf($scope.selectedDates[i]) < 1) && nuevaFecha.getDay()!=0 && nuevaFecha.getDay()!=6){
           cont++;
         }
         i++;

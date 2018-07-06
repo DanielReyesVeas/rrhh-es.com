@@ -1271,6 +1271,9 @@ CREATE TABLE IF NOT EXISTS `fichas_trabajadores` (
   `fecha_finiquito` date DEFAULT NULL,
   `tipo_jornada_id` int(11) DEFAULT NULL,
   `semana_corrida` tinyint(1) DEFAULT '0',
+  `tipo_semana` tinyint(1) DEFAULT '0',
+  `tipo_sueldo` char(1) DEFAULT 's',
+  `horas` decimal(5,2) DEFAULT NULL,
   `moneda_sueldo` varchar(50) DEFAULT NULL,
   `sueldo_base` decimal(13,3) DEFAULT '0.000',
   `gratificacion` TINYTEXT DEFAULT NULL,
@@ -2263,7 +2266,7 @@ CREATE TABLE IF NOT EXISTS `variables_sistema` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=13 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=14 ;
 
 INSERT INTO `variables_sistema` (`id`, `variable`, `valor1`, `valor2`, `valor3`, `valor4`, `valor5`, `created_at`, `updated_at`) VALUES
 (3, 'apellido_nombre', '0', '', '', '', '', '0000-00-00 00:00:00', '2018-05-16 18:08:03'),
@@ -2275,7 +2278,8 @@ INSERT INTO `variables_sistema` (`id`, `variable`, `valor1`, `valor2`, `valor3`,
 (9, 'seccion_liquidacion', '1', '', '', '', '', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (10, 'firma_liquidacion', '1', '', '', '', '', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (11, 'cuenta_liquidacion', '1', '', '', '', '', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(12, 'uf_liquidacion', '1', '', '', '', '', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(12, 'uf_liquidacion', '1', '', '', '', '', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(13, 'festivos', '0000001', '', '', '', '', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 
 -- --------------------------------------------------------

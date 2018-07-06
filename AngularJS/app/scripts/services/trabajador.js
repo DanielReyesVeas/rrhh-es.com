@@ -71,6 +71,9 @@ angular.module('angularjsApp')
             cargas : function(){
               return $resource(constantes.URL + 'trabajadores/cargas-familiares/obtener/:sid');
             },
+            sueldoHora : function(){
+              return $resource(constantes.URL + 'trabajadores/sueldo-hora/obtener/:sid');
+            },
             cargasAutorizar : function(){
               return $resource(constantes.URL + 'trabajadores/cargas-familiares-autorizar/obtener/:sid');
             },
@@ -257,6 +260,12 @@ angular.module('angularjsApp')
             liquidacionObservaciones : function(){
               return $resource(constantes.URL + 'trabajadores/liquidacion/registro-observaciones/:id',
                   { id : "@id"},
+                  { post : { 'method': 'POST' } }
+              );
+            },
+            provision : function(){
+              return $resource(constantes.URL + 'trabajadores/provision-vacaciones/obtener',
+                  {},
                   { post : { 'method': 'POST' } }
               );
             }

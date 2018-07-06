@@ -351,46 +351,57 @@
       border-right: 1px solid black;
     }
       
-    #watermark {
+    /*#watermark {
         position: fixed;
 
-        /** 
-            Set a position in the page for your image
-            This should center it vertically
-        **/
         bottom:   200px;
         opacity: 0.5;
         color: #A9A9A9;
         font-size: 150px;
         text-align: center;
 
-        /** Change image dimensions**/
+        // Change image dimensions
         width:    800px;
         height:   200px;
 
-        /** Your watermark should be behind every content**/
+        // Your watermark should be behind every content
         z-index:  1000;
         
         -webkit-transform: rotate(-45deg);
 
-        /* Firefox */
+        // Firefox 
         -moz-transform: rotate(-45deg);
 
-        /* IE */
+        // IE 
         -ms-transform: rotate(-45deg);
 
-        /* Opera */
+        // Opera 
         -o-transform: rotate(-45deg);
 
-        /* Internet Explorer */
+        // Internet Explorer 
         filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    }*/
+    #watermark {
+        position: fixed;
+        top:   10px;
+        
+        color: #A9A9A9;
+        font-size: 14px;
+        width:    800px;
+        height:   200px;
+        text-align: center;
     }
 
   </style>
     <div class="page">
-      @if(!$isValida)
+      <!--@if(!$isValida)
         <div id="watermark">
           No Válida
+        </div>
+      @endif-->
+      @if(!$isValida)
+        <div id="watermark">
+          ******
         </div>
       @endif
       <div class="contenedor">

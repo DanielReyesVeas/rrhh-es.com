@@ -42,6 +42,17 @@ class Vacaciones extends Eloquent {
         return $total;
     }
     
+    public function sumaTomaVacaciones()
+    {
+        $tomasVacaciones = TomaVacaciones::where('trabajador_id', $this->trabajador_id)->where('mes', '<=', $this->mes)->get();
+        $total = 0;
+        foreach($tomasVacaciones as $toma){
+            $total += $toma->dias;
+        }
+        
+        return $total;
+    }
+    
     public function tomaVacacionesMes()
     {
         $tomasVacaciones = $this->tomaVacaciones();

@@ -509,7 +509,7 @@ class FiniquitosController extends \BaseController {
                 if($datos['vacacionesManual']){
                     $vacaciones = $datos['diasVacaciones'];
                 }else{
-                    $vacaciones = $trabajador->misVacaciones();     
+                    $vacaciones = $trabajador->misVacacionesFiniquito();     
                 }
                 $sueldoVacaciones = $trabajador->sueldoBase();
                 $montoVacaciones = round(($sueldoVacaciones / 30 ) * $vacaciones);
@@ -556,7 +556,8 @@ class FiniquitosController extends \BaseController {
             'idCausal' => $datos['idCausal'],
             'detalle' => $detalle,
             'totalImponibles' => $totalImponibles,
-            'tope' => $tope
+            'tope' => $tope,
+            'z' => $trabajador->misVacacionesFiniquitos() 
         );     
   
         return Response::json($respuesta);

@@ -28,33 +28,22 @@ angular.module('angularjsApp')
 
     $scope.detalle = function(obj){
       $rootScope.cargando=true;
-      var datos = trabajador.vacaciones().get({sid: obj.sid});
+      var datos = trabajador.sueldoHora().get({sid: obj.sid});
       datos.$promise.then(function(response){
-        var fechas = crearModels(response.datos);        
-        $scope.fechas = { primerMes : response.primerMes, ultimoMes : response.ultimoMes };
-        openDetalleVacaciones( response, fechas );
+        openDetalleVacaciones( response.datos );
         $rootScope.cargando=false;
       });
     }
 
 
-    function openDetalleVacaciones(obj, fechas){
+    function openDetalleVacaciones(obj){
       var miModal = $uibModal.open({
         animation: true,
-        templateUrl: 'views/forms/form-detalle-vacaciones.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        templateUrl: 'views/forms/form-detalle-sueldo-hora.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
         controller: 'FormDetalleSueldoHoraCtrl',
         resolve: {
           objeto: function () {
             return obj;          
-          },
-          tomadas: function () {
-            return fechas.tomadas;          
-          },
-          feriados: function () {
-            return fechas.feriados;          
-          },
-          fechas: function () {
-            return $scope.fechas;          
           }
         }
       });
@@ -72,5 +61,21 @@ angular.module('angularjsApp')
       return 'Gestionar horas semanales del trabajador <b>' + nombre + '</b>';
     };
 
+  })
+  .controller('FormDetalleSueldoHoraCtrl', function ($rootScope, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, trabajador) { 
+
+    console.log(objeto)
+
+    if(objeto){
+      $scope.atraso = angular.copy(objeto);
+      $scope.titulo = 'Modificación Atraso';
+      $scope.encabezado = $scope.atraso;
+      $scope.isEdit = true;
+    }else{
+      $scope.atraso = {};
+      $scope.titulo = 'Atrasos';
+      $scope.encabezado = 'Nuevo Atraso';
+      $scope.isEdit = false;
+    }    
 
   });

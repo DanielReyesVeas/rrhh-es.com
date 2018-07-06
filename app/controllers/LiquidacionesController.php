@@ -578,6 +578,7 @@ class LiquidacionesController extends \BaseController {
                 if($liquidacion['cuerpo']){
                     $html = $html . $liquidacion['cuerpo'] . '<div style="page-break-after: always;"></div>';                
                 }else{
+                    $liquidacion = Liquidacion::find($liquidacion['id']);
                     $html = $html . $liquidacion->generarCuerpo() . '<div style="page-break-after: always;"></div>';
                 }
             }

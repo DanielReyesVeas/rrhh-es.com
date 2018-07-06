@@ -457,7 +457,17 @@
               <span class="switch-label" data-on="SI" data-off="NO" ng-disabled="trabajador.estado==='Finiquitado'"></span>
               <span class="switch-handle" ng-disabled="trabajador.estado==='Finiquitado'"></span>
             </label>
-          </div>  
+          </div> 
+          <div class="col-sm-6" ng-class="{ 'hidden' : !trabajador.semanaCorrida }" style="margin-top: 10px;">
+            <div class="row">
+              <div class="radio col-sm-4">
+                <label><input type="radio" ng-model="trabajador.tipoSemana" name="tipoSemana" value="s" icheck ng-disabled="trabajador.estado==='Finiquitado'" required>Semanal</label>
+              </div>
+              <div class="radio col-sm-4">
+                <label><input type="radio" ng-model="trabajador.tipoSemana" name="tipoSemana" value="m" icheck ng-disabled="trabajador.estado==='Finiquitado'" required>Mensual</label>
+              </div>
+            </div>                            
+          </div> 
         </div>   
         
       </div>      

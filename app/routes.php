@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.7.6');
+define('VERSION_SISTEMA', '1.7.7');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -1406,6 +1406,39 @@ Route::get('crear-vacaciones', function(){
     }
 });
 
+Route::get('recalcular-vacaciones', function(){
+
+    Config::set('database.default', 'principal' );
+    $empresas = Empresa::all();
+    
+    if($empresas->count()){
+        foreach($empresas as $empresa){
+            $empleados = array();
+            Config::set('database.default', $empresa->base_datos);
+            DB::table('vacaciones')->truncate();
+            echo '<br />Empresa : ' . $empresa->razon_social . '<br /><br />';
+            $empleados = Trabajador::all();
+            foreach($empleados as $empleado){
+                $ficha = $empleado->ultimaFicha();
+                if($ficha){
+                    $dias = $ficha->vacaciones ? $ficha->vacaciones : 0;                    
+                    $calcularDesde = $ficha->calculo_vacaciones;
+                    if($calcularDesde=='p'){
+                        $primerMes = MesDeTrabajo::orderBy('mes')->first();
+                        $desde = $primerMes->mes;
+                    }else{
+                        $desde = Funciones::primerDia($ficha->fecha_ingreso);
+                    }
+                    $empleado->recalcularVacaciones($dias, $desde);
+                    echo 'Trabajador : ' . $ficha->nombreCompleto() . '<br />';
+                }                
+            }
+        }        
+    }else{
+        echo "Sin Empleados";
+    }
+});
+
 Route::get('corregir-observaciones', function(){
 
     Config::set('database.default', 'principal' );
@@ -1910,6 +1943,9 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::post('trabajadores/generar-ingreso/masivo', 'TrabajadoresController@generarIngresoMasivo');
     Route::post('trabajadores/tramo/cambiar', 'TrabajadoresController@cambiarTramo');
     Route::post('trabajadores/liquidacion/registro-observaciones', 'TrabajadoresController@miLiquidacionObservaciones_store');
+    Route::post('trabajadores/provision-vacaciones/obtener', 'TrabajadoresController@provisionVacaciones');
+    Route::get('trabajadores/provision-vacaciones/descargar', 'TrabajadoresController@descargarProvision');
+    Route::get('trabajadores/sueldo-hora/obtener/{sid}', 'TrabajadoresController@trabajadorSueldoHora');
         
     /*   NACIONALIDADES    */
     Route::resource('nacionalidades', 'NacionalidadesController');

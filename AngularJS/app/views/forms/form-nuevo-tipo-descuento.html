@@ -16,13 +16,13 @@
           </div>
           <div class="form-group col-sm-8 required" ng-class="{ 'has-error': erroresDatos.codigo }">
             <label class="control-label">Nombre:</label>
-            <input ng-model="tipoDescuento.nombre" ng-change="erroresDatos.codigo=null" class="form-control form-white" type="text" placeholder="ingrese el nombre" ng-disabled="tipoDescuento.idEstructura>2 || tipoDescuento.nombre=='Anticipo' || tipoDescuento.nombre=='Sobregiro Mes Anterior'" required >
+            <input ng-model="tipoDescuento.nombre" ng-change="erroresDatos.codigo=null" class="form-control form-white" type="text" placeholder="ingrese el nombre" ng-disabled="tipoDescuento.sid && (tipoDescuento.idEstructura>2 || tipoDescuento.nombre=='Anticipo' || tipoDescuento.nombre=='Sobregiro Mes Anterior')" required >
           </div>
           <span class="col-sm-8 col-sm-offset-3 text-danger" ng-if="erroresDatos.nombre"><b>{{ erroresDatos.nombre[0] }}</b></span>
           <span class="col-sm-12 text-danger" ng-if="erroresDatos.codigo"><b>{{ erroresDatos.codigo[0] }}</b></span>
         </div>        
 
-        <div style="margin-top: 20px;" ng-if="tipoDescuento.tipo.id<3 && tipoDescuento.nombre!='Anticipo' && tipoDescuento.nombre!='Sobregiro Mes Anterior'">
+        <div style="margin-top: 20px;" ng-if="!tipoDescuento.sid || (tipoDescuento.tipo.id<3 && tipoDescuento.nombre!='Anticipo' && tipoDescuento.nombre!='Sobregiro Mes Anterior')">
           <div class="col-sm-12">
             <div class="form-group form-group-md required">
               <label class="col-sm-3 control-label">Tipo:</label>
