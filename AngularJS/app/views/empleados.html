@@ -12,6 +12,7 @@
           <select ng-model="orden" id="orden" ng-init="orden='apellidos'" class="form-control form-white" ng-change="reverse = false">
             <option value="rut">RUT</option>
             <option value="apellidos">Nombre</option>
+            <option value="estado">Estado</option>
             <option value="email">Email</option>
           </select>
         </div>
@@ -50,8 +51,9 @@
             <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos" ng-if="accesos.crear && accesos.abierto" ng-change="selectAll()" icheck></th>
             <th class="col-sm-1">RUT</th>
             <th class="col-sm-4">Nombre</th>
-            <th class="col-sm-2">Usuario</th>
+            <th class="col-sm-1">Usuario</th>
             <th class="col-sm-2">Email</th>
+            <th class="col-sm-1">Estado</th>
             <th class="col-sm-1">Activo</th>
             <th class="col-sm-1">Acciones</th>
           </tr>
@@ -63,6 +65,11 @@
               <td>{{ dato.nombreCompleto }}</td>
               <td>{{ dato.username }}</td>
               <td>{{ dato.email }}</td>
+              <td>
+                <span class="text-success" ng-if="dato.estado==='Ingresado'">{{ dato.estado }}</span>
+                <span class="text-danger" ng-if="dato.estado==='Finiquitado'">{{ dato.estado }}</span>
+                <span class="text-primary" ng-if="dato.estado==='En Creación'">{{ dato.estado }}</span>
+              </td>
               <td>
                 <label class="switch switch-green" ng-class="{ 'hidden' : isSelect }">
                   <input class="switch-input" ng-model="dato.activo" type="checkbox" ng-change="activar(dato)">

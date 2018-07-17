@@ -11,7 +11,7 @@
     </div>-->
 
     <div class="col-sm-10 col-sm-offset-1" ng-if="cargado" style="margin-top: 60px;">
-      <ul class="nav nav-tabs form-tabs" style="margin-bottom: 40px;">
+      <ul class="nav nav-tabs form-tabs" style="margin-bottom: 20px;">
         <li ng-class="{ 'active' : tabGeneral }"><a data-toggle="tab" ng-click="openTab('generales')">General</a></li>
         <li ng-class="{ 'active' : tabAportes }"><a data-toggle="tab" ng-click="openTab('aportes')">Aportes</a></li>
         <li ng-class="{ 'active' : tabAfpEmpleador || tabAfpTrabajador || tabCuentasAhorroAfp }"> <a data-toggle="tab" ng-click="openTab('afpEmpleador')">AFPs</a></li>
@@ -23,6 +23,10 @@
         <li ng-class="{ 'active' : tabDescuentos || tabDescuentosLegales }"> <a data-toggle="tab" ng-click="openTab('descuentos')">Descuentos</a></li>
         <li ng-class="{ 'active' : tabExCaja }"> <a data-toggle="tab" ng-click="openTab('exCaja')">Ex Cajas</a></li>
       </ul>
+
+      <div class="col-sm-12" ng-if="!empresa.centroCosto.isCentroCosto">
+        <a ng-click="masivo()" ng-if="accesos.crear && accesos.abierto" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-pencil"></i> Masivo</a>
+      </div>
 
       <div class="col-sm-12" ng-if="tabGeneral">
 

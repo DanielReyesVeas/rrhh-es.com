@@ -372,6 +372,29 @@ class TiposHaberController extends \BaseController {
         
         return Response::json($respuesta);
     }
+    
+    public function updateCuentaMasivo()
+    {
+        $datos = Input::all();
+        $sid = $datos['sid'];
+        $idCuenta = $datos['idCuenta'];
+        
+        $haberes = TipoHaber::whereIn('sid', $sid)->get();
+        
+        if($haberes->count()){
+            foreach($haberes as $haber){
+                $haber->cuenta_id = $idCuenta;
+                $haber->save();
+            }
+        }
+        
+        $respuesta = array(
+            'success' => true,
+            'mensaje' => "La Información fue actualizada correctamente"
+        );
+        
+        return Response::json($respuesta);
+    }
 
     /**
      * Remove the specified resource from storage.

@@ -424,9 +424,15 @@
                     <td>Fecha de Ingreso : <b>{{ $liquidacion['fechaIngreso'] }}</b></td>
                   </tr>
                   <tr>
-                    <td>                    
-                        @if($liquidacion['seccion']['nombre'] && $configuracion->seccion_liquidacion)
-                            Sección :  <b>{{ $liquidacion['seccion']['nombre'] }}</b>
+                    <td>        
+                        @if($configuracion->centro_costo)
+                            @if($liquidacion['centroCosto']['nombre'] && $configuracion->seccion_liquidacion)
+                                Centro de Costo :  <b>{{ $liquidacion['centroCosto']['nombre'] }}</b>
+                            @endif  
+                        @else
+                            @if($liquidacion['seccion']['nombre'] && $configuracion->seccion_liquidacion)
+                                Sección :  <b>{{ $liquidacion['seccion']['nombre'] }}</b>
+                            @endif                        
                         @endif
                     </td>
                     <td></td> 
@@ -453,9 +459,15 @@
                     <td></td>
                   </tr>
                   <tr>
-                    <td>                    
-                        @if($liquidacion['seccion']['nombre'] && $configuracion->seccion_liquidacion)
-                            Sección :  <b>{{ $liquidacion['seccion']['nombre'] }}</b>
+                    <td>                                           
+                        @if($configuracion->centro_costo)
+                            @if($liquidacion['centroCosto']['nombre'] && $configuracion->seccion_liquidacion)
+                                Centro de Costo :  <b>{{ $liquidacion['centroCosto']['nombre'] }}</b>
+                            @endif
+                        @else
+                            @if($liquidacion['seccion']['nombre'] && $configuracion->seccion_liquidacion)
+                                Sección :  <b>{{ $liquidacion['seccion']['nombre'] }}</b>
+                            @endif                    
                         @endif
                     </td>
                     <td></td> 
@@ -624,7 +636,11 @@
 					  @if(count($liquidacion['haberesNoImponibles'])>0)
                         @foreach($liquidacion['haberesNoImponibles'] as $haber)
                           <tr>
-                            <td style="padding-left: 10px;">{{ $haber['tipo']['nombre'] }}</td>
+                            @if($liquidacion['empresa']['rut']=='765748798' && $haber['tipo']['nombre']=='Colación')
+                                <td style="padding-left: 10px;">Anticipo Colación</td>
+                            @else
+                                <td style="padding-left: 10px;">{{ $haber['tipo']['nombre'] }}</td>
+                            @endif
                             <td>{{ Funciones::formatoPesos($haber['montoPesos']) }}</td>
                           </tr>
                         @endforeach

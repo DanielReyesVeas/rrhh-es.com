@@ -40,9 +40,10 @@
               <th class="col-sm-1">#</th>
               <th class="col-sm-1">RUT</th>
               <th class="col-sm-3">Nombre</th>              
-              <th class="col-sm-3">Cargo</th>
-              <th class="col-sm-1">Fecha Ingreso</th>
+              <th class="col-sm-2">Cargo</th>
               <th class="col-sm-1">Sueldo por Hora</th>
+              <th class="col-sm-1">Horas Semanales</th>
+              <th class="col-sm-1">Horas al Mes</th>
               <th class="col-sm-1">Horas Trabajadas</th>
               <th class="col-sm-1"></th>
             </tr>
@@ -52,13 +53,14 @@
               <td>{{ $index + 1 }}</td>
               <td>{{ trabajador.rutFormato }}</td>
               <td>{{ trabajador.nombreCompleto }}</td>
-              <td>{{ trabajador.cargo.nombre }}</td>
               <td>{{ trabajador.fechaIngreso | date : "dd-MM-y" }}</td>
               <td>
                 <span ng-if="trabajador.moneda==='$' && trabajador.sueldo>0">${{ trabajador.sueldo | currency :"":0 }}</span>
                 <span ng-if="trabajador.moneda!=='$' && trabajador.sueldo>0">{{ trabajador.sueldo }} {{ trabajador.moneda }}</span>
               </td>
               <td>{{ trabajador.horas }} hrs.</span></td>
+              <td>{{ trabajador.horasMes }} hrs.</span></td>
+              <td>{{ trabajador.totalHoras }} hrs.</span></td>
               <td>
                 <a href="" ng-click="detalle(trabajador)"><i class="fa fa-search" uib-tooltip-html="toolTipDetalle(trabajador.nombreCompleto)"></i></a>
               </td>

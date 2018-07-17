@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.7.7');
+define('VERSION_SISTEMA', '1.7.9');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -1865,6 +1865,7 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::post('aportes/cuentas/actualizar', 'AportesController@updateCuenta');
     Route::post('aportes/cuentas-centros-costos/actualizar', 'AportesController@updateCuentaCentroCosto');
     Route::get('aportes/centro-costo/obtener/{sid}', 'AportesController@cuentaAporteCentroCosto');
+    Route::post('aportes/cuentas-masivo/actualizar', 'AportesController@updateCuentaMasivo');
     
     /*  TRABAJADORES    */
     Route::resource('trabajadores', 'TrabajadoresController');
@@ -1964,6 +1965,7 @@ Route::group(array('before'=>'auth_ajax'), function() {
     
     /*   CUENTAS    */
     Route::resource('cuentas', 'CuentasController');
+    Route::get('cuentas/plan-cuentas/obtener', 'CuentasController@planCuentas');
     
     /*   BANCOS    */
     Route::resource('bancos', 'BancosController');
@@ -1988,6 +1990,7 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::get('tipos-haber/centro-costo/obtener/{sid}', 'TiposHaberController@cuentaHaberCentroCosto');
     Route::post('tipos-haber/cuentas/actualizar', 'TiposHaberController@updateCuenta');
     Route::post('tipos-haber/cuentas-centros-costos/actualizar', 'TiposHaberController@updateCuentaCentroCosto');
+    Route::post('tipos-haber/cuentas-masivo/actualizar', 'TiposHaberController@updateCuentaMasivo');
 
     /*   TIPOS_DESCUENTO    */
     Route::resource('tipos-descuento', 'TiposDescuentoController');
@@ -1996,6 +1999,7 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::get('tipos-descuento/centro-costo/obtener/{sid}', 'TiposDescuentoController@cuentaDescuentoCentroCosto');
     Route::post('tipos-descuento/cuentas/actualizar', 'TiposDescuentoController@updateCuenta');
     Route::post('tipos-descuento/cuentas-centros-costos/actualizar', 'TiposDescuentoController@updateCuentaCentroCosto');
+    Route::post('tipos-descuento/cuentas-masivo/actualizar', 'TiposDescuentoController@updateCuentaMasivo');
     
     /*   TIPOS_DOCUMENTO    */
     Route::resource('tipos-documento', 'TiposDocumentoController');
@@ -2028,6 +2032,9 @@ Route::group(array('before'=>'auth_ajax'), function() {
     
     /*   ATRASOS    */
     Route::resource('atrasos', 'AtrasosController');
+    
+    /*   DESCUENTOS_HORA    */
+    Route::resource('descuentos-horas', 'DescuentosHorasController');
         
     /*   LICENCIAS    */
     Route::resource('licencias', 'LicenciasController');

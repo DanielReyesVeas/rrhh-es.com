@@ -65,10 +65,10 @@ class EmpleadosController extends BaseController {
                             'rutFormato' => $usuario->trabajador->rut_formato(),
                             'username' => $usuario->username,
                             'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                            'estado' => $empleado->estado,
                             'nombreCompleto' => $empleado->nombreCompleto(),
                             'email' => $empleado->email,
-                            'activo' => ($usuario->activo==1) ? true : false,
-                            'estado' => $usuario->activo
+                            'activo' => ($usuario->activo==1) ? true : false
                         );
                         if($todosActivos){
                             if($usuario->activo!=1){

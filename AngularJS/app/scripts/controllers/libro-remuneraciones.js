@@ -84,14 +84,26 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormExportarLibroRemuneracionesCtrl', function ($scope, tipo, $uibModalInstance, constantes, objeto, Notification, $rootScope, trabajador) {
+  .controller('FormExportarLibroRemuneracionesCtrl', function ($scope, filterFilter, $timeout, tipo, $uibModalInstance, constantes, objeto, Notification, $rootScope, trabajador) {
 
     $scope.constantes = constantes;
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
     $scope.datos = angular.copy(objeto);
     $scope.objeto = { todosTrabajadores : true, todosConceptos : true };
     $scope.tipo = tipo;
+    $scope.filtro = {};
+    if($scope.empresa.centroCosto.isCentroCosto){
+      var nombre = 'Centro de Costo';
+      var codigo = 'centro_costo';
+      var noIncluir = { codigo : 'seccion', check : false };
+    }else{
+      var nombre = 'Sección';
+      var codigo = 'seccion';
+      var noIncluir = { codigo : 'centro_costo', check : false };
+    }
 
     $scope.conceptos = [
+      { id : 0, nombre : nombre, codigo : codigo },
       { id : 1, nombre : 'Sueldo Base', codigo : 'sueldo_base' },
       { id : 2, nombre : 'Dias Trabajados', codigo : 'dias_trabajados' },
       { id : 3, nombre : 'Inasistencias y Atrasos', codigo : 'inasistencias' },
@@ -119,17 +131,59 @@ angular.module('angularjsApp')
       for(var i=0, len=$scope.datos.length; i<len; i++){
         $scope.datos[i].check = true;
       }         
+      $scope.filtrar();                
+      $timeout(function() {
+        aumentarLimite();
+      }, 250);
       for(var i=0, len=$scope.conceptos.length; i<len; i++){
         $scope.conceptos[i].check = true;
       }         
     }    
 
+    $scope.filtrar = function(){
+      $scope.filtro.itemsFiltrados=[];
+      var listaTemp = filterFilter($scope.datos, $scope.filtro.nombre);
+      if(listaTemp.length){
+        for(var ind in listaTemp){
+          $scope.filtro.itemsFiltrados.push( listaTemp[ind] );
+        }
+      }
+      var thereSelected = isThereAllSelected($scope.filtro.itemsFiltrados);
+      console.log(thereSelected)
+      if(!thereSelected.one){
+        $scope.objeto.todosTrabajadores = false;
+      };
+      if(thereSelected.all){
+        $scope.objeto.todosTrabajadores = true;
+      };
+    };
+
+    $scope.clearText = function(){
+      $scope.filtro.nombre = "";
+      $scope.filtrar();
+    }
+
+    $scope.cargaElementos=0;
+
+    function aumentarLimite(){
+      if( $scope.limiteDinamico < $scope.datos.length ){
+        $scope.cargaElementos = Math.round(($scope.limiteDinamico/$scope.datos.length) * 100);
+        $scope.limiteDinamico+=5;
+        $timeout( function(){
+          aumentarLimite();
+        }, 250);
+      }else{
+        $rootScope.cargando=false;
+        $scope.cargaElementos=100;
+      }
+    };
+
     $scope.isSelected = function(){
       var boolDatos = false;
       var boolConceptos = false;
 
-      for(var i=0,len=$scope.datos.length; i<len; i++){
-        if($scope.datos[i].check){
+      for(var i=0,len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+        if($scope.filtro.itemsFiltrados[i].check){
           boolDatos = true;
           break;
         }
@@ -152,7 +206,7 @@ angular.module('angularjsApp')
           $scope.objeto.todosTrabajadores = false; 
         }
       }else{
-        if(isSelected($scope.datos)){
+        if(isSelected($scope.filtro.itemsFiltrados)){
           $scope.objeto.todosTrabajadores = true;
         }
       }
@@ -181,6 +235,29 @@ angular.module('angularjsApp')
       return bool;
     }
 
+    function isThereAllSelected(datos){
+      var one = false;
+      var all = true;
+      if(datos.length > 0){
+        for(var i=0, len=datos.length; i<len; i++){
+          if(datos[i].check){
+            if(!one){
+              one = true;
+            }
+          }else{
+            if(all){
+              all = false;
+            }
+          }
+        }
+      }else{
+        all = false;
+      }
+      var bool = { one : one, all : all };
+
+      return bool;
+    }
+
     $scope.selectAll = function(datos, all){      
       for(var i=0, len=datos.length; i<len; i++){
         datos[i].check = all;
@@ -201,23 +278,26 @@ angular.module('angularjsApp')
       }          
     }
 
-    $scope.generarExcel = function(excel){      
-      $rootScope.cargando=true;
+    $scope.generarExcel = function(excel){
+      $rootScope.cargando=true;      
 
       var trabajadores = [];
       var conceptos = {};
 
-      for(var i=0,len=$scope.datos.length; i<len; i++){
-        if($scope.datos[i].check){
-          trabajadores.push($scope.datos[i].idTrabajador);
+      for(var i=0,len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+        if($scope.filtro.itemsFiltrados[i].check){
+          trabajadores.push($scope.filtro.itemsFiltrados[i].idTrabajador);
         }
       }
       for(var i=0,len=$scope.conceptos.length; i<len; i++){
         conceptos[$scope.conceptos[i].codigo] = $scope.conceptos[i].check;
       }
 
+      conceptos[noIncluir.codigo] = noIncluir.check;
+
       var obj = { trabajadores : trabajadores, conceptos : conceptos, tipo : tipo, excel : excel };
       var datos = trabajador.generarLibro().post({}, obj);
+
       datos.$promise.then(function(response){
         if(response.success){
           descargar(response);

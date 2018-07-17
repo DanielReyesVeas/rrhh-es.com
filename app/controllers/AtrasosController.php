@@ -114,7 +114,30 @@ class AtrasosController extends \BaseController {
                 'trabajador' => $atraso->trabajadorAtraso()
             );
         }else{
-            $trabajadores = Trabajador::activosFiniquitados();
+            $finMes = $mesActual->fechaRemuneracion;
+            $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mesActual->mes)));
+            $finMesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($finMes)));
+            $listaTrabajadores = Trabajador::all();
+
+            if( $listaTrabajadores->count() ){
+                foreach( $listaTrabajadores as $trabajador ){
+                    $empleado = $trabajador->ficha();
+                    if($empleado){
+                        if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesActual->mes){
+                            if($empleado->tipo_sueldo=='Mensual'){
+                                $trabajadores[]=array(
+                                    'id' => $trabajador->id,
+                                    'sid' => $trabajador->sid,
+                                    'apellidos' => $empleado->apellidos,
+                                    'nombreCompleto' => $empleado->nombreCompleto()
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            $trabajadores = Funciones::ordenar($trabajadores, 'apellidos');
         }
         
         $datos = array(

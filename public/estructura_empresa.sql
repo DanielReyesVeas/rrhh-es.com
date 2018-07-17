@@ -733,6 +733,27 @@ CREATE TABLE IF NOT EXISTS `descuentos` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `descuentos_horas`
+--
+
+CREATE TABLE IF NOT EXISTS `descuentos_horas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sid` varchar(50) NOT NULL,
+  `trabajador_id` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `horas` int(11) NOT NULL,
+  `minutos` int(11) NOT NULL,
+  `observacion` text,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+
 
 -- --------------------------------------------------------
 

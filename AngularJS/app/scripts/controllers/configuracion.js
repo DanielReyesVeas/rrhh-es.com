@@ -13,6 +13,7 @@ angular.module('angularjsApp')
 
     $scope.datos = [];
     $scope.cargado = false;
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
 
     function cargarDatos(){
       $scope.cargado = false;
@@ -82,6 +83,16 @@ angular.module('angularjsApp')
 
     function actualizarOptions(){
       $scope.datos.configuracion = $filter('filter')($scope.configuraciones, { valor: $scope.datos.configuracion}, true )[0];
+      console.log($scope.empresa)
+      if($scope.datos.configuracion.valor=='g'){
+        $scope.concepto = 'Centro de Costo/Sección';
+      }else{
+        if($scope.empresa.centroCosto.isCentroCosto){
+          $scope.concepto = 'Centro de Costo';
+        }else{
+          $scope.concepto = 'Sección';
+        }
+      }
     }
 
     cargarDatos();

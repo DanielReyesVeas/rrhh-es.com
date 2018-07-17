@@ -19,16 +19,16 @@
         <table>
             <tbody>
                 <tr>
-                    <td colspan="4">{{ $datos->empresa['razon_social'] }}</td>
+                    <td colspan="6">{{ $datos->empresa['razon_social'] }}</td>
                 </tr>
                 <tr>
-                    <td colspan="4">RUT: {{ $datos->empresa['rutFormato'] }}</td>
+                    <td colspan="6">RUT: {{ $datos->empresa['rutFormato'] }}</td>
                 </tr>
                 <tr>
-                    <td colspan="4">{{ $datos->empresa['actividad_economica'] }}</td>
+                    <td colspan="6">{{ $datos->empresa['actividad_economica'] }}</td>
                 </tr>
                 <tr>
-                    <td colspan="4">{{ $datos->empresa['domicilio'] }}</td>
+                    <td colspan="6">{{ $datos->empresa['domicilio'] }}</td>
                 </tr>
             </tbody>
         </table>
@@ -47,6 +47,13 @@
                 <tr>
                     <th>RUT</th>        
                     <th>Nombre</th>        
+                    @if($datos->conceptos['centro_costo'])
+                        <th>C. Costo</th>        
+                    @else
+                        @if($datos->conceptos['seccion'])
+                            <th>Sección</th> 
+                        @endif
+                    @endif
                     @if($datos->conceptos['sueldo_base'])<th>S. Base</th>@endif
                     @if($datos->conceptos['dias_trabajados'])<th>DT</th>@endif        
                     @if($datos->conceptos['inasistencias'])<th>Inasist.</th>@endif        
@@ -73,6 +80,13 @@
                     <tr>
                         <td>{{ Funciones::formatear_rut($dato->trabajador_rut) }}</td>
                         <td>{{ $dato->trabajador_nombres }} {{ $dato->trabajador_apellidos }}</td>
+                        @if($datos->conceptos['centro_costo'])
+                            <td>{{ $dato->centro }}</td>        
+                        @else
+                            @if($datos->conceptos['seccion'])
+                                <td>{{ $dato->trabajador_seccion }}</td> 
+                            @endif
+                        @endif
                         @if($datos->conceptos['sueldo_base'])
                             <td>{{ Funciones::formatoPesos($dato->sueldo_base) }}</td>
                         @endif
@@ -136,6 +150,9 @@
             <tfoot>
                 <tr>
                     <td></td>
+                    @if($datos->conceptos['seccion'] || $datos->conceptos['centro_costo'])
+                        <td></td>
+                    @endif 
                     <td><b>Totales:</b></td>
                     @if($datos->conceptos['sueldo_base'])
                         <td><b>{{ Funciones::formatoPesos($datos->totales['totalSueldoBase']) }}</b></td>

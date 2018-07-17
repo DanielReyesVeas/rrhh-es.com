@@ -8,7 +8,7 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('LiquidacionesDeSueldoCtrl', function ($scope, constantes, $uibModal, $filter, $anchorScroll, trabajador, $rootScope, Notification, liquidacion) {
+  .controller('LiquidacionesDeSueldoCtrl', function ($scope, constantes, filterFilter, $timeout, $uibModal, $filter, $anchorScroll, trabajador, $rootScope, Notification, liquidacion) {
     
     $anchorScroll();
     $scope.objeto = [];
@@ -16,6 +16,7 @@ angular.module('angularjsApp')
     $scope.cargado = false;
     $scope.constantes = constantes;
     $scope.mensaje = [ "", "", "", ""];
+    $scope.filtro = [ {}, {}, {}, {} ];
 
     if($rootScope.globals.currentUser.empresa){
       $scope.uf = $rootScope.globals.indicadores.uf.valor;
@@ -31,18 +32,53 @@ angular.module('angularjsApp')
         $scope.mostrarFiniquitados = response.mostrarFiniquitados;
         $scope.trabajadores = [ response.sinLiquidacion, response.conLiquidacion, response.sinLiquidacionFiniquitados, response.conLiquidacionFiniquitados ];
         $rootScope.cargando = false;
+        $scope.filtrar(0);                
+        $scope.filtrar(1);                
+        $scope.filtrar(2);                
+        $scope.filtrar(3);                
+        $timeout(function() {
+          aumentarLimite(0);
+          aumentarLimite(1);
+          aumentarLimite(2);
+          aumentarLimite(3);
+        }, 250);
         crearModels();
         limpiarChecks();
       });
     }
-    $scope.imp = function(a)
-    {
-      console.log(a)
 
+    $scope.filtrar = function(index){
+      $scope.filtro[index].itemsFiltrados=[];      
+      var listaTemp = filterFilter($scope.trabajadores[index], $scope.filtro[index].nombre);      
+      if(listaTemp.length){
+        for(var ind in listaTemp){
+          $scope.filtro[index].itemsFiltrados.push( listaTemp[ind] );
+        }
+      }
+      countSelected(index);
+    };
+
+    $scope.clearText = function(index){
+      $scope.filtro[index].nombre = "";
+      $scope.filtrar(index);
     }
 
-    cargarDatos();
+    $scope.cargaElementos=0;
 
+    function aumentarLimite(index){
+      if( $scope.limiteDinamico < $scope.trabajadores[index].length ){
+        $scope.cargaElementos = Math.round(($scope.limiteDinamico/$scope.trabajadores[index].length) * 100);
+        $scope.limiteDinamico+=5;
+        $timeout( function(){
+          aumentarLimite(index);
+        }, 250);
+      }else{
+        $rootScope.cargando=false;
+        $scope.cargaElementos=100;
+      }
+    };
+
+    cargarDatos();
 
     function generarLiquidacion(trabajadores){
       $rootScope.cargando = true;
@@ -108,15 +144,13 @@ angular.module('angularjsApp')
       }*/
     }    
 
-    function ingresar(datos){   
-        
+    function ingresar(datos){           
       for(var i=0,len=datos.length; i<len; i++){
         datos[i].uf = $scope.uf;
         datos[i].utm = $scope.utm;
         datos[i].empresa = $scope.empresa;
         datos[i].cuerpo = $('#htmlLiquidacion').html();
       }
-
 
       $rootScope.cargando=true;
       var response;
@@ -154,7 +188,7 @@ angular.module('angularjsApp')
     }
 
     $scope.select = function(index, ind){
-      if(!$scope.trabajadores[ind][index].check){
+      if(!$scope.filtro[ind].itemsFiltrados[index].check){
         if($scope.objeto.todos[ind]){
           $scope.objeto.todos[ind] = false; 
         }
@@ -168,8 +202,8 @@ angular.module('angularjsApp')
 
     function isThereSelected(index){
       var bool = false;
-      for(var i=0, len=$scope.trabajadores[index].length; i<len; i++){
-        if($scope.trabajadores[index][i].check){
+      for(var i=0, len=$scope.filtro[index].itemsFiltrados.length; i<len; i++){
+        if($scope.filtro[index].itemsFiltrados[i].check){
           bool = true;
           return bool;
         }
@@ -181,9 +215,10 @@ angular.module('angularjsApp')
       var count = 0;
       var nom;
       $scope.imprimir = true;
-      for(var i=0, len=$scope.trabajadores[index].length; i<len; i++){
-        if($scope.trabajadores[index][i].check){
-          nom = $scope.trabajadores[index][i].nombreCompleto;
+      console.log($scope.filtro[index].itemsFiltrados)
+      for(var i=0, len=$scope.filtro[index].itemsFiltrados.length; i<len; i++){
+        if($scope.filtro[index].itemsFiltrados[i].check){
+          nom = $scope.filtro[index].itemsFiltrados[i].nombreCompleto;
           count++;
           $scope.mensaje[0] = 'Se generarán las Liquidaciones de Sueldo de los <b>' + count + '</b> trabajadores seleccionados.';
           $scope.mensaje[1] = 'Se sobreescribirán las Liquidaciones de Sueldo de los <b>' + count + '</b> trabajadores seleccionados.';
@@ -204,15 +239,15 @@ angular.module('angularjsApp')
     $scope.selectAll = function(index, check){
       if(check){
         var total = 0;
-        for(var i=0, len=$scope.trabajadores[index].length; i<len; i++){
-          $scope.trabajadores[index][i].check = true
+        for(var i=0, len=$scope.filtro[index].itemsFiltrados.length; i<len; i++){
+          $scope.filtro[index].itemsFiltrados[i].check = true
           $scope.isSelect[index] = true;
           total++;  
         }
         countSelected(index);
       }else{
-        for(var i=0, len=$scope.trabajadores[index].length; i<len; i++){
-          $scope.trabajadores[index][i].check = false
+        for(var i=0, len=$scope.filtro[index].itemsFiltrados.length; i<len; i++){
+          $scope.filtro[index].itemsFiltrados[i].check = false
           $scope.isSelect[index] = false;
         }
       }
@@ -232,9 +267,9 @@ angular.module('angularjsApp')
     $scope.generar = function(index, sid, multi, update){
       var liquidaciones = { trabajadores : [], comprobar : update, rentaImponibleAnterior : false, listaRentaImponibleAnteriorSIS : [], listaRentaImponibleAnteriorSC : [] };
       if(multi){
-        for(var i=0,len=$scope.trabajadores[index].length; i<len; i++){
-          if($scope.trabajadores[index][i].check){
-            liquidaciones.trabajadores.push({ sid : $scope.trabajadores[index][i].sidTrabajador});
+        for(var i=0,len=$scope.filtro[index].itemsFiltrados.length; i<len; i++){
+          if($scope.filtro[index].itemsFiltrados[i].check){
+            liquidaciones.trabajadores.push({ sid : $scope.filtro[index].itemsFiltrados[i].sidTrabajador});
           }
         }
       }else{
@@ -245,9 +280,9 @@ angular.module('angularjsApp')
 
     $scope.imprimirMasivo = function(){
       var liquidaciones = [];
-      for(var i=0,len=$scope.trabajadores[1].length; i<len; i++){
-        if($scope.trabajadores[1][i].check){
-          liquidaciones.push({ sid : $scope.trabajadores[1][i].sid});
+      for(var i=0,len=$scope.filtro[1].itemsFiltrados.length; i<len; i++){
+        if($scope.filtro[1].itemsFiltrados[i].check){
+          liquidaciones.push({ sid : $scope.filtro[1].itemsFiltrados[i].sid});
         }
       }
       $rootScope.cargando=true;        
@@ -255,7 +290,6 @@ angular.module('angularjsApp')
       datos.$promise.then(function(response){
         if(response.success){
           Notification.success({message: response.mensaje, title: 'Mensaje del Sistema'});
-          console.log(response)
           openLiquidacion(response.datos, true);
         }else{
           Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
@@ -517,13 +551,11 @@ angular.module('angularjsApp')
           }
         }
       }else{
-        console.log(multi)
         liquidaciones.trabajadores.push({ sid : sid });       
         nombre = $scope.sinRentaImponibleAnterior[0].trabajador_id; 
         liquidaciones.listaRentaImponibleAnteriorSIS[0] = $scope.sinRentaImponibleAnterior[0].rentaImponibleAnteriorSIS;        
         liquidaciones.listaRentaImponibleAnteriorSC[0] = $scope.sinRentaImponibleAnterior[0].rentaImponibleAnteriorSC;        
       }
-      console.log(liquidaciones)
       generarLiquidacion(liquidaciones);
     }
 

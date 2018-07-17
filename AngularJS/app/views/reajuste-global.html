@@ -18,6 +18,8 @@
               <option value="rut">RUT</option>
               <option value="apellidos">Nombre</option>
               <option value="cargoOrden">Cargo</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
             </select>
           </div>
           <div class="col-md-1">
@@ -27,7 +29,8 @@
           </div>
           <label for="filtro" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
-            <input id="filtro" type="text"  class="form-control form-white form-white" ng-model="filtro">
+            <input type="text" ng-model="filtro.nombre" class="form-control form-white" ng-change="filtrar()" ng-model-options="{debounce: 1000}" />
+            <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
           </div>
         </div>
       </div>
@@ -48,17 +51,21 @@
               <th class="col-sm-1"><input type="checkbox" ng-if="accesos.editar && accesos.abierto || accesos.crear && accesos.abierto" ng-model="objeto.todos" ng-change="selectAll()" icheck></th>
               <th class="col-sm-2">RUT</th>
               <th class="col-sm-3">Nombre</th>              
-              <th class="col-sm-3">Cargo</th>
+              <th class="col-sm-2">Cargo</th>
+              <th class="col-sm-2" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-2" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-2">Sueldo Base</th>
               <th class="col-sm-1"></th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="trabajador in datos | orderObjectBy:orden : reverse | filter : filtro">
-              <td><input type="checkbox" ng-if="accesos.editar && accesos.abierto || accesos.crear && accesos.abierto" ng-model="objeto.trabajador[$index].check" ng-change="select($index)" icheck></td>
+            <tr ng-repeat="trabajador in filtro.itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden : reverse">
+              <td><input type="checkbox" ng-if="accesos.editar && accesos.abierto || accesos.crear && accesos.abierto" ng-model="trabajador.check" ng-change="select($index)" icheck> {{ $index + 1 }}</td>
               <td>{{ trabajador.rutFormato }}</td>
               <td>{{ trabajador.nombreCompleto }}</td>
               <td>{{ trabajador.cargo.nombre }}</td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ trabajador.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ trabajador.seccion.nombre }}</td>
               <td>
                 <span ng-if="trabajador.monedaSueldo==='$'">${{ trabajador.sueldoBase | currency :"":0 }}</span>
                 <span ng-if="trabajador.monedaSueldo!=='$'">{{ trabajador.sueldoBase }} {{ trabajador.monedaSueldo }}</span>

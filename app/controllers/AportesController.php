@@ -429,6 +429,29 @@ class AportesController extends \BaseController {
         
         return Response::json($respuesta);
     }
+    
+    public function updateCuentaMasivo()
+    {
+        $datos = Input::all();
+        $sid = $datos['sid'];
+        $idCuenta = $datos['idCuenta'];
+        
+        $aportes = Aporte::whereIn('sid', $sid)->get();
+        
+        if($aportes->count()){
+            foreach($aportes as $aporte){
+                $aporte->cuenta_id = $idCuenta;
+                $aporte->save();
+            }
+        }
+        
+        $respuesta = array(
+            'success' => true,
+            'mensaje' => "La Información fue actualizada correctamente"
+        );
+        
+        return Response::json($respuesta);
+    }
 
     /**
      * Remove the specified resource from storage.

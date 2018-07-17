@@ -18,16 +18,20 @@
               <option value="rut">RUT</option>
               <option value="apellidos">Nombre</option>
               <option value="cargoOrden">Cargo</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
             </select>
           </div>
           <div class="col-md-1">
             <a ng-click="reverse=!reverse" ng-init="reverse=false" href="">
               <i ng-class="{ 'hidden' : reverse }" class="fa fa-arrow-down"></i>
-              <i ng-class="{ 'hidden' : !reverse }" class="fa fa-arrow-up"></i></a>
+              <i ng-class="{ 'hidden' : !reverse }" class="fa fa-arrow-up"></i>
+            </a>
           </div>
           <label for="filtro" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
-            <input id="filtro" type="text"  class="form-control form-white form-white" ng-model="filtro">
+            <input type="text" ng-model="filtro[0].nombre" class="form-control form-white" ng-change="filtrar(0)" ng-model-options="{debounce: 1000}" />
+            <span ng-if="filtro[0].nombre" ng-click="clearText(0)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
           </div>
           <div class="col-md-2">
             <a href="" confirmation-click="generar(0, null, true, false)" confirmation-needed="{{ mensaje[0] }} ¿Desea continuar?" class="btn btn-primary pull-right" ng-class="{ 'hidden' : !isSelect[0] }"><i class="fa fa-print"></i> Generar</a>  
@@ -44,29 +48,33 @@
           <thead>
             <tr>    
               <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos[0]" ng-if="accesos.crear && accesos.abierto" ng-change="selectAll(0,objeto.todos[0])" icheck></th>
-              <th class="col-sm-2">RUT</th>
+              <th class="col-sm-1">RUT</th>
               <th class="col-sm-3">Nombre</th>              
               <th class="col-sm-2">Cargo</th>
+              <th class="col-sm-1" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-1" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-2">Sueldo Base</th>
               <th class="col-sm-1">Obs.</th>
               <th class="col-sm-1"></th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in trabajadores[0] | orderObjectBy:orden : reverse | filter : filtro">
-              <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 0)" ng-if="accesos.crear && accesos.abierto" icheck></td>
+            <tr ng-repeat="dato in filtro[0].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden : reverse">
+              <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 0)" ng-if="accesos.crear && accesos.abierto" icheck> {{ $index + 1 }}</td>
               <td>{{ ::dato.rutFormato }}</td>
               <td>{{ ::dato.nombreCompleto }}</td>
               <td>{{ ::dato.cargo }}</td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ ::dato.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ ::dato.seccion.nombre }}</td>
               <td>${{ ::dato.sueldoBasePesos | currency:'':0 }}</td>
               <td>
                 <a href="javascript:void(0);" ng-show="dato.observaciones" class="text-success" uib-tooltip-html="'<b>Observaciones:</b><br/>' + dato.observaciones">
-                    <i class="fa fa-search"></i>
+                  <i class="fa fa-search"></i>
                 </a>
               </td>
               <td>
                 <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);" uib-tooltip-html="'Agregar observación a la liquidación'">
-                    <i class="fa fa-commenting-o"></i>
+                  <i class="fa fa-commenting-o"></i>
                 </a>
                 <a href="javascript:void(0);" ng-if="accesos.crear && accesos.abierto" confirmation-click="generar(0, dato.sidTrabajador, false, false)" confirmation-needed="Se generará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" ng-class="{ 'hidden' : isSelect[0] }" uib-tooltip-html="toolTipGenerar(dato.nombreCompleto)"><i class="fa fa-print"></i></a>
               </td>
@@ -93,6 +101,8 @@
               <option value="rut">RUT</option>
               <option value="apellidos">Nombre</option>
               <option value="cargoOrden">Cargo</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
             </select>
           </div>
           <div class="col-md-1">
@@ -102,7 +112,8 @@
           </div>
           <label for="filtro2" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
-            <input id="filtro2" type="text"  class="form-control form-white form-white" ng-model="filtro2">
+            <input type="text" ng-model="filtro[1].nombre" class="form-control form-white" ng-change="filtrar(1)" ng-model-options="{debounce: 1000}" />
+            <span ng-if="filtro[1].nombre" ng-click="clearText(1)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
           </div>
         </div>
       </div>      
@@ -112,9 +123,11 @@
           <thead>
             <tr>    
               <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos[1]" ng-if="accesos.crear && accesos.abierto" ng-change="selectAll(1, objeto.todos[1])" icheck></th>
-              <th class="col-sm-2">RUT</th>
+              <th class="col-sm-1">RUT</th>
               <th class="col-sm-3">Nombre</th>              
               <th class="col-sm-2">Cargo</th>
+              <th class="col-sm-1" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-1" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-1">Sueldo Base</th>
               <th class="col-sm-1">Sueldo Líquido</th>
               <th class="col-sm-1">Obs.</th>
@@ -127,29 +140,29 @@
                   <a href="javascript:void(0);" confirmation-click="generar(1, null, true, true)" confirmation-needed="{{ mensaje[1] }} ¿Desea continuar?"><i class="fa fa-refresh fa-2x"></i></a>
                   <a href="javascript:void(0);" ng-if="imprimir" confirmation-click="imprimirMasivo()" confirmation-needed="{{ mensaje[3] }} ¿Desea continuar?"><i class="fa fa-print fa-2x"></i></a>
                   <a href="javascript:void(0);" ng-if="accesos.eliminar" confirmation-click="eliminar(1, null, true)" confirmation-needed="{{ mensaje[2] }} ¿Desea continuar?"><i class="fa fa-trash fa-2x"></i></a>
-
-
                 </div>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in trabajadores[1] | orderObjectBy:orden2 : reverse2 | filter : filtro2">
-              <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 1)" ng-if="accesos.crear && accesos.abierto" icheck></td>
-              <td>{{ dato.rutFormato }}</td>
-              <td>{{ dato.nombreCompleto }}</td>
-              <td>{{ dato.cargo }}</td>
-              <td>${{ dato.sueldoBasePesos | currency:'':0 }}</td>
-              <td>${{ dato.sueldoLiquido | currency:'':0 }}</td>
+            <tr ng-repeat="dato in filtro[1].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden2 : reverse2">
+              <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 1)" ng-if="accesos.crear && accesos.abierto" icheck> {{ $index + 1 }}</td>
+              <td>{{ ::dato.rutFormato }}</td>
+              <td>{{ ::dato.nombreCompleto }}</td>
+              <td>{{ ::dato.cargo }}</td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ ::dato.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ ::dato.seccion.nombre }}</td>
+              <td>${{ ::dato.sueldoBasePesos | currency:'':0 }}</td>
+              <td>${{ ::dato.sueldoLiquido | currency:'':0 }}</td>
               <td>
                 <a href="javascript:void(0);" ng-show="dato.observaciones" class="text-success" uib-tooltip-html="'<b>Observaciones:</b><br/>' + dato.observaciones">
-                    <i class="fa fa-search"></i>
+                  <i class="fa fa-search"></i>
                 </a>
               </td>
               <td>
                 <div ng-class="{ 'hidden' : isSelect[1] }">
                   <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);" uib-tooltip-html="'Agregar observación a la liquidación'">
-                      <i class="fa fa-commenting-o"></i>
+                    <i class="fa fa-commenting-o"></i>
                   </a>
                   <a href="javascript:void(0);" ng-click="detalle(dato, false)"><i class="fa fa-window-maximize" uib-tooltip-html="'Abrir liquidación en esta pestaña'"></i></a>
                   <a href="javascript:void(0);" ng-click="detalle(dato, true)"><i class="fa fa-window-restore" uib-tooltip-html="'Abrir liquidación en nueva pestaña'"></i></a>
@@ -180,6 +193,8 @@
               <option value="rut">RUT</option>
               <option value="apellidos">Nombre</option>
               <option value="cargoOrden">Cargo</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
             </select>
           </div>
           <div class="col-md-1">
@@ -189,7 +204,8 @@
           </div>
           <label for="filtro3" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
-            <input id="filtro3" type="text"  class="form-control form-white form-white" ng-model="filtro3">
+            <input type="text" ng-model="filtro[2].nombre" class="form-control form-white" ng-change="filtrar(2)" ng-model-options="{debounce: 1000}" />
+            <span ng-if="filtro[2].nombre" ng-click="clearText(2)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
           </div>
           <div class="col-md-2">
             <a href="" confirmation-click="generar(2, null, true, false)" confirmation-needed="{{ mensaje[0] }} ¿Desea continuar?" class="btn btn-primary pull-right" ng-class="{ 'hidden' : !isSelect[2] }"><i class="fa fa-print"></i> Generar</a>  
@@ -202,9 +218,11 @@
           <thead>
             <tr>    
               <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos[2]" ng-if="accesos.crear && accesos.abierto" ng-change="selectAll(2,objeto.todos[2])" icheck></th>
-              <th class="col-sm-2">RUT</th>
+              <th class="col-sm-1">RUT</th>
               <th class="col-sm-3">Nombre</th>              
               <th class="col-sm-2">Cargo</th>
+              <th class="col-sm-1" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-1" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-1">Fecha Finiquito</th>
               <th class="col-sm-1">Sueldo Base</th>
               <th class="col-sm-1">Obs.</th>
@@ -212,22 +230,24 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in trabajadores[2] | orderObjectBy:orden3 : reverse3 | filter : filtro3">
-              <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 2)" ng-if="accesos.crear && accesos.abierto" icheck></td>
+            <tr ng-repeat="dato in filtro[2].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden3 : reverse3">
+              <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 2)" ng-if="accesos.crear && accesos.abierto" icheck> {{ $index + 1 }}</td>
               <td>{{ ::dato.rutFormato }}</td>
               <td>{{ ::dato.nombreCompleto }}</td>
               <td>{{ ::dato.cargo }}</td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ ::dato.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ ::dato.seccion.nombre }}</td>
               <td>{{ ::dato.fechaFiniquito | date : "dd-MM-y" }}</td>
               <td>${{ ::dato.sueldoBasePesos | currency:'':0 }}</td>
               <td>
-                  <a href="javascript:void(0);" ng-show="dato.observaciones" class="text-success" uib-tooltip-html="'<b>Observaciones:</b><br/>' + dato.observaciones">
-                      <i class="fa fa-search"></i>
-                  </a>
+                <a href="javascript:void(0);" ng-show="dato.observaciones" class="text-success" uib-tooltip-html="'<b>Observaciones:</b><br/>' + dato.observaciones">
+                  <i class="fa fa-search"></i>
+                </a>
               </td>
               <td>
                 <a ng-if="accesos.crear && accesos.abierto" href="javascript:void(0);" ng-click="generarObservacionLiquidacion(dato);" uib-tooltip-html="'Agregar observación a la liquidación'">
-                      <i class="fa fa-commenting-o"></i>
-                  </a>
+                  <i class="fa fa-commenting-o"></i>
+                </a>
                 <a href="javascript:void(0);" ng-if="accesos.crear && accesos.abierto" confirmation-click="generar(2, dato.sidTrabajador, false, false)" confirmation-needed="Se generará la Liquidación de Sueldo de <b>{{ dato.nombreCompleto }}</b>. ¿Desea continuar?" ng-class="{ 'hidden' : isSelect[2] }" uib-tooltip-html="toolTipGenerar(dato.nombreCompleto)"><i class="fa fa-print"></i></a>
               </td>
             </tr>
@@ -253,16 +273,20 @@
               <option value="rut">RUT</option>
               <option value="apellidos">Nombre</option>
               <option value="cargoOrden">Cargo</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
             </select>
           </div>
           <div class="col-md-1">
             <a ng-click="reverse4=!reverse4" ng-init="reverse4=false" href="">
               <i ng-class="{ 'hidden' : reverse4 }" class="fa fa-arrow-down"></i>
-              <i ng-class="{ 'hidden' : !reverse4 }" class="fa fa-arrow-up"></i></a>
+              <i ng-class="{ 'hidden' : !reverse4 }" class="fa fa-arrow-up"></i>
+            </a>
           </div>
           <label for="filtro4" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
-            <input id="filtro4" type="text"  class="form-control form-white form-white" ng-model="filtro4">
+            <input type="text" ng-model="filtro[3].nombre" class="form-control form-white" ng-change="filtrar(3)" ng-model-options="{debounce: 1000}" />
+            <span ng-if="filtro[0].nombre" ng-click="clearText(0)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
           </div>
         </div>
       </div>      
@@ -272,9 +296,11 @@
           <thead>
             <tr>    
               <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos[3]" ng-if="accesos.crear && accesos.abierto" ng-change="selectAll(3, objeto.todos[3])" icheck></th>
-              <th class="col-sm-2">RUT</th>
+              <th class="col-sm-1">RUT</th>
               <th class="col-sm-3">Nombre</th>              
               <th class="col-sm-3">Cargo</th>
+              <th class="col-sm-1" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-1" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-1">Sueldo Base</th>
               <th class="col-sm-1">Sueldo Líquido</th>
               <th class="col-sm-1">
@@ -286,13 +312,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in trabajadores[3] | orderObjectBy:orden4 : reverse4 | filter : filtro4">
-              <td><input type="checkbox" ng-model="dato.check" ng-if="accesos.crear && accesos.abierto" ng-change="select($index, 3)" icheck></td>
-              <td>{{ dato.rutFormato }}</td>
-              <td>{{ dato.nombreCompleto }}</td>
-              <td>{{ dato.cargo }}</td>
-              <td>${{ dato.sueldoBasePesos | currency:'':0 }}</td>
-              <td>${{ dato.sueldoLiquido | currency:'':0 }}</td>
+            <tr ng-repeat="dato in filtro[3].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden4 : reverse4">
+              <td><input type="checkbox" ng-model="dato.check" ng-if="accesos.crear && accesos.abierto" ng-change="select($index, 3)" icheck> {{ $index + 1 }}</td>
+              <td>{{ ::dato.rutFormato }}</td>
+              <td>{{ ::dato.nombreCompleto }}</td>
+              <td>{{ ::dato.cargo }}</td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ ::dato.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ ::dato.seccion.nombre }}</td>
+              <td>${{ ::dato.sueldoBasePesos | currency:'':0 }}</td>
+              <td>${{ ::dato.sueldoLiquido | currency:'':0 }}</td>
               <td>
                 <div ng-class="{ 'hidden' : isSelect[3] }">
                   <a href="javascript:void(0);" ng-click="detalle(dato, false)"><i class="fa fa-window-maximize" uib-tooltip-html="'Abrir liquidación esta pestaña'"></i></a>

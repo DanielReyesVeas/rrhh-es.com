@@ -12,6 +12,7 @@ angular.module('angularjsApp')
     $anchorScroll();
     $scope.datos = [];
     $scope.cargado = false;
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
 
     function cargarDatos(){
       $rootScope.cargando = true;

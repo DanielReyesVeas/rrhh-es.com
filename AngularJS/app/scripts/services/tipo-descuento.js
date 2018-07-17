@@ -40,6 +40,12 @@ angular.module('angularjsApp')
                 {},
                 { post : { 'method': 'POST' } }
               );
+            },
+            updateCuentaMasivo : function(){
+              return $resource(constantes.URL + 'tipos-descuento/cuentas-masivo/actualizar',
+                {},
+                { post : { 'method': 'POST' } }
+              );
             }
         };
   });

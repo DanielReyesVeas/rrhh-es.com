@@ -34,6 +34,12 @@ angular.module('angularjsApp')
           {},
           { post : { 'method': 'POST' } }
         );
+      },
+      updateCuentaMasivo : function(){
+        return $resource(constantes.URL + 'aportes/cuentas-masivo/actualizar',
+          {},
+          { post : { 'method': 'POST' } }
+        );
       }
     };
   });

@@ -12,6 +12,7 @@ angular.module('angularjsApp')
     $anchorScroll();
     $scope.activos = [];
     $scope.finiquitados = [];
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
 
     $scope.cargado = false;
 

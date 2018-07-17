@@ -2,16 +2,16 @@
 
 /**
  * @ngdoc service
- * @name angularjsApp.cuenta
+ * @name angularjsApp.descuentoHora
  * @description
- * # cuenta
+ * # descuentoHora
  * Factory in the angularjsApp.
  */
 angular.module('angularjsApp')
-  .factory('cuenta', function (constantes, $resource) {
+  .factory('descuentoHora', function (constantes, $resource) {
         return {
             datos: function () {
-                return $resource(constantes.URL + 'cuentas/:sid',
+                return $resource(constantes.URL + 'descuentos-horas/:sid',
                     {sid : '@sid'},
                     {   
                         update : { 'method': 'PUT' },
@@ -19,9 +19,6 @@ angular.module('angularjsApp')
                         create : { 'method': 'POST' }
                     }
                 );
-            },
-            obtener : function(){
-                return $resource(constantes.URL + 'cuentas/plan-cuentas/obtener');
             }
         };
   });

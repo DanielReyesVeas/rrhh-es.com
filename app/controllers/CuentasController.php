@@ -36,6 +36,17 @@ class CuentasController extends \BaseController {
         
         return Response::json($datos);
     }
+    
+    public function planCuentas()
+    {
+        $cuentas = Cuenta::listaCuentas();
+        
+        $datos = array(
+            'datos' => array_values($cuentas)
+        );
+        
+        return Response::json($datos);
+    }
 
     /**
      * Show the form for creating a new resource.

@@ -11,6 +11,7 @@ angular.module('angularjsApp')
   .controller('TrabajadoresVigentesCtrl', function ($scope, $uibModal, $filter, $anchorScroll, trabajador, constantes, $rootScope, Notification) {
     $anchorScroll();
     $scope.datos = [];
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
 
     $scope.tabActivos = true;
     $scope.tabInactivos = false;

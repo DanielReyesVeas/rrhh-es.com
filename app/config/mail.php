@@ -28,7 +28,7 @@ return array(
 	|
 	*/
 
-	'host' => 'easysystems.cl',
+	'host' => 'rrhh-es.com',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -54,7 +54,7 @@ return array(
 	|
 	*/
 
-	'from' => array('address' => 'no-reply@easysystems.cl', 'name' => 'RRHH Back Up'),
+	'from' => array('address' => 'no-reply@rrhh-es.com', 'name' => 'RRHH Back Up'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -80,7 +80,7 @@ return array(
 	|
 	*/
 
-	'username' => 'soporte@easysystems.cl',
+	'username' => 'backup@rrhh-es.com',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ return array(
 	|
 	*/
 
-	'password' => 'easy1q2w3e',
+	'password' => 'easy1q2w3e4r',
 
 	/*
 	|--------------------------------------------------------------------------

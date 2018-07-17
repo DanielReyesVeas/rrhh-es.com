@@ -36,6 +36,8 @@
               <option value="apellidos">Nombre</option>
               <option value="cargoOrden">Cargo</option>
               <option value="estado">Estado</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
               <option value="contratoOrden">Contrato</option>
               <option value="fechaIngreso">Ingreso</option>
             </select>
@@ -47,7 +49,9 @@
           </div>
           <label for="filtro" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
-            <input id="filtro" type="text"  class="form-control form-white form-white" ng-model="filtro">
+            <!--<input id="filtro" type="text"  class="form-control form-white form-white" ng-model="filtro">-->
+            <input type="text" ng-model="filtro.nombre" class="form-control form-white" ng-change="filtrar()" ng-model-options="{debounce: 1000}" />
+            <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
           </div>
         </div>
       </div>      
@@ -66,25 +70,23 @@
               <th class="col-sm-2">Cargo</th>
               <th class="col-sm-1">Fecha Ingreso</th>
               <th class="col-sm-1">Contrato</th>
-              <th class="col-sm-1">Sueldo Base</th>
+              <th class="col-sm-1" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-1" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-1">Estado</th>
               <th class="col-sm-1"></th>
               <th class="col-sm-1"></th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="trabajador in datos | orderObjectBy:orden : reverse | filter : filtro">
+            <tr ng-repeat="trabajador in filtro.itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden : reverse">
               <td>{{ $index + 1 }}</td>
               <td>{{ trabajador.rutFormato }}</td>
               <td>{{ trabajador.nombreCompleto }}</td>
               <td>{{ trabajador.cargo.nombre }}</td>
               <td>{{ trabajador.fechaIngreso | date : "dd-MM-y" }}</td>
               <td>{{ trabajador.tipoContrato.nombre }}</td>
-              <td>
-                <span ng-if="trabajador.monedaSueldo==='$' && trabajador.sueldoBase>0">${{ trabajador.sueldoBase | currency :"":0 }}</span>
-                <span ng-if="trabajador.monedaSueldo!=='$' && trabajador.sueldoBase>0">{{ trabajador.sueldoBase }} {{ trabajador.monedaSueldo }}</span>
-                <span ng-if="trabajador.tipoSueldo=='Por Hora'"> / x hora</span>
-              </td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ trabajador.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ trabajador.seccion.nombre }}</td>
               <td>
                 <span class="text-success" ng-if="trabajador.estado==='Ingresado'">{{ trabajador.estado }}</span>
                 <span class="text-danger" ng-if="trabajador.estado==='Finiquitado'">{{ trabajador.estado }}</span>

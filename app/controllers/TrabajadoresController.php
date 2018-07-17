@@ -82,6 +82,7 @@ class TrabajadoresController extends \BaseController {
         $empresa = \Session::get('empresa');
         $empresa->domicilio = $empresa->domicilio();
         $empresa->rutFormato = $empresa->rut_formato();
+        $centroCostoNombre = false;
         
         $sumaSueldoBase = 0;
         $sumaInasistenciasAtrasos = 0;
@@ -105,7 +106,8 @@ class TrabajadoresController extends \BaseController {
         $sumaTotalDescuentos = 0;
         $sumaOtrosDescuentos = 0;
         $sumaSueldoLiquido = 0;
-        $sumas = array('imponibles' => array(), 'noImponibles' => array(), 'descuentos' => array(), 'apvs' => array());
+        $sumas = array('imponibles' => array(), 'noImponibles' => array(), 'descuentos' => array(), 'apvs' => array());  
+        $centro = '';
         
         $mes = \Session::get('mesActivo');
         $liquidaciones = Liquidacion::where('mes', $mes->mes)->orderBy('trabajador_apellidos')->get();        
@@ -149,10 +151,34 @@ class TrabajadoresController extends \BaseController {
                     $liquidacion->$index = isset($liquidacion->colacion_permanente) ? ($liquidacion->colacion_permanente + $liquidacion->colacion) : $liquidacion->colacion;
                     $sumas['noImponibles']['colacion_permanente'] = isset($sumas['noImponibles']['colacion_permanente']) ? ($sumas['noImponibles']['colacion_permanente'] + $liquidacion->colacion) : $liquidacion->colacion;
                 }
-                
+                if($conceptos['centro_costo']){
+                    if($liquidacion->trabajador_centro_costo){
+                        $centro = $liquidacion->trabajador_centro_costo;
+                    }else{
+                        if($liquidacion->centroCosto){
+                            if($centroCostoNombre){
+                                $centro = $liquidacion->centroCosto->nombre;
+                            }else{
+                                $centro = $liquidacion->centroCosto->codigo;                            
+                            }
+                        }else{
+                            $empleado = $liquidacion->trabajador->ficha();
+                            if($empleado->centroCosto){
+                                if($centroCostoNombre){
+                                    $centro = $empleado->centroCosto->nombre;
+                                }else{
+                                    $centro = $empleado->centroCosto->codigo;
+                                }
+                            }else{
+                                $centro = '';
+                            }
+                        }
+                    }                    
+                }
                 $sis = 0;
                 $cotizacionSalud = $liquidacion->totalSalud();
                 $liquidacion->totalApvs = $liquidacion->totalApvs();
+                $liquidacion->centro = $centro;
                 $liquidacion->totalSalud = $cotizacionSalud;
                 $liquidacion->total_otros_descuentos = ($liquidacion->total_otros_descuentos - $liquidacion->totalApvs() - $liquidacion->total_anticipos);
                 if($liquidacion->detalleAfp){
@@ -163,7 +189,6 @@ class TrabajadoresController extends \BaseController {
                 $cotizacion = $liquidacion->detalleAfp ? $liquidacion->detalleAfp->cotizacion : 0;
                 $liquidacion->totalAfp = ($cotizacion + $sis);
                 $liquidacion->totalSeguroCesantia = $liquidacion->detalleSeguroCesantia ? $liquidacion->detalleSeguroCesantia->aporte_trabajador : 0;
-                $liquidacion->trabajador_apellidos = $liquidacion->centroCosto ? $liquidacion->trabajador_apellidos . " | " . $liquidacion->centroCosto->codigo : $liquidacion->trabajador_apellidos;
                 $libroRemuneraciones[] = $liquidacion;
                 
                 $sumaSueldoBase += $liquidacion->sueldo_base;
@@ -3163,6 +3188,16 @@ class TrabajadoresController extends \BaseController {
                             'tipoSueldo' => $empleado->tipo_sueldo,
                             'sueldoBase' => $empleado->sueldo_base,
                             'contratoOrden' => $empleado->tipoContrato ? ucwords(strtolower($empleado->tipoContrato->nombre)) : "", 
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
                             'tipoContrato' => array(
                                 'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
                                 'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
@@ -3395,6 +3430,16 @@ class TrabajadoresController extends \BaseController {
                                 'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                 'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
                             ),                     
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ),
                             'fechaIngreso' => $empleado->fecha_ingreso,                           
                             'vacaciones' => $trabajador->misVacaciones()
                         );
@@ -3438,6 +3483,21 @@ class TrabajadoresController extends \BaseController {
                                 'rut' => $trabajador->rut,
                                 'rutFormato' => $trabajador->rut_formato(),
                                 'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
+                                'cargo' => array(
+                                    'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                    'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                                ),    
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
                                 'semanaCorrida' => $trabajador->semanaCorrida()
                             );
@@ -3448,6 +3508,21 @@ class TrabajadoresController extends \BaseController {
                                 'rut' => $trabajador->rut,
                                 'rutFormato' => $trabajador->rut_formato(),
                                 'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
+                                'cargo' => array(
+                                    'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                    'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                                ),    
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
                                 'semanaCorrida' => $trabajador->semanaCorrida()
                             );
@@ -3496,14 +3571,26 @@ class TrabajadoresController extends \BaseController {
                             'cargo' => array(
                                 'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                 'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
-                            ),                     
+                            ),        
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ),
                             'fechaIngreso' => $empleado->fecha_ingreso, 
                             'rutFormato' => $trabajador->rut_formato(),
                             'sueldo' => $empleado->sueldo_base,
                             'moneda' => $empleado->moneda_sueldo,
                             'apellidos' => ucwords(strtolower($empleado->apellidos)),
                             'nombreCompleto' => $empleado->nombreCompleto(),
-                            'horas' => $empleado->horas
+                            'horas' => $empleado->horas,
+                            'horasMes' => $trabajador->horasMes(),
+                            'totalHoras' => $trabajador->totalHoras()
                         );
                     }
                 }
@@ -3526,9 +3613,20 @@ class TrabajadoresController extends \BaseController {
             return Response::json(array('datos' => array(), 'permisos' => array()));
         }
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#sueldo-hora');
+        $mes = \Session::get('mesActivo');
+        $trabajador = Trabajador::whereSid($sid)->first();
+        $ficha = $trabajador->ficha();
+        
+        $datosTrabajador = array(
+            'id' => $trabajador->id,
+            'sid' => $trabajador->sid,
+            'nombreCompleto' => $ficha->nombreCompleto(),
+            'detalle' => $trabajador->detalleHoras()
+        );
                             
         $datos = array(
-            'datos' => $sid,
+            'datos' => $datosTrabajador,
+            'mes' => $mes,
             'accesos' => $permisos
         );
         
@@ -3617,6 +3715,16 @@ class TrabajadoresController extends \BaseController {
                                 'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                 'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
                             ),     
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
                             'totalDocumentos' => $trabajador->totalDocumentos()
                         );
                     }
@@ -3683,7 +3791,17 @@ class TrabajadoresController extends \BaseController {
                                 'cargo' => array(
                                     'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                     'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
-                                ),                     
+                                ),       
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'totalCartasNotificacion' => $cartas
 
                             );
@@ -3731,7 +3849,17 @@ class TrabajadoresController extends \BaseController {
                                 'cargo' => array(
                                     'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                     'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
-                                ),                                                
+                                ),           
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ),
                                 'totalCertificados' => $totalCertificados
                             );
                         }
@@ -3915,6 +4043,16 @@ class TrabajadoresController extends \BaseController {
                                 'apellidos' => ucwords(strtolower($empleado->apellidos)),
                                 'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "",
                                 'cargo' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ),
                                 'sueldoBasePesos' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo),
                                 'estado' => $empleado->estado,
                                 'observaciones' => $observacion ? $observacion->observaciones : ""
@@ -3943,6 +4081,16 @@ class TrabajadoresController extends \BaseController {
                                 'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "",
                                 'fechaFiniquito' => $empleado->fecha_finiquito,
                                 'cargo' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ),
                                 'sueldoBasePesos' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo),
                                 'estado' => $empleado->estado,
                                 'observaciones' => $observacion? $observacion->observaciones : ""
@@ -3956,6 +4104,20 @@ class TrabajadoresController extends \BaseController {
         if( $liquidaciones->count() ){
             foreach( $liquidaciones as $liquidacion ){
                 if($liquidacion->estado==1 || true){
+                    if($liquidacion->trabajador_centro_costo){
+                        $centro = $liquidacion->trabajador_centro_costo;
+                    }else{
+                        if($liquidacion->centroCosto){
+                            $centro = $liquidacion->centroCosto->nombre;
+                        }else{
+                            $empleado = $trabajador->ficha();
+                            if($empleado->centroCosto){
+                                $centro = $empleado->centroCosto->nombre;
+                            }else{
+                                $centro = '';
+                            }
+                        }
+                    }
                     $listaLiquidaciones[]=array(
                         'id' => $liquidacion->trabajador_id,
                         'sid' => $liquidacion->sid,
@@ -3967,6 +4129,14 @@ class TrabajadoresController extends \BaseController {
                         'rutFormato' => $liquidacion->trabajador->rut_formato(),
                         'apellidos' => ucwords(strtolower($liquidacion->trabajador_apellidos)),
                         'cargoOrden' => ucwords(strtolower($liquidacion->trabajador_cargo)),
+                        'seccionOrden' => $liquidacion->trabajador_seccion ? ucwords(strtolower($liquidacion->trabajador_seccion)) : "", 
+                        'seccion' => array(
+                            'nombre' => $liquidacion->trabajador_seccion,
+                        ), 
+                        'centroCostoOrden' => $centro, 
+                        'centroCosto' => array(
+                            'nombre' => $centro,
+                        ),
                         'nombreCompleto' => $liquidacion->nombreCompleto(),
                         'cargo' => $liquidacion->trabajador_cargo,              
                         'sueldoBasePesos' => $liquidacion->sueldo_base,
@@ -3975,6 +4145,20 @@ class TrabajadoresController extends \BaseController {
                     );
                 }else{
                     if($mostrarFiniquitados){
+                        if($liquidacion->trabajador_centro_costo){
+                            $centro = $liquidacion->trabajador_centro_costo;
+                        }else{
+                            if($liquidacion->centroCosto){
+                                $centro = $liquidacion->centroCosto->nombre;
+                            }else{
+                                $empleado = $trabajador->ficha();
+                                if($empleado->centroCosto){
+                                    $centro = $empleado->centroCosto->nombre;
+                                }else{
+                                    $centro = '';
+                                }
+                            }
+                        }
                         $listaLiquidacionesFiniquitados[]=array(
                             'id' => $liquidacion->trabajador_id,
                             'sid' => $liquidacion->sid,
@@ -3986,6 +4170,14 @@ class TrabajadoresController extends \BaseController {
                             'rutFormato' => $liquidacion->trabajador->rut_formato(),
                             'apellidos' => ucwords(strtolower($liquidacion->trabajador_apellidos)),
                             'cargoOrden' => ucwords(strtolower($liquidacion->trabajador_cargo)),
+                            'seccionOrden' => $liquidacion->trabajador_seccion ? ucwords(strtolower($liquidacion->trabajador_seccion)) : "", 
+                            'seccion' => array(
+                                'nombre' => $liquidacion->trabajador_seccion,
+                            ), 
+                            'centroCostoOrden' => $centro, 
+                            'centroCosto' => array(
+                                'nombre' => $centro,
+                            ),
                             'nombreCompleto' => $liquidacion->nombreCompleto(),
                             'cargo' => $liquidacion->trabajador_cargo,              
                             'sueldoBasePesos' => $liquidacion->sueldo_base,
@@ -5730,7 +5922,7 @@ class TrabajadoresController extends \BaseController {
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes && Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo)<$rmi){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes && $empleado->tipo_sueldo=='Mensual' && Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo)<$rmi){
                         $listaTrabajadores[]=array(
                             'id' => $empleado->id,
                             'sid' => $trabajador->sid,
@@ -5748,6 +5940,16 @@ class TrabajadoresController extends \BaseController {
                             'fechaIngreso' => $empleado->fecha_ingreso,
                             'monedaSueldo' => $empleado->moneda_sueldo,
                             'sueldoBase' => $empleado->sueldo_base,
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
                             'afp' => array(
                                 'id' => $empleado->afp ? $empleado->afp->id : "",
                                 'nombre' => $empleado->afp ? $empleado->afp->glosa : ""
@@ -6083,6 +6285,16 @@ class TrabajadoresController extends \BaseController {
                                     'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                     'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
                                 ),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
                                 'totalInasistencias' => $totalInasistencias
                             );
@@ -6153,6 +6365,16 @@ class TrabajadoresController extends \BaseController {
                                     'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                     'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
                                 ),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
                                 'total' => $atrasos['total'],
                                 'atrasos' => $atrasos['atrasos'],
@@ -6221,6 +6443,16 @@ class TrabajadoresController extends \BaseController {
                                 'rutFormato' => $trabajador->rut_formato(),
                                 'rut' => $trabajador->rut,
                                 'apellidos' => ucwords(strtolower($empleado->apellidos)),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
                                 'totalLicencias' => $licencias,
                                 'totalDiasLicencias' => $trabajador->totalDiasLicencias()
@@ -6299,6 +6531,16 @@ class TrabajadoresController extends \BaseController {
                                     'id' => $empleado->cargo ? $empleado->cargo->id : "",
                                     'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
                                 ),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'tramos' => $trabajador->tramosHorasExtra(),
                                 'nombreCompleto' => $empleado->nombreCompleto(),
                                 'totalHorasExtra' => $horasExtra
@@ -6366,6 +6608,16 @@ class TrabajadoresController extends \BaseController {
                                 'rut' => $trabajador->rut,
                                 'apellidos' => ucwords(strtolower($empleado->apellidos)),
                                 'nombreCompleto' => $empleado->nombreCompleto(),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'totalPrestamos' => $totalPrestamos
                             );
                         }
@@ -6429,6 +6681,16 @@ class TrabajadoresController extends \BaseController {
                                 'rut' => $trabajador->rut,
                                 'apellidos' => ucwords(strtolower($empleado->apellidos)),
                                 'nombreCompleto' => $empleado->nombreCompleto(),
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ), 
                                 'apvs' => $misApvs,
                                 'regimen' => $trabajador->misRegimenes(),
                                 'total' => $trabajador->totalApv()
@@ -6502,6 +6764,16 @@ class TrabajadoresController extends \BaseController {
                                 'cargasFamiliares' => $trabajador->totalCargasFamiliares(),
                                 'grupoFamiliar' => $totalGrupoFamiliar,
                                 'cargasAutorizadas' => $trabajador->totalCargasAutorizadas(),
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "",
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                )
                             );
                         }
                     }
@@ -6914,6 +7186,16 @@ class TrabajadoresController extends \BaseController {
                                 'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
                             ),
                             'contratoOrden' => $empleado->tipoContrato ? ucwords(strtolower($empleado->tipoContrato->nombre)) : "", 
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
                             'tipoContrato' => array(
                                 'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
                                 'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
@@ -7005,6 +7287,11 @@ class TrabajadoresController extends \BaseController {
                                 'id' => $empleado->seccion ? $empleado->seccion->id : "",
                                 'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
                             ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
                             'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
                             'cargo' => array(
                                 'id' => $empleado->cargo ? $empleado->cargo->id : "",
@@ -7077,6 +7364,16 @@ class TrabajadoresController extends \BaseController {
                                 'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
                                 'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
                             ),
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ),
                             'monedaSueldo' => $empleado->moneda_sueldo,
                             'sueldoBase' => $empleado->sueldo_base,        
                             'estado' => $empleado->estado,
@@ -7134,6 +7431,16 @@ class TrabajadoresController extends \BaseController {
                                 'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
                                 'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
                             ),
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
                             'monedaSueldo' => $empleado->moneda_sueldo,
                             'sueldoBase' => $empleado->sueldo_base,
                             'mesesAntiguedad' => $empleado->mesesAntiguedad()
@@ -7286,6 +7593,7 @@ class TrabajadoresController extends \BaseController {
         $configuracion = \Session::get('configuracion');
         $logo = $empresa->logo ? URL::to("stories/".$empresa->logo) : NULL;
         $isValida = $mes->indicadores;
+        $configuracion->centro_costo = $empresa->centro_costo ? true : false;
         
         foreach($trabajadores as $trabajador){
             $empleado = $trabajador->ficha();
@@ -7299,7 +7607,7 @@ class TrabajadoresController extends \BaseController {
             if($comprobarRentaImponibleAnterior){
                 $totalAfp = $trabajador->totalAfp($listaRentaImponibleAnteriorSIS[0]);
                 $totalSeguroCesantia = $trabajador->totalSeguroCesantia($listaRentaImponibleAnteriorSC[0]);
-                $totalMutual = $trabajador->totalMutual();  
+                $totalMutual = $trabajador->totalMutual($listaRentaImponibleAnteriorSIS[0]);  
             }else{
                 $totalMutual = $trabajador->totalMutual();  
                 $totalAfp = $trabajador->totalAfp();
@@ -7342,6 +7650,7 @@ class TrabajadoresController extends \BaseController {
                 $totalAportes = ($totalMutual + $totalSeguroCesantia['totalEmpleador'] + $totalSalud['montoCaja'] + $totalSalud['montoFonasa']);
                 $movimientoPersonal = $trabajador->movimientoPersonal();
                 $prestamosCaja = $trabajador->prestamosCaja();
+                $miCentroCosto = $empleado->miCentroCosto();
 
                 $filename = date("m-Y", strtotime($mes->mes))."_".$empresa->rut."_Liquidacion_".$trabajador->rut. '.pdf';
                 $alias = 'Liquidación de Sueldo ' . $empleado->nombreCompleto() . ' ' . $mes->nombre . ' del ' . $mes->anio . '.pdf';
@@ -7365,6 +7674,10 @@ class TrabajadoresController extends \BaseController {
                     'seccion' => array(
                         'id' => $empleado->seccion ? $empleado->seccion->id : "",
                         'nombre' => $empleado->seccion ? $empleado->seccion->nombre : ""
+                    ),
+                    'centroCosto' => array(
+                        'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                        'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : ""
                     ),
                     'fechaIngreso' => $empleado->fecha_ingreso,
                     'tipoContrato' => array(
@@ -7453,8 +7766,7 @@ class TrabajadoresController extends \BaseController {
                     'nombreDocumento' => $filename,
                     'aliasDocumento' => $alias,
                     'atrasos' => $atrasos,
-                    'logoEmpresa' => $logo,
-                    'z' => $isValida
+                    'logoEmpresa' => $logo
                 );
 
                 $documento = new Documento();
@@ -7500,6 +7812,8 @@ class TrabajadoresController extends \BaseController {
                 $liquidacion->trabajador_apellidos = $empleado->apellidos;
                 $liquidacion->trabajador_cargo = $empleado->cargo ? $empleado->cargo->nombre : "";
                 $liquidacion->trabajador_seccion = $empleado->miSeccion();
+                $liquidacion->trabajador_centro_costo = $miCentroCosto['nombre'];
+                $liquidacion->centro_costo_codigo = $miCentroCosto['codigo'];
                 $liquidacion->trabajador_tienda = $empleado->miTienda();
                 $liquidacion->trabajador_fecha_ingreso = $empleado->fecha_ingreso;
                 $liquidacion->uf = $mes->uf;

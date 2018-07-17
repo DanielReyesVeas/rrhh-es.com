@@ -11,7 +11,7 @@ class RespaldoController extends \BaseController {
         define("DB_USER", Config::get('cliente.CLIENTE.USUARIO') );
         define("DB_PASSWORD", Config::get('cliente.CLIENTE.PASS'));
         define("DB_HOST", 'localhost');
-        define("OUTPUT_DIR", 'respq1w2e3y6t5r4');
+        define("OUTPUT_DIR", '/home/rrhhes/public_html/respq1w2e3y6t5r4');
 		define("TABLES", '*');
 
 
@@ -19,35 +19,40 @@ class RespaldoController extends \BaseController {
 		$listaArchivos=array();
 
 		$DB_NAME = Config::get('cliente.CLIENTE.EMPRESA')."_principal";
-		$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, $DB_NAME);
-		$nombreArchivo = $backupDatabase->backupTables(TABLES, OUTPUT_DIR);
-		if( $nombreArchivo ){
-			$listaArchivos[]=$nombreArchivo;
-		}
+		
+		$archivoZip = "respaldo_".$DB_NAME."_".date("d-m-Y_H-i").".sql.gz";
+        shell_exec("mysqldump -u ".DB_USER." -p".DB_PASSWORD." ".$DB_NAME." | gzip -9 > ".OUTPUT_DIR."/".$archivoZip);
 
+        $pathToFile = OUTPUT_DIR."/".$archivoZip;
+        if( file_exists($pathToFile) ){
+            $listaArchivos[]=$archivoZip;
+        }
 
 
 		$empresas = Empresa::all();
 		if( $empresas->count() ) {
 			foreach ($empresas as $empresa) {
 				$DB_NAME = $empresa->base_datos;
-				$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, $DB_NAME);
-				$nombreArchivo = $backupDatabase->backupTables(TABLES, OUTPUT_DIR);
-				if( $nombreArchivo ){
-					$listaArchivos[]=$nombreArchivo;
-				}
+				$archivoZip = "respaldo_".$DB_NAME."_".date("d-m-Y_H-i").".sql.gz";
+                shell_exec("mysqldump -u ".DB_USER." -p".DB_PASSWORD." ".$DB_NAME." | gzip -9 > ".OUTPUT_DIR."/".$archivoZip);
+                $pathToFile = OUTPUT_DIR."/".$archivoZip;
+                if( file_exists($pathToFile) ){
+                    $listaArchivos[]=$archivoZip;
+                }
 			}
 		}
 
 		if( count($listaArchivos) ){
 			//se genera un archivo zip
-			$archivoZip = "respaldo_".date("d-m-Y_H-i").".zip";
+			$archivoZip = Config::get('cliente.CLIENTE.EMPRESA')."_".date("d-m-Y_H-i").".zip";
 			$zip = new ZipArchive();
 			if(($zip->open($archivoZip, ZipArchive::CREATE))!==true){ die('Error: Unable to create zip file');}
 
 			foreach($listaArchivos as $archivo ){
-				$file = public_path()."/".OUTPUT_DIR."/".$archivo;
-				$zip->addFile($file, $archivo);
+				$file = OUTPUT_DIR."/".$archivo;
+                if( file_exists($file) ) {
+                    $zip->addFile($file, $archivo);
+                }
 			}
 			$zip->close();
 
@@ -83,7 +88,7 @@ class RespaldoController extends \BaseController {
 			// se envia a los correos electronicos
 			Mail::send('correo_respaldos', $data, function($message) use($pathToFile, $datosCliente, $archivoStories)
 			{
-				$message->to('easysystems.rrhh@yahoo.com');
+				$message->to('backup@rrhh-es.com')->cc('max_nzgz@yahoo.com');
 				$message->attach($pathToFile);
 				if( $archivoStories ){
 					$message->attach($archivoStories);
@@ -91,13 +96,20 @@ class RespaldoController extends \BaseController {
 				$message->subject("EasySystems RRHH Respaldo Base Datos ". $datosCliente['NOMBRE']);
 			});
 
-			unlink($pathToFile);
+			if( file_exists($pathToFile) ) {
+                unlink($pathToFile);
+            }
 			if( $archivoStories ) {
-				unlink($archivoStories);
+                if( file_exists($archivoStories) ) {
+                    unlink($archivoStories);
+                }
 			}
 			foreach($listaArchivos as $archivo ){
-				unlink( public_path()."/".OUTPUT_DIR."/".$archivo );
+                if( file_exists(OUTPUT_DIR . "/" . $archivo) ) {
+                    unlink(OUTPUT_DIR . "/" . $archivo);
+                }
 			}
+
 			echo "finalizado";
 		}
 	}

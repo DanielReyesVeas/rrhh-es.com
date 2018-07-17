@@ -8,11 +8,13 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('ReajusteGlobalCtrl', function ($scope, $uibModal, $filter, $anchorScroll, trabajador, constantes, $rootScope, Notification) {
+  .controller('ReajusteGlobalCtrl', function ($scope, $uibModal, filterFilter, $timeout, $filter, $anchorScroll, trabajador, constantes, $rootScope, Notification) {
     $anchorScroll();
     $scope.objeto = [];
     $scope.cargado = false;
-
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
+    $scope.filtro = {};
+    
     function cargarDatos(){
       $rootScope.cargando = true;
       var datos = trabajador.reajuste().get();
@@ -23,21 +25,55 @@ angular.module('angularjsApp')
         $rootScope.cargando = false;
         $scope.isSelect = false;
         crearModels();
+        $scope.filtrar();                
+        $timeout(function() {
+          aumentarLimite();
+        }, 250);
         $scope.cargado = true;
       });
     };
 
     cargarDatos();
 
+    $scope.filtrar = function(){
+      $scope.filtro.itemsFiltrados=[];
+      var listaTemp = filterFilter($scope.datos, $scope.filtro.nombre);
+      if(listaTemp.length){
+        for(var ind in listaTemp){
+          $scope.filtro.itemsFiltrados.push( listaTemp[ind] );
+        }
+      }
+      countSelected();
+    };
+
+    $scope.clearText = function(){
+      $scope.filtro.nombre = "";
+      $scope.filtrar();
+    }
+
+    $scope.cargaElementos=0;
+
+    function aumentarLimite(){
+      if( $scope.limiteDinamico < $scope.datos.length ){
+        $scope.cargaElementos = Math.round(($scope.limiteDinamico/$scope.datos.length) * 100);
+        $scope.limiteDinamico+=5;
+        $timeout( function(){
+          aumentarLimite();
+        }, 250);
+      }else{
+        $rootScope.cargando=false;
+        $scope.cargaElementos=100;
+      }
+    };
+
     function crearModels(){
-      $scope.objeto.trabajador = [];
       for(var i=0, len=$scope.datos.length; i<len; i++){
-        $scope.objeto.trabajador.push({ check : false });
+        $scope.datos[i].check = false;
       }         
     }
     
     $scope.select = function(index){
-      if(!$scope.objeto.trabajador[index].check){
+      if(!$scope.filtro.itemsFiltrados[index].check){
         if($scope.objeto.todos){
           $scope.objeto.todos = false; 
         }
@@ -51,8 +87,8 @@ angular.module('angularjsApp')
 
     function isThereSelected(){
       var bool = false;
-      for(var i=0, len=$scope.datos.length; i<len; i++){
-        if($scope.objeto.trabajador[i].check){
+      for(var i=0, len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+        if($scope.filtro.itemsFiltrados[i].check){
           bool = true;
           return bool;
         }
@@ -62,31 +98,33 @@ angular.module('angularjsApp')
 
     function countSelected(){
       var count = 0;
-      for(var i=0, len=$scope.datos.length; i<len; i++){
-        if($scope.objeto.trabajador[i].check){
+      for(var i=0, len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+        if($scope.filtro.itemsFiltrados[i].check){
+        console.log($scope.filtro.itemsFiltrados[i])
           count++;
           $scope.mensaje = 'Se reajustarán los Sueldos de los ' + count + ' trabajadores seleccionados a ';
         }
       }
       if(count===1){
-        count = $scope.datos[0].nombreCompleto;
+        count = $scope.filtro.itemsFiltrados[0].nombreCompleto;
         $scope.mensaje = 'Se reajustará el Sueldo de ' + count + ' a ';
       }
+      console.log(count)
       return count;
     }
 
     $scope.selectAll = function(){
       if($scope.objeto.todos){
         var total = 0;
-        for(var i=0, len=$scope.datos.length; i<len; i++){
-          $scope.objeto.trabajador[i].check = true
+        for(var i=0, len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+          $scope.filtro.itemsFiltrados[i].check = true
           $scope.isSelect = true;
           total++;  
         }
         countSelected();
       }else{
-        for(var i=0, len=$scope.datos.length; i<len; i++){
-          $scope.objeto.trabajador[i].check = false
+        for(var i=0, len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+          $scope.filtro.itemsFiltrados[i].check = false
           $scope.isSelect = false;
         }
       }
@@ -96,12 +134,15 @@ angular.module('angularjsApp')
       $rootScope.cargando=true;
       if(!trab){
         var trabajadoresReajuste = { trabajadores : [] };
-        for(var i=0,len=$scope.objeto.trabajador.length; i<len; i++){
-          if($scope.objeto.trabajador[i].check){
-            trabajadoresReajuste.trabajadores.push({ id : $scope.datos[i].id });        
+        console.log($scope.filtro.itemsFiltrados);
+        for(var i=0,len=$scope.filtro.itemsFiltrados.length; i<len; i++){
+          if($scope.filtro.itemsFiltrados[i].check){
+            trabajadoresReajuste.trabajadores.push({ id : $scope.filtro.itemsFiltrados[i].id });        
           }
         }
+        console.log(trabajadoresReajuste)
       }else{
+        console.log(trab)
         var trabajadoresReajuste = { trabajadores : [{ id : trab }] };
       }
       var datos = trabajador.reajustar().post({}, trabajadoresReajuste);

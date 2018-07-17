@@ -313,6 +313,16 @@ class LiquidacionesController extends \BaseController {
                 }
                 $totalAfp = ($cotizacion + $sis);
                 $totalSeguroCesantia = $liquidacion->detalleSeguroCesantia ? $liquidacion->detalleSeguroCesantia->aporte_trabajador : 0;
+                if($liquidacion->centroCosto){
+                    $centro = $liquidacion->centroCosto->nombre;
+                }else{
+                    $empleado = $liquidacion->trabajador->ficha();
+                    if($empleado->centroCosto){
+                        $centro = $empleado->centroCosto->nombre;
+                    }else{
+                        $centro = '';
+                    }
+                }
                 $listaLiquidaciones[]=array(
                     'id' => $liquidacion->id,
                     'sid' => $liquidacion->sid,
@@ -321,6 +331,10 @@ class LiquidacionesController extends \BaseController {
                     'rutTrabajador' => $liquidacion->trabajador_rut,
                     'idTrabajador' => $liquidacion->trabajador_id,
                     'rutFormatoTrabajador' => $liquidacion->trabajador->rut_formato(),
+                    'seccion' => $liquidacion->trabajador_seccion,
+                    'centroCosto' => $centro,
+                    'cargo' => $liquidacion->trabajador_cargo,   
+                    'tipoContrato' => $liquidacion->tipo_contrato,   
                     'sueldoBase' => $liquidacion->sueldo_base,
                     'diasTrabajados' => $liquidacion->dias_trabajados,
                     'inasistenciasAtrasos' => $liquidacion->inasistencias,

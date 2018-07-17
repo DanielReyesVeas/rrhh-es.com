@@ -8,10 +8,12 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('TrabajadoresCtrl', function ($scope, $uibModal, $filter, $anchorScroll, trabajador, $rootScope, Notification, plantillaContrato, fecha) {
+  .controller('TrabajadoresCtrl', function ($scope, $uibModal, filterFilter, $timeout, $filter, $anchorScroll, trabajador, $rootScope, Notification, plantillaContrato, fecha) {
     $anchorScroll();
     $scope.datos = [];
     $scope.cargado = false;
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
+    $scope.filtro = {};
 
     function cargarDatos(){
       $rootScope.cargando = true;
@@ -20,9 +22,43 @@ angular.module('angularjsApp')
       datos.$promise.then(function(response){
         $scope.datos = response.datos;
         $scope.accesos = response.accesos;
+        $scope.filtrar();                
+        $timeout(function() {
+          aumentarLimite();
+        }, 250);
         $rootScope.cargando = false;
         $scope.cargado = true;
       });
+    };
+
+    $scope.filtrar = function(){
+      $scope.filtro.itemsFiltrados=[];
+      var listaTemp = filterFilter($scope.datos, $scope.filtro.nombre);
+      if(listaTemp.length){
+        for(var ind in listaTemp){
+          $scope.filtro.itemsFiltrados.push( listaTemp[ind] );
+        }
+      }
+    };
+
+    $scope.clearText = function(){
+      $scope.filtro.nombre = "";
+      $scope.filtrar();
+    }
+
+    $scope.cargaElementos=0;
+
+    function aumentarLimite(){
+      if( $scope.limiteDinamico < $scope.datos.length ){
+        $scope.cargaElementos = Math.round(($scope.limiteDinamico/$scope.datos.length) * 100);
+        $scope.limiteDinamico+=5;
+        $timeout( function(){
+          aumentarLimite();
+        }, 250);
+      }else{
+        $rootScope.cargando=false;
+        $scope.cargaElementos=100;
+      }
     };
 
     cargarDatos();  

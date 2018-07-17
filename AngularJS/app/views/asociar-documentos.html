@@ -15,6 +15,8 @@
           <select ng-model="orden" id="orden" ng-init="orden='apellidos'" class="form-control form-white" ng-change="reverse = false">
             <option value="rut">RUT</option>
             <option value="apellidos">Nombre</option>
+            <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+            <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
             <option value="totalDocumentos">Documentos</option>
           </select>
         </div>
@@ -38,8 +40,10 @@
           <thead>
             <tr>    
               <th class="col-sm-1">#</th>
-              <th class="col-sm-3">RUT</th>
-              <th class="col-sm-4">Nombre</th>
+              <th class="col-sm-2">RUT</th>
+              <th class="col-sm-3">Nombre</th>
+              <th class="col-sm-2" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+              <th class="col-sm-2" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
               <th class="col-sm-2">Documentos</th>
               <th class="col-sm-2"></th>
             </tr>
@@ -49,6 +53,8 @@
               <td>{{ $index + 1 }}</td>
               <td>{{ trabajador.rutFormato }}</td>
               <td>{{ trabajador.nombreCompleto }}</td>
+              <td ng-if="empresa.centroCosto.isCentroCosto">{{ trabajador.centroCosto.nombre }}</td>
+              <td ng-if="!empresa.centroCosto.isCentroCosto">{{ trabajador.seccion.nombre }}</td>
               <td>{{ trabajador.totalDocumentos }}</td>
               <td>
                 <a href="" ng-click="asociar(trabajador)" ng-if="accesos.crear && accesos.abierto"><i class="fa fa-upload" uib-tooltip-html="toolTipAsociar(trabajador.nombreCompleto)"></i></a>

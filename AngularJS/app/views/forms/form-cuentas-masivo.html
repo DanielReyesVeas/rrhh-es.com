@@ -17,7 +17,7 @@
                 <li ng-repeat="match in matches track by $index" id="{{::match.id}}">
                 </li>
               </ul>
-              <input type="text" ng-model="todos.cuenta" placeholder="Buscar cuenta" typeahead-editable="false" uib-typeahead="cuenta as cuenta.nombre for cuenta in cuentas | filter:{nombre:$viewValue, cuenta:true}" class="form-control" typeahead-show-hint="true" ng-change="seleccionar(false)" typeahead-on-select="seleccionar(true)" typeahead-min-length="0" />
+              <input type="text" ng-model="objeto.cuenta" placeholder="Buscar cuenta" typeahead-editable="false" uib-typeahead="cuenta as cuenta.nombre for cuenta in cuentas | filter:{nombre:$viewValue, cuenta:true}" class="form-control" typeahead-show-hint="true" ng-change="seleccionar(false)" typeahead-on-select="seleccionar(true)" typeahead-min-length="0" />
             </div>
             <div class="col-sm-1">
               <button class="btn btn-sm btn-primary" type="button" ng-click="openCuentas()">

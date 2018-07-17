@@ -191,7 +191,7 @@ class VacacionesController extends \BaseController {
                 $dias = $trabajador->diasInicialesVacaciones();   
             }
         }
-        $trabajador->recalcularVacaciones($dias, $desde);
+        $a = $trabajador->recalcularVacaciones($dias, $desde);
         
         $fichasTrabajador = $trabajador->fichaTrabajador; 
         foreach($fichasTrabajador as $fichaTrabajador){
@@ -205,7 +205,8 @@ class VacacionesController extends \BaseController {
         
         $datos = array(
             'trabajador' => $trabajador,
-            'desde' => $desde
+            'desde' => $desde,
+            'a' => $a
         );
         
         return Response::json($datos);

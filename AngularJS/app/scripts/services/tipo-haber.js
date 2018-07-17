@@ -40,6 +40,12 @@ angular.module('angularjsApp')
                 {},
                 { post : { 'method': 'POST' } }
               );
+            },
+            updateCuentaMasivo : function(){
+              return $resource(constantes.URL + 'tipos-haber/cuentas-masivo/actualizar',
+                {},
+                { post : { 'method': 'POST' } }
+              );
             }
         };
   });

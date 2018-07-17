@@ -8,12 +8,12 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('GestionCuentasCtrl', function ($scope, $uibModal, $filter, tipoHaber, tipoDescuento, $anchorScroll, aporte, constantes, mesDeTrabajo, $rootScope, Notification) {
+  .controller('GestionCuentasCtrl', function ($scope, $uibModal, cuenta, $filter, tipoHaber, tipoDescuento, $anchorScroll, aporte, constantes, mesDeTrabajo, $rootScope, Notification) {
     $anchorScroll();
 
     $scope.empresa = $rootScope.globals.currentUser.empresa;
     $scope.constantes = constantes;
-    $scope.cargado = false;
+    $scope.cargado = false;    
     
     $scope.tabGeneral = true;
     $scope.tabAportes = false;
@@ -53,6 +53,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'generales', datos : $scope.generales, nombre : 'General', tipo : 'aporte' };
           break;
         case 'aportes':
           $scope.tabGeneral = false;
@@ -72,6 +73,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'aportes', datos : $scope.aportes, nombre : 'Aportes', tipo : 'aporte' };
           break;
         case 'afpEmpleador':
           $scope.tabGeneral = false;
@@ -91,6 +93,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'afpEmpleador', datos : $scope.afpsEmpleador, nombre : 'AFP Empleador', tipo : 'aporte' };
           break;
         case 'afpTrabajador':
           $scope.tabGeneral = false;
@@ -110,6 +113,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'afpTrabajador', datos : $scope.afpsTrabajador, nombre : 'AFP Trabajador', tipo : 'aporte' };
           break;
         case 'cuentasAhorroAfp':
           $scope.tabGeneral = false;
@@ -129,6 +133,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'cuentasAhorroAfp', datos : $scope.cuentasAhorroAfps, nombre : 'Cuentas de Ahorro', tipo : 'descuento' };
           break;
         case 'salud':
           $scope.tabGeneral = false;
@@ -148,6 +153,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'salud', datos : $scope.salud, nombre : 'Salud', tipo : 'descuento' };
           break;
         case 'seguroCesantiaEmpleador':
           $scope.tabGeneral = false;
@@ -167,6 +173,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'seguroCesantiaEmpleador', datos : $scope.seguroCesantiaEmpleador, nombre : 'Seguro Cesantía Empleador', tipo : 'aporte' };
           break;
         case 'seguroCesantiaTrabajador':
           $scope.tabGeneral = false;
@@ -186,6 +193,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'seguroCesantiaTrabajador', datos : $scope.seguroCesantiaTrabajador, nombre : 'Seguro Cesantía Trabajador', tipo : 'aporte' };
           break;
         case 'apvA':
           $scope.tabGeneral = false;
@@ -205,6 +213,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'apvA', datos : $scope.apvsA, nombre : 'APVs Régimen A', tipo : 'descuento' };
           break;
         case 'apvB':
           $scope.tabGeneral = false;
@@ -224,6 +233,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'apvB', datos : $scope.apvsB, nombre : 'APVs Régimen B', tipo : 'descuento' };
           break;
         case 'apvc':
           $scope.tabGeneral = false;
@@ -243,6 +253,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'apvc', datos : $scope.apvcs, nombre : 'APVCs', tipo : 'descuento' };
           break;
         case 'exCaja':
           $scope.tabGeneral = false;
@@ -262,6 +273,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'exCaja', datos : $scope.exCajas, nombre : 'Ex Cajas', tipo : 'aporte' };
           break;
         case 'ccaf':
           $scope.tabGeneral = false;
@@ -281,6 +293,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'ccaf', datos : $scope.ccafs, nombre : 'CCAF', tipo : 'descuento' };
           break;
         case 'imp':
           $scope.tabGeneral = false;
@@ -300,6 +313,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'imp', datos : $scope.haberesImp, nombre : 'Haberes Imponibles', tipo : 'haber' };
           break;
         case 'noImp':
           $scope.tabGeneral = false;
@@ -319,6 +333,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = true;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales= false;
+          $scope.select = { tab : 'noImp', datos : $scope.haberesNoImp, nombre : 'Haberes No Imponibles', tipo : 'haber' };
           break;
         case 'descuentos':
           $scope.tabGeneral = false;
@@ -338,6 +353,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = true;
           $scope.tabDescuentosLegales = false;
+          $scope.select = { tab : 'descuentos', datos : $scope.descuentos, nombre : 'Descuentos', tipo : 'descuento' };
           break;
         case 'descuentosLegales':
           $scope.tabGeneral = false;
@@ -357,6 +373,7 @@ angular.module('angularjsApp')
           $scope.tabHaberesNoImp = false;
           $scope.tabDescuentos = false;
           $scope.tabDescuentosLegales = true;
+          $scope.select = { tab : 'descuentosLegales', datos : $scope.descuentosLegales, nombre : 'Descuentos Legales', tipo : 'descuento' };
           break;
       }
     }
@@ -410,6 +427,38 @@ angular.module('angularjsApp')
           $rootScope.cargando = false;      
         }); 
       }
+    }
+
+    $scope.masivo = function(){
+      $rootScope.cargando = true;
+      var datos = cuenta.obtener().get();
+      datos.$promise.then(function(response){
+        openMasivo($scope.select, response.datos); 
+        $rootScope.cargando = false;      
+      });
+    }
+
+    function openMasivo(select, cuentas){
+      var miModal = $uibModal.open({
+        animation: $scope.animationsEnabled,
+        templateUrl: 'views/forms/form-cuentas-masivo.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormAsignacionMasiva',
+        resolve: {
+          objeto: function() {
+            return select;
+          },
+          cuentas: function() {
+            return cuentas;
+          }
+        }
+      });
+      miModal.result.then(function(obj) {
+        Notification.success({message: obj.mensaje, title: 'Mensaje del Sistema'});
+        cargarDatos();
+        $scope.openTab(obj.tab);
+      }, function () {
+        javascript:void(0);
+      });
     }
 
     function openForm(obj, cuentas, tipo, tab) {
@@ -501,6 +550,7 @@ angular.module('angularjsApp')
         $scope.centrosCostos = response.centrosCostos;
         $rootScope.cargando = false;
         $scope.cargado = true;
+        $scope.select = { tab : 'generales', datos : $scope.generales, nombre : 'General', tipo : 'aporte' };
       });
     };
 
@@ -683,6 +733,72 @@ angular.module('angularjsApp')
         function(response){
           if(response.success){
             $uibModalInstance.close({ mensaje : response.mensaje , sid : $scope.objeto.sid });
+          }else{
+            // error
+            $scope.erroresDatos = response.errores;
+            Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
+          }
+          $rootScope.cargando=false;
+        }
+      );
+    };
+
+    $scope.seleccionar = function(select){
+      $scope.isSelect = select;
+    }
+
+    $scope.openCuentas = function(obj){
+      var miModal = $uibModal.open({
+        animation: $scope.animationsEnabled,
+        templateUrl: 'views/forms/form-buscar-cuenta.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormBuscarCuentaCtrl',
+        size: '700',
+        resolve: {
+          objeto: function() {
+            return $scope.cuentas;
+          }
+        }
+      });
+      miModal.result.then(function(cuenta) {
+        $scope.todos.cuenta = cuenta;
+      }, function () {
+        javascript:void(0);
+      });
+    }
+
+
+  })
+  .controller('FormAsignacionMasiva', function ($scope, aporte, tipoDescuento, tipoHaber, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope) {
+
+    $scope.cuentas = angular.copy(cuentas);
+    $scope.objeto = angular.copy(objeto);
+    $scope.isSelect = false;
+    $scope.todos = { cuenta : null };  
+    
+    $scope.guardar = function () {
+      console.log($scope.objeto)
+      console.log($scope.cuentas)
+      $rootScope.cargando=true;
+      var sid = [];
+      for(var i=0,len=$scope.objeto.datos.length; i<len; i++){
+        sid.push($scope.objeto.datos[i].sid);
+      }
+      var obj = { sid : sid, idCuenta : $scope.objeto.cuenta.id };
+
+      console.log(obj);
+
+      if($scope.objeto.tipo==='aporte'){
+        var response = aporte.updateCuentaMasivo().post({}, obj);
+      }else if($scope.objeto.tipo==='haber'){
+        var response = tipoHaber.updateCuentaMasivo().post({}, obj);
+      }else if($scope.objeto.tipo==='descuento'){
+        var response = tipoDescuento.updateCuentaMasivo().post({}, obj);
+      }
+
+      response.$promise.then(
+        function(response){
+          if(response.success){
+            $uibModalInstance.close({ mensaje : response.mensaje , tab : $scope.objeto.tab });
           }else{
             // error
             $scope.erroresDatos = response.errores;

@@ -478,6 +478,30 @@ class TiposDescuentoController extends \BaseController {
         
         return Response::json($respuesta);
     }
+    
+    public function updateCuentaMasivo()
+    {
+        $datos = Input::all();
+        $sid = $datos['sid'];
+        $idCuenta = $datos['idCuenta'];
+        
+        $descuentos = TipoDescuento::whereIn('sid', $sid)->get();
+        
+        if($descuentos->count()){
+            foreach($descuentos as $descuento){
+                $descuento->cuenta_id = $idCuenta;
+                $descuento->save();
+            }
+        }
+        
+        $respuesta = array(
+            'success' => true,
+            'mensaje' => "La Información fue actualizada correctamente",
+            'a' => $descuentos
+        );
+        
+        return Response::json($respuesta);
+    }
 
     /**
      * Remove the specified resource from storage.

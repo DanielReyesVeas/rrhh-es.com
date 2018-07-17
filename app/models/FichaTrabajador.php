@@ -350,6 +350,25 @@ class FichaTrabajador extends Eloquent {
         return "";
     }
     
+    public function miCentroCosto()
+    {
+        $centroCosto = $this->centroCosto;
+        $codigo = "";
+        $nombre = "";
+        
+        if($centroCosto){
+            $codigo = $centroCosto->codigo;
+            $nombre = $centroCosto->nombre;
+        }
+        
+        $datos = array(
+            'codigo' => $codigo,
+            'nombre' => $nombre           
+        );
+        
+        return $datos;
+    }
+    
     public function miTienda()
     {
         $tienda = $this->tienda;

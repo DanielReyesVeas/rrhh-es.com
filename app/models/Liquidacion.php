@@ -1486,7 +1486,7 @@ class Liquidacion extends Eloquent {
     
     public function diasTrabajados()
     {
-        
+        return $this->dias_trabajados;
     }
     
     public function totalHaberes()
