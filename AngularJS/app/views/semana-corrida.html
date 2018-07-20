@@ -49,13 +49,14 @@
             <thead>
               <tr>    
                 <th class="col-sm-1">#</th>
-                <th class="col-sm-2">RUT</th>
+                <th class="col-sm-1">RUT</th>
                 <th ng-class="{ 'col-sm-2' : semanas>4, 'col-sm-3' : semanas===4 }">Nombre</th>
                 <th class="col-sm-1">Semana 1</th>
                 <th class="col-sm-1">Semana 2</th>
                 <th class="col-sm-1">Semana 3</th>
                 <th class="col-sm-1">Semana 4</th>
                 <th ng-if="semanas>4" class="col-sm-1">Semana 5</th>
+                <th class="col-sm-1">Semana Corrida</th>
                 <th class="col-sm-1"></th>
               </tr>
             </thead>
@@ -69,6 +70,7 @@
                 <td>${{ trabajador.semanaCorrida.semanas[2].comision | currency:'':0 }}</td>
                 <td>${{ trabajador.semanaCorrida.semanas[3].comision | currency:'':0 }}</td>
                 <td ng-if="semanas>4" >${{ trabajador.semanaCorrida.semanas[4].comision | currency:'':0 }}</td>
+                <td>${{ trabajador.semanaCorrida.total | currency:'':0 }}</td>
                 <td>
                   <a href="" ng-click="detalle(trabajador, 's')"><i class="fa fa-search" uib-tooltip-html="toolTipDetalle(trabajador.nombreCompleto)"></i></a>
                 </td>
@@ -113,9 +115,10 @@
             <thead>
               <tr>    
                 <th class="col-sm-1">#</th>
-                <th class="col-sm-3">RUT</th>
-                <th class="col-sm-4">Nombre</th>
-                <th class="col-sm-3">Monto</th>
+                <th class="col-sm-2">RUT</th>
+                <th class="col-sm-3">Nombre</th>
+                <th class="col-sm-3">Comisión</th>
+                <th class="col-sm-2">Semana Corrida</th>
                 <th class="col-sm-1"></th>
               </tr>
             </thead>
@@ -124,7 +127,8 @@
                 <td>{{ $index + 1 }}</td>
                 <td>{{ trabajador.rutFormato }}</td>
                 <td>{{ trabajador.nombreCompleto }}</td>
-                <td>${{ 0 | currency:'':0 }}</td>
+                <td>${{ trabajador.semanaCorrida.comision | currency:'':0 }}</td>
+                <td>${{ trabajador.semanaCorrida.total | currency:'':0 }}</td>
                 <td>
                   <a href="" ng-click="detalle(trabajador, 'm')"><i class="fa fa-search" uib-tooltip-html="toolTipDetalle(trabajador.nombreCompleto)"></i></a>
                 </td>

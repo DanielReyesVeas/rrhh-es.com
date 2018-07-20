@@ -109,7 +109,6 @@ angular.module('angularjsApp')
         count = $scope.filtro.itemsFiltrados[0].nombreCompleto;
         $scope.mensaje = 'Se reajustará el Sueldo de ' + count + ' a ';
       }
-      console.log(count)
       return count;
     }
 

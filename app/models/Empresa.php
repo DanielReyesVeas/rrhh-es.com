@@ -246,7 +246,7 @@ class Empresa extends \Eloquent {
     {
         $configuracion = \Session::get('configuracion');
         $festivos = $configuracion->festivos;
-        $total = substr_count($festivos, '1');
+        $total = substr_count($festivos, '0');
         
         return $total;
     }
@@ -256,7 +256,7 @@ class Empresa extends \Eloquent {
         $configuracion = \Session::get('configuracion');
         $festivos = $configuracion->festivos;
         $datos = array();
-        $dias = $meses = Config::get('constants.dias');
+        $dias = Config::get('constants.dias');
         
         for($i=0,$len=strlen($festivos); $i<$len; $i++){
             $datos[] = array(
@@ -268,6 +268,63 @@ class Empresa extends \Eloquent {
         }
             
         return $datos;
+    }
+    
+    public function arrayDiasHabiles()
+    {
+        $configuracion = \Session::get('configuracion');
+        $habiles = $configuracion->festivos;
+        $datos = array();
+        $dias = Config::get('constants.dias');
+        
+        for($i=0,$len=strlen($habiles); $i<$len; $i++){
+            if($habiles[$i]){
+                $datos[] = $dias[$i]['id'];
+            }
+        }
+            
+        return $datos;
+    }
+    
+    public function totalDiasHabiles($descontarFeriados=false)
+    {
+        $mes = \Session::get('mesActivo');
+        $desde = $mes->mes;
+        $hasta = $mes->fechaRemuneracion;
+        $count = 0;
+        $habiles = $this->arrayDiasHabiles();
+        $feriados = array();
+        if($descontarFeriados){
+            $feriados = Feriado::feriados($mes->mes, $mes->fechaRemuneracion);
+        }
+
+        while($desde<=$hasta){            
+            $weekDay = date('N', strtotime($desde));
+            if(in_array($weekDay, $habiles) && !in_array($desde, $feriados) && $weekDay!=7){
+                $count++;
+            }
+            $desde = date('Y-m-d', strtotime('+1 day', strtotime($desde)));
+        }
+        
+        return $count;
+    }
+    
+    public function totalDiasNoHabiles()
+    {
+        $mes = \Session::get('mesActivo');
+        $desde = $mes->mes;
+        $hasta = $mes->fechaRemuneracion;
+        $count = 0;
+
+        while($desde<=$hasta){            
+            $weekDay = date('N', strtotime($desde));
+            if($weekDay==7){
+                $count++;
+            }
+            $desde = date('Y-m-d', strtotime('+1 day', strtotime($desde)));
+        }
+        
+        return $count;
     }
     
     static function variableConfiguracion($var)

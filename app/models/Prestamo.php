@@ -40,8 +40,9 @@ class Prestamo extends Eloquent {
                     'monto' => $cuota->monto,
                     'mes' => $cuota->mes
                 );     
-            }
+            }            
         }
+        
         return $datosCuotas;
     }
     
@@ -58,6 +59,26 @@ class Prestamo extends Eloquent {
         $cuota->monto = $cuotas->monto;
         
         return $cuota;
+    }
+    
+    public function cuotasPagar()
+    {
+        $idPrestamo = $this->id;
+        $mes = \Session::get('mesActivo')->mes;
+        $cuotas = Cuota::where('prestamo_id', $idPrestamo)->where('mes', '>=', $mes)->get();
+        $cuotaPagar = $this->cuotaPagar();
+        $cuotasPagadas = DetalleLiquidacion::where('tipo_id', 4)->where('detalle_id', $this->id)->where('valor_4', '<=', $cuotaPagar->numero)->lists('valor_4');
+        $total = 0;
+        
+        if($cuotas->count()){
+            foreach($cuotas as $cuota){
+                if(!in_array($cuota->numero, $cuotasPagadas)){
+                    $total += $cuota->monto;
+                }
+            }
+        }
+        
+        return $total;
     }
     
     public function eliminarPrestamo()

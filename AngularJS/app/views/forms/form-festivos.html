@@ -6,14 +6,27 @@
 </div>
 <div class="modal-body">
   <div class="panel panel-default">
-    <div class="panel-heading">Festivos</div>
+    <div class="panel-heading">Días Hábiles</div>
     <div class="panel-body">          
 
       <div class="col-sm-12" style="margin-top: 40px; margin-bottom: 40px;">
 
-        <div class="col-sm-12 text-center">
+        <div class="col-sm-12">
+          <div class="col-sm-4">
+            <div style="border: 10px solid #127964; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Hábiles 
+          </div>
+          <div class="col-sm-4">
+            <div style="border: 10px solid #18a689; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>No Hábiles
+          </div>
+          <div class="col-sm-4">
+            <div style="border: 10px solid #642121; width: 30px; border-radius: 3px; float: left; margin-right: 5px;"></div>Feriado
+          </div>
+        </div>
+
+        <div class="col-sm-12 text-center" style="margin-top: 40px;">
           <div class="btn-group">
-            <button type="button" ng-repeat="fes in festivos" ng-model="fes.festivo" class="btn btn-default btn-sm" uib-btn-checkbox>{{ fes.nombre }}</button>
+            <button type="button" ng-repeat="fes in festivos" ng-model="fes.festivo" class="btn btn-success btn-sm" ng-class="{ 'selected' : fes.festivo }" ng-if="fes.id!=7" uib-btn-checkbox>{{ fes.nombre }}</button>
+            <button type="button" ng-model="festivos[6].festivo" class="btn btn-danger btn-sm" ng-disabled="true" uib-btn-checkbox>{{ festivos[6].nombre }}</button>
           </div>
         </div>
 

@@ -8,10 +8,14 @@ class FeriadoVacaciones extends Eloquent {
         return $this->belongsTo('AnioRemuneracion','anio_id');
     }   
     
-    static function feriados($mes, $remuneracion)
+    static function feriados($mes, $remuneracion=null)
     {
         $listaFeriados = array();
-        $feriados = FeriadoVacaciones::whereBetween('fecha', [$mes, $remuneracion])->get();
+        if($remuneracion){
+            $feriados = FeriadoVacaciones::whereBetween('fecha', [$mes, $remuneracion])->get();
+        }else{
+            $feriados = FeriadoVacaciones::where('fecha', '>=', $mes)->get();            
+        }
         
         if($feriados){
             foreach($feriados as $feriado){
@@ -19,7 +23,7 @@ class FeriadoVacaciones extends Eloquent {
             }
         }
         return $listaFeriados;
-    }
+    }    
     
     static function comprobar($feriados, $mesActual)
     {
@@ -28,18 +32,16 @@ class FeriadoVacaciones extends Eloquent {
         $mes = $mesActual['mes'];
         $remuneracion = $mesActual['fechaRemuneracion'];
         
-        if($feriados){
-            $actuales = FeriadoVacaciones::whereBetween('fecha', [$mes, $remuneracion])->get();
-            if($actuales){
-                foreach($actuales as $actual){
-                    if(in_array($actual->fecha, $feriados)){
-                        $key = array_search($actual->fecha, $feriados);
-                        if(false !== $key) {
-                            unset($feriados[$key]);
-                        }
-                    }else{
-                        $destroy[] = $actual->id;                        
+        $actuales = FeriadoVacaciones::whereBetween('fecha', [$mes, $remuneracion])->get();
+        if($actuales){
+            foreach($actuales as $actual){
+                if(in_array($actual->fecha, $feriados)){
+                    $key = array_search($actual->fecha, $feriados);
+                    if(false !== $key) {
+                        unset($feriados[$key]);
                     }
+                }else{
+                    $destroy[] = $actual->id;                        
                 }
             }
         }

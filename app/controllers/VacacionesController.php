@@ -206,6 +206,7 @@ class VacacionesController extends \BaseController {
         $datos = array(
             'trabajador' => $trabajador,
             'desde' => $desde,
+            'dias' => $dias,
             'a' => $a
         );
         

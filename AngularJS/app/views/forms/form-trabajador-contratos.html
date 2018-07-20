@@ -14,9 +14,9 @@
         <a ng-click="generarContrato(trabajador)" ng-if="accesos.crear && accesos.abierto && trabajador.isFicha" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-pencil-square-o"></i> Generar Contrato</a>
       </div>
 
-      <div class="container col-sm-12" style="margin: 40px;">
+      <div class="col-sm-12" style="margin-top: 40px;">
 
-        <div class="container text-center" ng-if="trabajador.contratos.length<=0">
+        <div class="text-center" ng-if="trabajador.contratos.length<=0">
           <i>Aun no hay registros</i>
         </div>
 
@@ -26,8 +26,8 @@
               <th class="col-sm-1">#</th>
               <th class="col-sm-3">Nombre</th>
               <th class="col-sm-4">Descripción</th>
-              <th class="col-sm-3">Fecha</th>
-              <th class="col-sm-1"></th>
+              <th class="col-sm-2">Fecha</th>
+              <th class="col-sm-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -38,8 +38,8 @@
               <td>{{ dato.fecha | date : "dd-MM-y" }}</td>
               <td>
                 <a href="javascript:void(0);" ng-click="editar(dato)"><i class="fa fa-pencil"></i></a>
-                <a href="javascript:void(0);" ng-click="frame(dato)"><i class="fa fa-search"></i></a>
-                <!--<a a target="_self" id="descargarDocumento" download="{{dato.alias}}" href="{{ constantes.URL }}stories/{{dato.nombre}}"><i class="fa fa-download"></i></a>-->
+                <a href="javascript:void(0);" ng-if="dato.extension=='pdf'" ng-if="accesos.ver" ng-click="frame(dato)"><i class="fa fa-window-restore"></i></a>
+                <a href="{{ constantes.URL }}/stories/{{ dato.nombre }}" download="{{ dato.alias }}" ng-if="accesos.ver"><i class="fa fa-download"></i></a>
                 <a href="javascript:void(0);" confirmation-click="eliminar(dato)" confirmation-needed="El Documento seleccionado será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
               </td>
             </tr>

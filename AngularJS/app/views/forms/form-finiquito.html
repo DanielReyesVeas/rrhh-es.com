@@ -139,6 +139,21 @@
                   <td>${{ detalle.monto | currency:'':0 }}</td>
                 </tr>
               </tr>
+              <tr ng-if="prestamos.monto>0">
+                <td>
+                  <input type="checkbox" ng-model="prestamos.check" ng-change="selectPrestamo()" icheck>
+                </td>
+                <td colspan="3">Préstamos</td>
+                <td>
+                  <span ng-if="!prestamos.edit">-${{ prestamos.monto | currency:'':0 }}               
+                    <a href="" class="pull-right" ng-click="edit(prestamos)"><i class="fa fa-pencil"></i></a>
+                  </span>   
+                  <span ng-if="prestamos.edit">
+                    $<input type="number" ng-if="prestamos.edit" ng-model="prestamos.monto" style="width: 90px" />
+                    <a href="" class="pull-right" ng-click="edit(prestamos)"><i class="fa fa-check"></i></a>
+                  </span>
+                </td>
+              </tr>
               <tr>
                 <td></td>
                 <td colspan="3"><b>Total:</b></td>

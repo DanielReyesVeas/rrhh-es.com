@@ -65,8 +65,12 @@ angular.module('angularjsApp')
           },
           accesos: function () {
             return $scope.accesos;          
+          },
+          tipo: function(){
+            return 'semanal';
           }
-        }
+        },
+        size: 'lg'
       });
       miModal.result.then(function (mensaje) {
         Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
@@ -86,6 +90,9 @@ angular.module('angularjsApp')
           },
           accesos: function () {
             return $scope.accesos;          
+          },
+          tipo: function(){
+            return 'mensual';
           }
         }
       });
@@ -128,6 +135,7 @@ angular.module('angularjsApp')
         Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
         cargarDatos();         
       }, function () {
+        cargarDatos(); 
       });
     };
 
@@ -146,6 +154,7 @@ angular.module('angularjsApp')
     $scope.festivos = angular.copy(festivos);
     $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual }, true )[0] };
     $scope.accesos = angular.copy(accesos);
+    $scope.nombre = 'Semana Corrida';
 
     function cargarDatos(anioActual){
       $rootScope.cargando = true;
@@ -155,10 +164,10 @@ angular.module('angularjsApp')
         $scope.festivos = response.festivos;
         $scope.accesos = response.accesos;
         $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual.id }, true )[0] };
+        anioActual = anioActual;
+        $scope.selectAnio();
         $rootScope.cargando = false;
-      });
-      anioActual = anioActual;
-      $scope.selectAnio();
+      });      
     }
 
     $scope.selectAnio = function(){
@@ -211,7 +220,7 @@ angular.module('angularjsApp')
       });
       miModal.result.then(function (obj) {
         Notification.success({message: obj.mensaje, title: 'Mensaje del Sistema'});
-        console.log(obj);
+        cargarDatos(obj.anio);
       }, function () {
       });
     };
@@ -247,9 +256,19 @@ angular.module('angularjsApp')
 
     $scope.titulo = "Semana Corrida";
     $scope.mes = angular.copy(objeto);
-    $scope.selectedDates = angular.copy($scope.mes.feriados);
     $scope.anioActual = angular.copy(anioActual);
     $scope.activeDate = fecha.convertirFecha($scope.mes.mes).setHours(0, 0, 0, 0);
+    $scope.selectedDates = crearModels();
+
+    function crearModels(){
+      var feriados = [];
+      for(var i=0,len=$scope.mes.feriadosSemanaCorrida.length; i<len; i++){
+        var feriado = fecha.convertirFecha($scope.mes.feriadosSemanaCorrida[i]);
+        feriados.push(feriado.setHours(0, 0, 0, 0));
+      }
+      console.log(feriados)
+      return feriados;
+    }
 
     $scope.options = {
       startingDay:1,
@@ -257,6 +276,7 @@ angular.module('angularjsApp')
       maxDate: fecha.convertirFecha($scope.mes.fechaRemuneracion),
       customClass: function(data) {
         if($scope.selectedDates.indexOf(data.date.setHours(0, 0, 0, 0)) > -1) {
+          console.log(data)
           return 'selected';
         }
         return '';
@@ -266,7 +286,7 @@ angular.module('angularjsApp')
     $scope.removeFromSelected = function(dt) {
       $scope.selectedDates.splice($scope.selectedDates.indexOf(dt), 1);
       $scope.activeDate = dt;
-    }
+    }    
 
     $scope.guardar = function(){
       $rootScope.cargando=true;
@@ -292,36 +312,35 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormSemanaCorridaCtrl', function ($rootScope, accesos, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, licencia, trabajador) { 
+  .controller('FormSemanaCorridaCtrl', function ($rootScope, tipo, accesos, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, licencia, trabajador) { 
 
     $scope.trabajador = angular.copy(objeto);
     $scope.accesos = angular.copy(accesos);
-    $scope.isEdit = [];
     $scope.edit = false;
-    crearModels();
+
+    if(tipo=='semanal'){
+      crearModels();
+    }else{
+      $scope.input = { comision : $scope.trabajador.semanaCorrida.comision };
+    }
+
 
     function crearModels(){
       $scope.input = [];
       for(var i=0, len=$scope.trabajador.semanaCorrida.semanas.length; i<len; i++){
         $scope.input.push($scope.trabajador.semanaCorrida.semanas[i].comision);            
-        $scope.isEdit.push(false);            
       }
     }
 
-    $scope.editar = function(index, bool){
-      if(bool){
+    $scope.editar = function(){
+      if(tipo=='semanal'){
         for(var i=0, len=$scope.trabajador.semanaCorrida.semanas.length; i<len; i++){
-          if(i===index){
-            if($scope.isEdit[index]){
-              $scope.trabajador.semanaCorrida.semanas[index].comision = angular.copy($scope.input[index]);            
-            }
-            $scope.isEdit[index] = !$scope.isEdit[index];
-          }else{
-            $scope.isEdit[i] = false;          
-          }
+          $scope.trabajador.semanaCorrida.semanas[i].comision = angular.copy($scope.input[i]);            
         }
       }else{
-        $scope.isEdit[index] = !$scope.isEdit[index];
+        console.log($scope.input.comision)
+        $scope.trabajador.semanaCorrida.comision = $scope.input.comision; 
+        console.log($scope.trabajador.semanaCorrida)
       }
       $scope.edit = !$scope.edit;
     }
@@ -329,6 +348,7 @@ angular.module('angularjsApp')
     $scope.guardar = function(){
       $rootScope.cargando=true;
       var response;
+      $scope.trabajador.semanaCorrida.tipo = tipo;
 
       response = trabajador.semanaCorrida().post({}, $scope.trabajador.semanaCorrida);
 

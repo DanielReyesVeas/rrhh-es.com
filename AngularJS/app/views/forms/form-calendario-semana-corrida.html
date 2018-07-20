@@ -2,7 +2,7 @@
   <button type="button" class="close" ng-click="$dismiss()">
     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
   </button>
-  <h3 class="modal-title">Semana Corrida</h3>
+  <h3 class="modal-title">{{ nombre }}</h3>
 </div>
 <div class="modal-body">
   <div class="panel panel-default">
@@ -13,11 +13,11 @@
 
         <label class="col-sm-1 control-label">Año:</label>
         <div class="col-sm-3">
-          <select class="form-control form-white" ng-model="calendario.anio" ng-options="anio as anio.nombre for anio in anios" ng-change="selectAnio()"> 
+          <select class="form-control form-white" ng-model="calendario.anio" ng-options="anio as anio.nombre for anio in anios" ng-change="selectAnio(calendario.anio.id)"> 
           </select>                
         </div>
         <div class="col-sm-3 pull-right">
-          <a ng-click="openFestivos()" ng-if="accesos.crear && accesos.abierto && semanaCorrida" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-calendar"></i> Festivos</a>
+          <a ng-click="openFestivos()" ng-if="accesos.crear && accesos.abierto && semanaCorrida" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-calendar"></i> Días Hábiles</a>
         </div>
 
         <div class="col-sm-12 text-center" style="margin-top: 40px; padding: 0;">

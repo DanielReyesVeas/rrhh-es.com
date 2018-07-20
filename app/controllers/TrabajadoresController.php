@@ -3409,6 +3409,8 @@ class TrabajadoresController extends \BaseController {
         }
         
         $finMes = \Session::get('mesActivo')->fechaRemuneracion;    
+        $mes = \Session::get('mesActivo')->mes;
+        
         $trabajadores = Trabajador::all();
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#trabajadores-vacaciones');
         
@@ -3417,7 +3419,7 @@ class TrabajadoresController extends \BaseController {
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mes){
                         $listaTrabajadores[]=array(
                             'id' => $trabajador->id,
                             'sid' => $trabajador->sid,
@@ -3470,6 +3472,7 @@ class TrabajadoresController extends \BaseController {
         
         $listaTrabajadoresSemanal=array();
         $listaTrabajadoresMensual=array();
+        $empresa = \Session::get('empresa');
         
         if( $trabajadores->count() ){
             foreach( $trabajadores as $trabajador ){
@@ -3499,7 +3502,8 @@ class TrabajadoresController extends \BaseController {
                                     'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
                                 ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
-                                'semanaCorrida' => $trabajador->semanaCorrida()
+                                'semanaCorrida' => $trabajador->totalSemanaCorridas(),
+                                'total' => $trabajador->totalSemanaCorrida()
                             );
                         }else{
                             $listaTrabajadoresMensual[]=array(
@@ -3524,7 +3528,8 @@ class TrabajadoresController extends \BaseController {
                                     'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
                                 ), 
                                 'nombreCompleto' => $empleado->nombreCompleto(),
-                                'semanaCorrida' => $trabajador->semanaCorrida()
+                                'semanaCorrida' => $trabajador->totalSemanaCorridas(),
+                                'total' => $trabajador->totalSemanaCorridas()
                             );
                         }
                     }
@@ -3638,12 +3643,18 @@ class TrabajadoresController extends \BaseController {
         $datos = Input::all();
         
         $id = $datos['id'];
-        $semanas = $datos['semanas'];
-        $semanaCorrida = SemanaCorrida::find($id);
         
-        foreach($semanas as $semana){
-            $nombre = $semana['alias'];
-            $semanaCorrida->$nombre = $semana['comision'];
+        if($datos['tipo']=='semanal'){
+            $semanas = $datos['semanas'];
+            $semanaCorrida = SemanaCorrida::find($id);
+
+            foreach($semanas as $semana){
+                $nombre = $semana['alias'];
+                $semanaCorrida->$nombre = $semana['comision'];
+            }
+        }else{
+            $semanaCorrida = SemanaCorrida::find($id);
+            $semanaCorrida->semana_1 = $datos['comision'];
         }
         $semanaCorrida->save();
         
@@ -4110,7 +4121,7 @@ class TrabajadoresController extends \BaseController {
                         if($liquidacion->centroCosto){
                             $centro = $liquidacion->centroCosto->nombre;
                         }else{
-                            $empleado = $trabajador->ficha();
+                            $empleado = $liquidacion->trabajador->ficha();
                             if($empleado->centroCosto){
                                 $centro = $empleado->centroCosto->nombre;
                             }else{
@@ -4151,7 +4162,7 @@ class TrabajadoresController extends \BaseController {
                             if($liquidacion->centroCosto){
                                 $centro = $liquidacion->centroCosto->nombre;
                             }else{
-                                $empleado = $trabajador->ficha();
+                                $empleado = $liquidacion->trabajador->ficha();
                                 if($empleado->centroCosto){
                                     $centro = $empleado->centroCosto->nombre;
                                 }else{
@@ -7729,7 +7740,7 @@ class TrabajadoresController extends \BaseController {
                     'cargasFamiliares' => $cargasFamiliares,
                     'asignacionRetroactiva' => $asignacionRetroactiva,
                     'noImponibles' => $noImponibles,
-                    'semanaCorrida' => $semanaCorrida,
+                    'semanaCorrida' => $semanaCorrida['total'],
                     'semanaCorridas' => $semanaCorridas,
                     'isSemanaCorrida' => $empleado->semana_corrida ? true : false,
                     'rentaImponible' => $rentaImponible,
@@ -7943,15 +7954,15 @@ class TrabajadoresController extends \BaseController {
 
                     $liquidacion->detalles->add( $detalleLiquidacion );
                 }  */
-                if($semanaCorrida>0){                
+                if($semanaCorrida['total']>0){                
                     $detalleLiquidacion = new DetalleLiquidacion();
                     $detalleLiquidacion->sid = Funciones::generarSID();
                     $detalleLiquidacion->liquidacion_id = $liquidacion->id;
                     $detalleLiquidacion->nombre = 'Semana Corrida';
                     $detalleLiquidacion->tipo = 'imponible';
                     $detalleLiquidacion->tipo_id = 1;
-                    $detalleLiquidacion->valor = $semanaCorrida;
-                    $detalleLiquidacion->valor_2 = $semanaCorrida;
+                    $detalleLiquidacion->valor = $semanaCorrida['total'];
+                    $detalleLiquidacion->valor_2 = $semanaCorrida['total'];
                     $detalleLiquidacion->valor_3 = '$';
                     $detalleLiquidacion->valor_4 = null;
                     $detalleLiquidacion->valor_5 = null;
@@ -8061,7 +8072,7 @@ class TrabajadoresController extends \BaseController {
                         }else if($prestamo['leasingCaja']){
                             $detalleLiquidacion->valor_6 = 2;
                         }
-                        $detalleLiquidacion->detalle_id = 321;
+                        $detalleLiquidacion->detalle_id = $prestamo['id'];
                         //$detalleLiquidacion->save(); 
 
                         $liquidacion->detalles->add( $detalleLiquidacion );

@@ -66,6 +66,7 @@ angular.module('angularjsApp')
         Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
         cargarDatos();         
       }, function () {
+        cargarDatos();  
       });
     };
 
@@ -177,28 +178,36 @@ angular.module('angularjsApp')
     $scope.anios = angular.copy(anios);
     $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual }, true )[0] };
     $scope.accesos = angular.copy(accesos);
+    $scope.nombre = 'Vacaciones';
 
-    function cargarDatos(anioActual){
+    function cargarDatos(actual){
       $rootScope.cargando = true;
       var datos = anio.calendarioVacaciones().get();
       datos.$promise.then(function(response){
         $scope.anios = response.anios;
         $scope.accesos = response.accesos;
+        anioActual = actual;
+        $scope.selectAnio(anioActual);
         $rootScope.cargando = false;
-      });
-      anioActual = anioActual;
-      $scope.selectAnio();
+      });      
     }
 
-    $scope.selectAnio = function(){
-      $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : anioActual }, true )[0] };
+    $scope.selectAnio = function(actual){
+      console.log(actual)
+      console.log( $scope.anios)
+      console.log( $scope.calendario)
+      $scope.calendario = { anio : $filter('filter')( $scope.anios, {id : actual }, true )[0] };
       $scope.meses = $scope.calendario.anio.meses;
     }
 
     $scope.detalle = function(obj){
+      var hours;
       if(obj.feriados.length>0){
         for(var i=0,len=obj.feriados.length; i<len; i++){
-          obj.feriados[i] = fecha.convertirFecha(obj.feriados[i]).setHours(0, 0, 0, 0);         
+          hours = new Date(obj.feriados[i]).getHours();
+          if(hours!=0){
+            obj.feriados[i] = fecha.convertirFecha(obj.feriados[i]).setHours(0, 0, 0, 0);    
+          }
         }
       }
       openMes(obj);
@@ -220,12 +229,12 @@ angular.module('angularjsApp')
       });
       miModal.result.then(function (obj) {
         Notification.success({message: obj.mensaje, title: 'Mensaje del Sistema'});
-        cargarDatos(obj.anio);
+        cargarDatos(obj.anio.id);
       }, function () {
       });
     };
 
-    $scope.selectAnio();
+    $scope.selectAnio(anioActual);
 
   })
   .controller('FormMesFestivosVacacionesCtrl', function ($rootScope, anio, anioActual, fecha, $uibModal, $filter, Notification, $scope, $uibModalInstance, objeto, trabajador) { 
@@ -471,7 +480,8 @@ angular.module('angularjsApp')
 
     $scope.trabajador = angular.copy(objeto);
     $scope.selectedDates = [];
-    var disabledDates = angular.copy(tomadas.concat(feriados));
+    var disabledDates = angular.copy(tomadas);
+    var noValidos = angular.copy(tomadas.concat(feriados));
     $scope.totalDias = 0;
     $scope.activeDate = fecha.fechaActiva();
     var ultimoMes = fechas.ultimoMes.fechaRemuneracion;
@@ -528,7 +538,7 @@ angular.module('angularjsApp')
     function contarDias(){
       var cont = 0;
       for(var i=0,len=$scope.selectedDates.length; i<len; i++){
-        if((disabledDates.indexOf($scope.selectedDates[i]) < 1) && new Date($scope.selectedDates[i]).getDay()!=0 && new Date($scope.selectedDates[i]).getDay()!=6){
+        if((noValidos.indexOf($scope.selectedDates[i]) < 1) && new Date($scope.selectedDates[i]).getDay()!=0 && new Date($scope.selectedDates[i]).getDay()!=6){
           cont++;
         }
       }
@@ -544,7 +554,7 @@ angular.module('angularjsApp')
         nuevaFecha = angular.copy(desde);
         tiempo = (i * 86400);
         nuevaFecha.setSeconds(tiempo);
-        if((disabledDates.indexOf($scope.selectedDates[i]) < 1) && nuevaFecha.getDay()!=0 && nuevaFecha.getDay()!=6){
+        if((noValidos.indexOf($scope.selectedDates[i]) < 1) && nuevaFecha.getDay()!=0 && nuevaFecha.getDay()!=6){
           cont++;
         }
         i++;

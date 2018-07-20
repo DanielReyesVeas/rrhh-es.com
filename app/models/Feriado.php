@@ -8,10 +8,14 @@ class Feriado extends Eloquent {
         return $this->belongsTo('AnioRemuneracion','anio_id');
     }   
     
-    static function feriados($mes, $remuneracion)
+    static function feriados($mes, $remuneracion=null)
     {
         $listaFeriados = array();
-        $feriados = Feriado::whereBetween('fecha', [$mes, $remuneracion])->get();
+        if($remuneracion){
+            $feriados = Feriado::whereBetween('fecha', [$mes, $remuneracion])->get();
+        }else{
+            $feriados = Feriado::where('fecha', '>=', $mes)->get();            
+        }
         
         if($feriados){
             foreach($feriados as $feriado){
@@ -21,6 +25,14 @@ class Feriado extends Eloquent {
         return $listaFeriados;
     }
     
+    static function totalFeriados($mes, $remuneracion)
+    {
+        $listaFeriados = array();
+        $feriados = DB::table('feriados')->whereBetween('fecha', [$mes, $remuneracion])->count();
+
+        return $feriados;
+    }
+    
     static function comprobar($feriados, $mesActual)
     {
         $create = array();
@@ -28,18 +40,16 @@ class Feriado extends Eloquent {
         $mes = $mesActual['mes'];
         $remuneracion = $mesActual['fechaRemuneracion'];
         
-        if($feriados){
-            $actuales = Feriado::whereBetween('fecha', [$mes, $remuneracion])->get();
-            if($actuales){
-                foreach($actuales as $actual){
-                    if(in_array($actual->fecha, $feriados)){
-                        $key = array_search($actual->fecha, $feriados);
-                        if(false !== $key) {
-                            unset($feriados[$key]);
-                        }
-                    }else{
-                        $destroy[] = $actual->id;                        
+        $actuales = Feriado::whereBetween('fecha', [$mes, $remuneracion])->get();
+        if($actuales){
+            foreach($actuales as $actual){
+                if(in_array($actual->fecha, $feriados)){
+                    $key = array_search($actual->fecha, $feriados);
+                    if(false !== $key) {
+                        unset($feriados[$key]);
                     }
+                }else{
+                    $destroy[] = $actual->id;                        
                 }
             }
         }

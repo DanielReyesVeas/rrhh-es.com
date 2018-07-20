@@ -83,7 +83,8 @@ class AnioRemuneracion extends Eloquent {
                 'nombre' => $nombre,
                 'mes' => $mes,
                 'fechaRemuneracion' => $remuneracion,
-                'feriados' => FeriadoVacaciones::feriados($mes, $remuneracion)
+                'feriados' => FeriadoVacaciones::feriados($mes, $remuneracion),
+                'feriadosSemanaCorrida' => Feriado::feriados($mes, $remuneracion)
             );
         }
         

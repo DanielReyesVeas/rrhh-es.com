@@ -485,6 +485,7 @@ angular.module('angularjsApp')
     $scope.idCausal = angular.copy(objeto.idCausal);
 
     $scope.imponibles = angular.copy(objeto.imponibles);
+    $scope.prestamos = angular.copy(objeto.prestamos);
     $scope.noImponibles = angular.copy(objeto.noImponibles);
     $scope.detalle = angular.copy(objeto.detalle);
     $scope.meses = angular.copy(objeto.meses);
@@ -494,7 +495,7 @@ angular.module('angularjsApp')
     $scope.indemnizacion = angular.copy(objeto.indemnizacion);
     $scope.vacaciones = angular.copy(objeto.vacaciones);
     $scope.mesAviso = { mesAviso : angular.copy(objeto.mesAviso) };
-    $scope.suma = ($scope.imponibles.suma + $scope.noImponibles.suma + $scope.indemnizacion.monto + $scope.vacaciones.monto);
+    $scope.suma = (($scope.imponibles.suma + $scope.noImponibles.suma + $scope.indemnizacion.monto + $scope.vacaciones.monto) - $scope.prestamos.monto);
     $scope.objeto = { todos : true };
     $scope.otros = [];
     
@@ -554,6 +555,7 @@ angular.module('angularjsApp')
       }else{
         $scope.vacaciones.check = false;                
       }
+      $scope.prestamos.check = true;   
     }
 
     /*function crearModels(){
@@ -669,6 +671,9 @@ angular.module('angularjsApp')
           }
         }
       }
+      if($scope.prestamos.check){
+        suma = (suma - $scope.prestamos.monto);
+      }
       return suma;
     }
 
@@ -699,6 +704,10 @@ angular.module('angularjsApp')
       for(var i=0,len=$scope.otros[index].detalles.length; i<len; i++){
         $scope.otros[index].detalles[i].check = bool;
       }
+      $scope.suma = sumar();
+    }
+
+    $scope.selectPrestamo = function(){
       $scope.suma = sumar();
     }
 
@@ -938,7 +947,7 @@ angular.module('angularjsApp')
           clausulas.push($scope.clausulas[i]);
         }
       }
-      var finiq = { sidTrabajador : $scope.trabajador.sid, sueldoNormal : $scope.sueldoNormal, sueldoVariable : $scope.sueldoVariable, mesAviso : { mesAviso : angular.copy($scope.mesAviso.check), meses : $scope.meses, sueldo : $scope.sueldo, gratificacion : $scope.gratificacion, imponibles : $scope.imponibles, noImponibles : $scope.noImponibles }, indemnizacion : angular.copy($scope.indemnizacion), vacaciones : angular.copy($scope.vacaciones), detalle : $scope.detalle, sidPlantilla : $scope.finiquito.plantillaFiniquito.sid, clausulas : clausulas, idCausal : $scope.idCausal, fecha : $scope.fecha, totalFiniquito : $scope.suma, noImponibles : $scope.noImponibles.noImponibles, otros : $scope.otros };
+      var finiq = { sidTrabajador : $scope.trabajador.sid, sueldoNormal : $scope.sueldoNormal, sueldoVariable : $scope.sueldoVariable, mesAviso : { mesAviso : angular.copy($scope.mesAviso.check), meses : $scope.meses, sueldo : $scope.sueldo, gratificacion : $scope.gratificacion, imponibles : $scope.imponibles, noImponibles : $scope.noImponibles }, indemnizacion : angular.copy($scope.indemnizacion), vacaciones : angular.copy($scope.vacaciones), detalle : $scope.detalle, sidPlantilla : $scope.finiquito.plantillaFiniquito.sid, clausulas : clausulas, idCausal : $scope.idCausal, fecha : $scope.fecha, totalFiniquito : $scope.suma, noImponibles : $scope.noImponibles.noImponibles, otros : $scope.otros, prestamos : $scope.prestamos };
       finiq.mesAviso.mesAviso = angular.copy($scope.mesAviso.check);
       finiq.indemnizacion.indemnizacion = angular.copy($scope.indemnizacion.check);
       finiq.vacaciones.vacaciones = angular.copy($scope.vacaciones.check);

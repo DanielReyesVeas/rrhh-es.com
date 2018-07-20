@@ -239,7 +239,8 @@ class AniosRemuneracionesController extends \BaseController {
         $respuesta=array(
             'anio' => $anio,
             'success' => true,
-            'mensaje' => "La Información fue actualizada correctamente"
+            'mensaje' => "La Información fue actualizada correctamente",
+            'f' => $feriados
         );
         
         return Response::json($respuesta);

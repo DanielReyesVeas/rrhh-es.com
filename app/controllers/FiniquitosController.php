@@ -222,6 +222,7 @@ class FiniquitosController extends \BaseController {
         $montoSueldo = 0;
         $imponibles = array();
         $noImponibles = array();
+        $vacacionesDetalle = array();
         $anios = 0;
         $indemnizacion = 0;
         $vacaciones = 0;
@@ -231,6 +232,7 @@ class FiniquitosController extends \BaseController {
         $promedioSueldos = 0;
         $detalle = array();
         $meses = 0;
+        $prestamos = $trabajador->cuotasFiniquito();
         
         $datosTrabajador = array(
             'id' => $trabajador->id,
@@ -509,7 +511,8 @@ class FiniquitosController extends \BaseController {
                 if($datos['vacacionesManual']){
                     $vacaciones = $datos['diasVacaciones'];
                 }else{
-                    $vacaciones = $trabajador->misVacacionesFiniquito();     
+                    $vacacionesDetalle = $trabajador->misVacacionesFiniquito($datos['fecha']);   
+                    $vacaciones = $vacacionesDetalle['total'];
                 }
                 $sueldoVacaciones = $trabajador->sueldoBase();
                 $montoVacaciones = round(($sueldoVacaciones / 30 ) * $vacaciones);
@@ -548,16 +551,19 @@ class FiniquitosController extends \BaseController {
                 'anios' => $anios
             ),
             'vacaciones' => array(
+                'detalle' => $vacacionesDetalle,
                 'vacaciones' => $datos['vacaciones'],
                 'dias' => $vacaciones,
                 'monto' => $montoVacaciones
+            ),
+            'prestamos' => array(
+                'monto' => $prestamos
             ),
             'fecha' => $datos['fecha'],
             'idCausal' => $datos['idCausal'],
             'detalle' => $detalle,
             'totalImponibles' => $totalImponibles,
-            'tope' => $tope,
-            'z' => $trabajador->misVacacionesFiniquitos() 
+            'tope' => $tope
         );     
   
         return Response::json($respuesta);
