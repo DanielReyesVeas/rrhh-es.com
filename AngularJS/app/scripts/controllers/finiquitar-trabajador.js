@@ -498,6 +498,7 @@ angular.module('angularjsApp')
     $scope.suma = (($scope.imponibles.suma + $scope.noImponibles.suma + $scope.indemnizacion.monto + $scope.vacaciones.monto) - $scope.prestamos.monto);
     $scope.objeto = { todos : true };
     $scope.otros = [];
+    console.log($scope.prestamos)
     
     if($scope.noImponibles.noImponibles){
       $scope.rows = ($scope.rows + 1);
@@ -555,7 +556,11 @@ angular.module('angularjsApp')
       }else{
         $scope.vacaciones.check = false;                
       }
-      $scope.prestamos.check = true;   
+      if($scope.prestamos.monto>0){
+        $scope.prestamos.check = true;   
+      }else{
+        $scope.prestamos.check = false;           
+      }
     }
 
     /*function crearModels(){
@@ -652,6 +657,8 @@ angular.module('angularjsApp')
     function sumar(){
       var suma = 0;
       suma = (suma + promediar());
+      console.log(suma)
+      
       if($scope.noImponibles.check){
         suma = (suma + $scope.noImponibles.suma);
       }
@@ -662,29 +669,36 @@ angular.module('angularjsApp')
         suma = (suma + $scope.vacaciones.monto);
       }
       if($scope.otros.length>0){
-
         for(var i=0,len=$scope.otros.length; i<len; i++){
           for(var j=0,leng=$scope.otros[i].detalles.length; j<leng; j++){
             if($scope.otros[i].detalles[j].check){
-              suma = (suma + ($scope.otros[i].detalles[j].monto - 0));          
+              suma = (suma + ($scope.otros[i].detalles[j].monto));    
             }
           }
         }
       }
+      
       if($scope.prestamos.check){
         suma = (suma - $scope.prestamos.monto);
       }
+
       return suma;
     }
 
     function promediar(){
       var suma = 0;
+      var length = $scope.detalle.length;
       for(var i=0, len=$scope.detalle.length; i<len; i++){
         if($scope.detalle[i].imponibles.rentaImponible.check){
           suma = (suma + $scope.detalle[i].imponibles.rentaImponible.monto);
         }
       } 
-      return Math.round((suma / $scope.detalle.length));
+
+      if(length==0){
+        length = 1;
+      }
+
+      return Math.round((suma / length));
     }
 
     function recibirOtros(otros){      
@@ -952,6 +966,7 @@ angular.module('angularjsApp')
       finiq.indemnizacion.indemnizacion = angular.copy($scope.indemnizacion.check);
       finiq.vacaciones.vacaciones = angular.copy($scope.vacaciones.check);
       $rootScope.cargando=true;
+      console.log(finiq)
       var datos = trabajador.finiquito().post({}, finiq);
       datos.$promise.then(function(response){
         $rootScope.cargando=false;

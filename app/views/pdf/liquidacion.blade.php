@@ -564,8 +564,20 @@
                       </tr>
                       <tr>
                         <td>Sueldo</td>
-                        <td>{{ Funciones::formatoPesos(($liquidacion['sueldo'] + $liquidacion['atrasos']['descuento'])) }}</td>
+                        <td>{{ Funciones::formatoPesos(( $liquidacion['sueldo'] + $liquidacion['atrasos']['descuento'] + $liquidacion['licencias']['total'] + $liquidacion['inasistencias']['total'])) }}</td>
                       </tr>
+                      @if($liquidacion['licencias']['dias']>0)
+                        <tr>
+                          <td>Descuento Licencias ({{$liquidacion['licencias']['dias']}} días)</td>
+                          <td>-{{ Funciones::formatoPesos($liquidacion['licencias']['total']) }}</td>
+                        </tr>
+                      @endif
+                      @if($liquidacion['inasistencias']['dias']>0)
+                        <tr>
+                          <td>Descuento Inasistencias ({{$liquidacion['inasistencias']['dias']}} días)</td>
+                          <td>-{{ Funciones::formatoPesos($liquidacion['inasistencias']['total']) }}</td>
+                        </tr>
+                      @endif
                       @if($liquidacion['atrasos']['descuento']>0)
                         <tr>
                           <td>Descuento Atrasos ({{$liquidacion['atrasos']['total']}} hrs)</td>
@@ -578,11 +590,19 @@
                           <td>{{ Funciones::formatoPesos($liquidacion['gratificacion']) }}</td>
                         </tr>
                       @endif
-                      @if($liquidacion['horasExtra']['cantidad']>0)
+                      @if($liquidacion['horasExtra']['cantidad']>0 && false)
                         <tr>
                           <td>Horas Extra ({{ $liquidacion['horasExtra']['cantidad'] }})</td>
                           <td>{{ Funciones::formatoPesos($liquidacion['horasExtra']['total']) }}</td>
                         </tr>
+                      @endif
+                      @if(count($liquidacion['horasExtraDetalle']))
+                        @foreach($liquidacion['horasExtraDetalle'] as $hora)
+                          <tr>
+                            <td>{{ $hora['nombre'] }} ({{ $hora['cantidad'] }})</td>
+                            <td>{{ Funciones::formatoPesos($hora['total']) }}</td>
+                          </tr>
+                        @endforeach
                       @endif
                       @if($liquidacion['semanaCorrida']>0 && $liquidacion['isSemanaCorrida'])
                         <tr>

@@ -63,10 +63,24 @@
               <tr ng-repeat="haber in imponibles | orderObjectBy:orden : reverse | filter : filtro">
                 <td>#{{ haber.codigo }}</td>
                 <td>{{ haber.nombre }}</td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.tributable" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.tributable" style="color: #ff3300;"></i></td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.calculaHorasExtras" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.calculaHorasExtras" style="color: #ff3300;"></i></td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.proporcionalDiasTrabajados" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.proporcionalDiasTrabajados" style="color: #ff3300;"></i></td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.gratificacion" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.gratificacion" style="color: #ff3300;"></i></td>
+                <td class="text-center">
+                  <i class="fa fa-check" ng-show="haber.tributable" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.tributable" style="color: #ff3300;"></i>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-minus" ng-show="haber.calculaHorasExtras==3" style="color: grey;"></i>
+                  <i class="fa fa-check" ng-show="haber.calculaHorasExtras && haber.calculaHorasExtras!=3" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.calculaHorasExtras" style="color: #ff3300;"></i>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-check" ng-show="haber.proporcionalDiasTrabajados" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.proporcionalDiasTrabajados" style="color: #ff3300;"></i>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-minus" ng-show="haber.gratificacion==3" style="color: grey;"></i>
+                  <i class="fa fa-check" ng-show="haber.gratificacion && haber.gratificacion!=3" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.gratificacion" style="color: #ff3300;"></i>
+                </td>
                 <td class="text-right">
                   <a href="" ng-click="editar(haber)"><i class="fa fa-pencil" ng-if="accesos.editar && accesos.abierto" uib-tooltip-html="toolTipEditar(haber.nombre)"></i></a>
                   <a href="" confirmation-click="eliminar(haber)" ng-if="accesos.eliminar && accesos.abierto && haber.id>15" confirmation-needed="El Haber: <b>#{{ haber.codigo }}</b> será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash" href="javascript:void(0);" uib-tooltip-html="toolTipEliminar(haber.nombre)"></i></a>
@@ -126,10 +140,23 @@
               <tr ng-repeat="haber in noImponibles | orderObjectBy:orden2 : reverse2 | filter : filtro2">
                 <td>#{{ haber.codigo }}</td>
                 <td>{{ haber.nombre }}</td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.tributable" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.tributable" style="color: #ff3300;"></i></td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.calculaHorasExtras" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.calculaHorasExtras" style="color: #ff3300;"></i></td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.proporcionalDiasTrabajados" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.proporcionalDiasTrabajados" style="color: #ff3300;"></i></td>
-                <td class="text-center"><i class="fa fa-check" ng-show="haber.gratificacion" style="color: #0a0;"></i><i class="fa fa-times" ng-hide="haber.gratificacion" style="color: #ff3300;"></i></td>
+                <td class="text-center">
+                  <i class="fa fa-minus" ng-show="haber.calculaHorasExtras==3" style="color: grey;"></i>
+                  <i class="fa fa-check" ng-show="haber.calculaHorasExtras && haber.calculaHorasExtras!=3" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.calculaHorasExtras" style="color: #ff3300;"></i>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-check" ng-show="haber.calculaHorasExtras" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.calculaHorasExtras" style="color: #ff3300;"></i>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-check" ng-show="haber.proporcionalDiasTrabajados" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.proporcionalDiasTrabajados" style="color: #ff3300;"></i>
+                </td>
+                <td class="text-center">
+                  <i class="fa fa-check" ng-show="haber.gratificacion" style="color: #0a0;"></i>
+                  <i class="fa fa-times" ng-hide="haber.gratificacion" style="color: #ff3300;"></i>
+                </td>
                 <td class="text-right">
                   <a href="" ng-click="editar(haber)"><i class="fa fa-pencil" ng-if="accesos.editar && accesos.abierto" uib-tooltip-html="toolTipEditar(haber.nombre)"></i></a>
                   <a href="" confirmation-click="eliminar(haber)" ng-if="accesos.eliminar && accesos.abierto && haber.id>15" confirmation-needed="El Haber: <b>#{{ haber.codigo }}</b> será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash" href="javascript:void(0);" uib-tooltip-html="toolTipEliminar(haber.nombre)"></i></a>

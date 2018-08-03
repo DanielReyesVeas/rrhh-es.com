@@ -8,6 +8,10 @@ class HoraExtra extends Eloquent {
         return $this->belongsTo('Trabajador','trabajador_id');
     }
     
+    public function tipo(){
+        return $this->belongsTo('TipoHoraExtra', 'tipo_id');
+    }
+    
     public function trabajadorHoraExtra(){        
         if( $this->trabajador ){
             $trabajador = $this->trabajador;

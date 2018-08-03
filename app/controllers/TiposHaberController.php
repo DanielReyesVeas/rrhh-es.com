@@ -19,36 +19,95 @@ class TiposHaberController extends \BaseController {
         $listaImponibles=array();
         $listaNoImponibles=array();
         $cuentas = Cuenta::listaCuentas();
+        $horasExtra = TipoHoraExtra::all();
         
         if($tiposHaber->count()){
             foreach($tiposHaber as $tipoHaber){
-                if($tipoHaber->imponible){
+                if($tipoHaber->id!=7){
+                    if($tipoHaber->imponible){
+                        $isEditNombre = true;
+                        $isEdit = true;
+                        if($tipoHaber->id<=15){
+                            $isEditNombre = false;
+                            if($tipoHaber->nombre=='Colación' || $tipoHaber->nombre=='Movilización' || $tipoHaber->nombre=='Viático'){
+                                $isEdit = false;                            
+                            }
+                        }
+                        if($tipoHaber->nombre=='Gratificación'){
+                            $gratificacion = 3;
+                        }else{
+                            $gratificacion = $tipoHaber->gratificacion ? true : false;
+                        }
+                        $listaImponibles[]=array(
+                            'id' => $tipoHaber->id,
+                            'sid' => $tipoHaber->sid,
+                            'codigo' => $tipoHaber->codigo,
+                            'nombre' => $tipoHaber->nombre,
+                            'tributable' => $tipoHaber->tributable ? true : false,
+                            'calculaHorasExtras' => $tipoHaber->calcula_horas_extras ? true : false,
+                            'proporcionalDiasTrabajados' => $tipoHaber->proporcional_dias_trabajados ? true : false,
+                            'calculaSemanaCorrida' => $tipoHaber->calcula_semana_corrida ? true : false,
+                            'imponible' => $tipoHaber->imponible ? true : false,
+                            'gratificacion' => $gratificacion,
+                            'cuenta' => $tipoHaber->cuenta($cuentas),
+                            'isHoraExtra' => false,
+                            'isEdit' => $isEdit,
+                            'isEditNombre' => $isEditNombre
+                        );
+                    }else{
+                        $listaNoImponibles[]=array(
+                            'id' => $tipoHaber->id,
+                            'sid' => $tipoHaber->sid,
+                            'codigo' => $tipoHaber->codigo,
+                            'nombre' => $tipoHaber->nombre,
+                            'tributable' => $tipoHaber->tributable ? true : false,
+                            'calculaHorasExtras' => $tipoHaber->calcula_horas_extras ? true : false,
+                            'proporcionalDiasTrabajados' => $tipoHaber->proporcional_dias_trabajados ? true : false,
+                            'calculaSemanaCorrida' => $tipoHaber->calcula_semana_corrida ? true : false,
+                            'imponible' => $tipoHaber->imponible ? true : false,
+                            'gratificacion' => $tipoHaber->gratificacion ? true : false,
+                            'cuenta' => $tipoHaber->cuenta($cuentas),
+                            'isHoraExtra' => false,
+                            'isEdit' => $isEdit,
+                            'isEditNombre' => $isEditNombre
+                        );
+                    }
+                }
+            }
+            foreach($horasExtra as $horaExtra){
+                if($horaExtra->imponible){
                     $listaImponibles[]=array(
-                        'id' => $tipoHaber->id,
-                        'sid' => $tipoHaber->sid,
-                        'codigo' => $tipoHaber->codigo,
-                        'nombre' => $tipoHaber->nombre,
-                        'tributable' => $tipoHaber->tributable ? true : false,
-                        'calculaHorasExtras' => $tipoHaber->calcula_horas_extras ? true : false,
-                        'proporcionalDiasTrabajados' => $tipoHaber->proporcional_dias_trabajados ? true : false,
-                        'calculaSemanaCorrida' => $tipoHaber->calcula_semana_corrida ? true : false,
-                        'imponible' => $tipoHaber->imponible ? true : false,
-                        'gratificacion' => $tipoHaber->gratificacion ? true : false,
-                        'cuenta' => $tipoHaber->cuenta($cuentas)
+                        'id' => $horaExtra->id,
+                        'sid' => $horaExtra->sid,
+                        'codigo' => $horaExtra->codigo,
+                        'nombre' => 'Hora Extra: ' . $horaExtra->nombre,
+                        'tributable' => $horaExtra->tributable ? true : false,
+                        'calculaHorasExtras' => 3,
+                        'proporcionalDiasTrabajados' => $horaExtra->proporcional_dias_trabajados ? true : false,
+                        'calculaSemanaCorrida' => $horaExtra->calcula_semana_corrida ? true : false,
+                        'imponible' => $horaExtra->imponible ? true : false,
+                        'gratificacion' => $horaExtra->gratificacion ? true : false,
+                        'cuenta' => $horaExtra->cuenta($cuentas),
+                        'isHoraExtra' => true,
+                        'isEdit' => $isEdit,
+                        'isEditNombre' => false
                     );
                 }else{
                     $listaNoImponibles[]=array(
-                        'id' => $tipoHaber->id,
-                        'sid' => $tipoHaber->sid,
-                        'codigo' => $tipoHaber->codigo,
-                        'nombre' => $tipoHaber->nombre,
-                        'tributable' => $tipoHaber->tributable ? true : false,
-                        'calculaHorasExtras' => $tipoHaber->calcula_horas_extras ? true : false,
-                        'proporcionalDiasTrabajados' => $tipoHaber->proporcional_dias_trabajados ? true : false,
-                        'calculaSemanaCorrida' => $tipoHaber->calcula_semana_corrida ? true : false,
-                        'imponible' => $tipoHaber->imponible ? true : false,
-                        'gratificacion' => $tipoHaber->gratificacion ? true : false,
-                        'cuenta' => $tipoHaber->cuenta($cuentas)
+                        'id' => $horaExtra->id,
+                        'sid' => $horaExtra->sid,
+                        'codigo' => $horaExtra->codigo,
+                        'nombre' => 'Hora Extra: ' . $horaExtra->nombre,
+                        'tributable' => $horaExtra->tributable ? true : false,
+                        'calculaHorasExtras' => 3,
+                        'proporcionalDiasTrabajados' => $horaExtra->proporcional_dias_trabajados ? true : false,
+                        'calculaSemanaCorrida' => $horaExtra->calcula_semana_corrida ? true : false,
+                        'imponible' => $horaExtra->imponible ? true : false,
+                        'gratificacion' => $horaExtra->gratificacion ? true : false,
+                        'cuenta' => $horaExtra->cuenta($cuentas),
+                        'isHoraExtra' => true,
+                        'isEdit' => $isEdit,
+                        'isEditNombre' => false
                     );
                 }
             }
@@ -64,7 +123,7 @@ class TiposHaberController extends \BaseController {
         );
         
         return Response::json($datos);
-    }
+    }    
     
     public function ingresoHaberes()
     {
@@ -170,9 +229,20 @@ class TiposHaberController extends \BaseController {
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-haberes');
         $datosHaber = null;
         $cuentas = Cuenta::listaCuentas();
+        
         if($sid){
             $tipoHaber = TipoHaber::whereSid($sid)->first();
-            $misHaberes = $tipoHaber->misHaberes();                
+            $misHaberes = $tipoHaber->misHaberes();  
+            $isEditNombre = true;
+            $isEdit = true;
+            if($tipoHaber->id<=15){
+                $isEdit = false;                            
+                $isEditNombre = false;
+                if($tipoHaber->nombre=='Colación' || $tipoHaber->nombre=='Movilización' || $tipoHaber->nombre=='Viático'){
+                    $isEdit = true;                            
+                }
+            }
+            
             $datosHaber=array(
                 'id' => $tipoHaber->id,
                 'sid' => $tipoHaber->sid,
@@ -185,10 +255,12 @@ class TiposHaberController extends \BaseController {
                 'imponible' => $tipoHaber->imponible ? true : false,
                 'gratificacion' => $tipoHaber->gratificacion ? true : false,
                 'haberes' => $misHaberes,
-                'cuenta' => $tipoHaber->cuenta()
+                'cuenta' => $tipoHaber->cuenta(),
+                'isEdit' => $isEdit,
+                'isEditNombre' => $isEditNombre,
+                'isHoraExtra' => false
             );
-        }
-        
+        }        
                 
         $datos = array(
             'accesos' => $permisos,
@@ -219,7 +291,8 @@ class TiposHaberController extends \BaseController {
                 'imponible' => $tipoHaber->imponible ? true : false,
                 'gratificacion' => $tipoHaber->gratificacion ? true : false,
                 'haberes' => $tipoHaber->misHaberes(),
-                'cuenta' => $tipoHaber->cuenta()
+                'cuenta' => $tipoHaber->cuenta(),
+                'isHoraExtra' => false
             );
         }
         
@@ -253,7 +326,8 @@ class TiposHaberController extends \BaseController {
                 'imponible' => $tipoHaber->imponible ? true : false,
                 'gratificacion' => $tipoHaber->gratificacion ? true : false,
                 'haberes' => $tipoHaber->misHaberes(),
-                'cuenta' => $tipoHaber->cuenta()
+                'cuenta' => $tipoHaber->cuenta(),
+                'isHoraExtra' => false
             );
         }
         

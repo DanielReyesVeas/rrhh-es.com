@@ -1292,8 +1292,8 @@ CREATE TABLE IF NOT EXISTS `fichas_trabajadores` (
   `fecha_finiquito` date DEFAULT NULL,
   `tipo_jornada_id` int(11) DEFAULT NULL,
   `semana_corrida` tinyint(1) DEFAULT '0',
-  `tipo_semana` tinyint(1) DEFAULT '0',
-  `tipo_sueldo` char(1) DEFAULT 's',
+  `tipo_semana` char(1) DEFAULT 's',
+  `tipo_sueldo` VARCHAR( 50 ) DEFAULT  'Mensual',
   `horas` decimal(5,2) DEFAULT NULL,
   `moneda_sueldo` varchar(50) DEFAULT NULL,
   `sueldo_base` decimal(13,3) DEFAULT '0.000',
@@ -1418,8 +1418,10 @@ CREATE TABLE IF NOT EXISTS `horas_extra` (
   `trabajador_id` int(11) NOT NULL,
   `mes_id` int(11) NOT NULL,
   `fecha` date NOT NULL,
-  `cantidad` int(11) NOT NULL,
+  `horas` int(11) NOT NULL,
+  `minutos` int(11) NOT NULL,
   `factor` decimal(10,9) NOT NULL,
+  `tipo_id` int(11) NOT NULL,
   `observacion` text,
   `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -1581,6 +1583,7 @@ CREATE TABLE IF NOT EXISTS `liquidaciones` (
   `trabajador_cargo` varchar(255) NOT NULL,
   `trabajador_seccion` varchar(255) NOT NULL,
   `trabajador_tienda` varchar(255) DEFAULT NULL,
+  `trabajador_centro_costo` varchar(255) NOT NULL,
   `trabajador_fecha_ingreso` date NOT NULL,
   `uf` decimal(8,2) NOT NULL,
   `utm` decimal(8,2) NOT NULL,
@@ -1621,6 +1624,7 @@ CREATE TABLE IF NOT EXISTS `liquidaciones` (
   `total_aportes` int(11) NOT NULL,
   `renta_imponible` int(11) NOT NULL,
   `centro_costo_id` int(11) DEFAULT NULL,
+  `centro_costo_codigo` VARCHAR( 50 ) NOT NULL,
   `movimiento_personal` int(11) NOT NULL,
   `fecha_desde` date DEFAULT NULL,
   `fecha_hasta` date DEFAULT NULL,
@@ -2138,6 +2142,30 @@ INSERT INTO `tipos_haber` (`id`, `cuenta_id`, `codigo`, `sid`, `nombre`, `tribut
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tipos_hora_extra`
+--
+
+CREATE TABLE IF NOT EXISTS `tipos_hora_extra` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sid` varchar(50) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Volcado de datos para la tabla `tipo_hora_extra`
+--
+
+INSERT INTO `tipos_hora_extra` (`id`, `sid`, `nombre`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'L20180731135623BPO3169', 'Hora Extra', '2018-07-31 13:56:24', '2018-07-31 13:56:24', NULL);
+
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `titulos`
 --
 
@@ -2246,6 +2274,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `password` varchar(64) NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '0',
   `remember_token` varchar(100) DEFAULT NULL,
+  `recuperacion` varchar(255) DEFAULT NULL,
   `updated_at` datetime NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -2320,9 +2349,6 @@ CREATE TABLE IF NOT EXISTS `zonas_impuesto_unico` (
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-
-
 
 ALTER TABLE `anios_remuneraciones` ADD INDEX(`id`);
 ALTER TABLE `anios_remuneraciones` ADD INDEX(`sid`);

@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.8.1');
+define('VERSION_SISTEMA', '1.8.3');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -121,6 +121,32 @@ Route::get('liq', function(){
                 }
             }
             echo '<br />Total: ' . $count . '<br />';
+        }
+        
+    }else{
+        echo "Sin Empresas";
+    }
+});
+
+Route::get('horas', function(){
+
+    Config::set('database.default', 'principal' );
+    $empresas = Empresa::all();
+    
+    if($empresas->count()){
+        foreach($empresas as $empresa){
+            Config::set('database.default', $empresa->base_datos);
+            $horas = HoraExtra::all();
+            echo '<h1>' . $empresa->razon_social . '</h1>';
+            echo '<h3>' . $empresa->rut . '</h3>';
+            $count = 0;
+            foreach($horas as $hora){
+                if($hora->horas==0 && $hora->minutos==0){
+                    $hora->horas = (int) $hora->cantidad;
+                    $hora->minutos = (($hora->cantidad - $hora->horas) * 60);
+                    $hora->save();
+                }
+            }
         }
         
     }else{
@@ -522,7 +548,7 @@ Route::post('login/password/reestablecer', function (){
 
         $config = array(
             'driver' => 'smtp',
-            'host' => 'smtp.gmail.com',
+            'host' => 'easysystems.cl',
             'port' => 465,
             'from' => array('address' => 'no-reply@easysystems.cl', 'name' => 'Soporte EasySystems'),
             'encryption' => 'ssl',
@@ -2042,6 +2068,14 @@ Route::group(array('before'=>'auth_ajax'), function() {
     /*   HORAS_EXTRA    */
     Route::resource('horas-extra', 'HorasExtraController');
     
+    /*   TIPO_HORAS_EXTRA    */
+    Route::resource('tipos-hora-extra', 'TiposHoraExtraController');
+    Route::get('tipos-hora-extra/cuentas/obtener/{sid}', 'TiposHoraExtraController@cuentaHoraExtra');
+    Route::get('tipos-hora-extra/centro-costo/obtener/{sid}', 'TiposHoraExtraController@cuentaHoraExtraCentroCosto');
+    Route::post('tipos-hora-extra/cuentas/actualizar', 'TiposHoraExtraController@updateCuenta');
+    Route::post('tipos-hora-extra/cuentas-centros-costos/actualizar', 'TiposHoraExtraController@updateCuentaCentroCosto');
+    Route::post('tipos-hora-extra/cuentas-masivo/actualizar', 'TiposHoraExtraController@updateCuentaMasivo');
+    
     /*   TABLAS_ESTRUCTURANTES  */
     Route::get('tablas-estructurantes/obtener/tablas', 'TablasEstructurantesController@tablas');
     
@@ -2197,6 +2231,10 @@ Route::group(array('before'=>'auth_ajax'), function() {
     
     /*   REPORTES    */
     Route::resource('reportes', 'LogsController');
+    
+    /*   REPORTES    */
+    Route::resource('generar-reportes', 'ReportesController');
+    Route::post('generar-reportes/obtener/generar', 'ReportesController@generar');
 
     
     

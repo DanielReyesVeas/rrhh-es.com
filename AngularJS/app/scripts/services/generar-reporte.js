@@ -2,16 +2,16 @@
 
 /**
  * @ngdoc service
- * @name angularjsApp.horaExtra
+ * @name angularjsApp.generar-reporte
  * @description
- * # horaExtra
+ * # generar-reporte
  * Factory in the angularjsApp.
  */
 angular.module('angularjsApp')
-  .factory('horaExtra', function (constantes, $resource) {
+  .factory('generarReporte', function (constantes, $resource) {
         return {
             datos: function () {
-                return $resource(constantes.URL + 'horas-extra/:sid',
+                return $resource(constantes.URL + 'generar-reportes/:sid',
                     {sid : '@sid'},
                     {   
                         update : { 'method': 'PUT' },
@@ -20,8 +20,11 @@ angular.module('angularjsApp')
                     }
                 );
             },
-            tipos : function(){
-                return $resource(constantes.URL + 'horas-extra/tipos/obtener');
+            generar : function(){
+              return $resource(constantes.URL + 'generar-reportes/obtener/generar',
+                  {},
+                  { post : { 'method': 'POST' } }
+              );
             }
         };
   });

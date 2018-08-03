@@ -66,7 +66,10 @@ class HorasExtraController extends \BaseController {
             $horaExtra->trabajador_id = $datos['trabajador_id'];
             $horaExtra->mes_id = $datos['mes_id'];
             $horaExtra->cantidad = $datos['cantidad'];
+            $horaExtra->horas = $datos['horas'];
+            $horaExtra->minutos = $datos['minutos'];
             $horaExtra->factor = $datos['factor'];
+            $horaExtra->tipo_id = $datos['tipo']['id'];
             $horaExtra->fecha = $datos['fecha'];
             $horaExtra->observacion = $datos['observacion'];
             $horaExtra->save();
@@ -89,6 +92,30 @@ class HorasExtraController extends \BaseController {
         } 
         return Response::json($respuesta);
     }    
+    
+    public function tipos()
+    {
+        $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-horas-extra');
+        $tipos = TipoHoraExtra::all();
+        $tiposHoraExtra = array();
+        
+        if($tipos->count()){
+            foreach($tipos as $tipo){
+                $tiposHoraExtra[] = array(
+                    'id' => $tipo->id,        
+                    'sid' => $tipo->sid,        
+                    'nombre' => $tipo->nombre        
+                );
+            }
+        }
+        
+        $datos = array(
+            'accesos' => $permisos,
+            'datos' => $tiposHoraExtra
+        );
+        
+        return Response::json($datos);
+    }
 
     /**
      * Display the specified resource.
@@ -102,6 +129,7 @@ class HorasExtraController extends \BaseController {
         $datosHoraExtra = null;
         $trabajadores = array();
         $mesActual = \Session::get('mesActivo');
+        $tipos = TipoHoraExtra::listaTiposHoraExtra();
         
         if($sid){
             $horaExtra = HoraExtra::whereSid($sid)->first();
@@ -109,7 +137,13 @@ class HorasExtraController extends \BaseController {
                 'id' => $horaExtra->id,
                 'sid' => $horaExtra->sid,            
                 'fecha' => $horaExtra->fecha,
+                'tipo' => array(
+                    'id' => $horaExtra->tipo->id,
+                    'nombre' => $horaExtra->tipo->nombre
+                ),
                 'factor' => $horaExtra->factor,
+                'horas' => $horaExtra->horas,
+                'minutos' => $horaExtra->minutos,
                 'cantidad' => $horaExtra->cantidad,
                 'observacion' => $horaExtra->observacion,
                 'trabajador' => $horaExtra->trabajadorHoraExtra()
@@ -122,7 +156,8 @@ class HorasExtraController extends \BaseController {
             'accesos' => $permisos,
             'datos' => $datosHoraExtra,
             'mesActual' => $mesActual,
-            'trabajadores' => $trabajadores
+            'trabajadores' => $trabajadores,
+            'tipos' => $tipos
         );
         
         return Response::json($datos);
@@ -155,7 +190,10 @@ class HorasExtraController extends \BaseController {
             $horaExtra->trabajador_id = $datos['trabajador_id'];
             $horaExtra->mes_id = $datos['mes_id'];
             $horaExtra->factor = $datos['factor'];
+            $horaExtra->tipo_id = $datos['tipo']['id'];
             $horaExtra->cantidad = $datos['cantidad'];
+            $horaExtra->horas = $datos['horas'];
+            $horaExtra->minutos = $datos['minutos'];
             $horaExtra->fecha = $datos['fecha'];
             $horaExtra->observacion = $datos['observacion'];
             $horaExtra->save();
@@ -204,7 +242,10 @@ class HorasExtraController extends \BaseController {
             'mes_id' => Input::get('idMes'),
             'fecha' => Input::get('fecha'),
             'factor' => Input::get('factor'),
+            'tipo' => Input::get('tipo'),
             'cantidad' => Input::get('cantidad'),
+            'horas' => Input::get('horas'),
+            'minutos' => Input::get('minutos'),
             'observacion' => Input::get('observacion')
         );
         return $datos;

@@ -320,6 +320,58 @@ class Trabajador extends Eloquent {
         return;
     }    
     
+    static function listaTrabajadores()
+    {
+        $mes = \Session::get('mesActivo');
+        $finMes = $mes->fechaRemuneracion;
+        $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes->mes)));
+        $finMesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($finMes)));
+        $trabajadores = Trabajador::all();
+        
+        $listaTrabajadores=array();
+        if( $trabajadores->count() ){
+            foreach( $trabajadores as $trabajador ){
+                $empleado = $trabajador->ficha();
+                if($empleado){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                        $listaTrabajadores[]=array(
+                            'id' => $trabajador->id,
+                            'sid' => $trabajador->sid,
+                            'rut' => $trabajador->rut,
+                            'rutFormato' => $trabajador->rut_formato(),
+                            'apellidos' => $empleado->apellidos ? ucwords(strtolower($empleado->apellidos)) : "",      
+                            'nombreCompleto' => $empleado->nombreCompleto(),      
+                            'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
+                            'cargo' => array(
+                                'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                            ),  
+                            'contratoOrden' => $empleado->tipoContrato ? ucwords(strtolower($empleado->tipoContrato->nombre)) : "", 
+                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                            ), 
+                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                            ), 
+                            'tipoContrato' => array(
+                                'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
+                                'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
+                            )
+                        );
+                    }
+                }
+            }
+        }
+        
+        $listaTrabajadores = Funciones::ordenar($listaTrabajadores, 'apellidos');        
+        
+        return $listaTrabajadores;
+    }
+    
     public function totalCargasFamiliares()
     {        
         $totalCargasFamiliares = 0;
@@ -722,6 +774,34 @@ class Trabajador extends Eloquent {
         return $listaTrabajadores;        
     }
     
+    static function trabajadoresActivos()
+    {
+        $mes = \Session::get('mesActivo');
+        $finMes = $mes->fechaRemuneracion;
+        $mostrarFiniquitados = Empresa::variableConfiguracion('finiquitados_liquidacion');
+        $trabajadores = Trabajador::all();
+        
+        if($mostrarFiniquitados){
+            $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes->mes)));
+        }else{
+            $mesAnterior = $mes->mes;
+        }
+        
+        $listaTrabajadores=array();
+        if( $trabajadores->count() ){
+            foreach( $trabajadores as $trabajador ){
+                $empleado = $trabajador->ficha();
+                if($empleado){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito >= $mesAnterior && $empleado->fecha_ingreso<=$finMes){
+                        $listaTrabajadores[]=$trabajador->id;
+                    }
+                }
+            }
+        }
+                
+        return $listaTrabajadores;        
+    }
+    
     static function activosFiniquitados()
     {
         $mes = \Session::get('mesActivo');
@@ -735,7 +815,7 @@ class Trabajador extends Eloquent {
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mes->mes){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mes->mes){
                         $listaTrabajadores[]=array(
                             'id' => $trabajador->id,
                             'sid' => $trabajador->sid,
@@ -1251,7 +1331,7 @@ class Trabajador extends Eloquent {
         
         $diasFiniquito = $this->diasFiniquitoVacaciones($fechaFiniquito);
         $proporcionales = $this->feriadoProporcional($fechaFiniquito, $dias);
-        $total = round($dias + $diasFiniquito + $proporcionales['total'], 2);
+        $total = round($dias + $diasFiniquito + $proporcionales['diasF'], 2);
         
         $datos = array(
             'total' => $total,
@@ -1360,7 +1440,7 @@ class Trabajador extends Eloquent {
         
         $diasFiniquito = $this->diasFiniquitoVacaciones($fechaFiniquito);
         $proporcionales = $this->feriadoProporcional($fechaFiniquito, $dias);
-        $dias = round($dias + $diasFiniquito + $proporcionales['total'], 2);
+        $dias = round($dias + $diasFiniquito + $proporcionales['diasF'], 2);
         
         $datos = array(
             'dias' => $dias,
@@ -1451,7 +1531,7 @@ class Trabajador extends Eloquent {
         $mes = \Session::get('mesActivo')->mes;
         $misPrestamos = Prestamo::where('trabajador_id', $this->id)->where('primera_cuota', '<=', $mes)->get();
         $total = 0;
-        $cuotasPagar = array();
+        $cuotasPagar = 0;
         if( $misPrestamos->count() ){
             foreach($misPrestamos as $prestamo){
                 $cuotasPagar = $prestamo->cuotasPagar();
@@ -1539,6 +1619,7 @@ class Trabajador extends Eloquent {
             'feriados' => $feriados,
             'total' => ($cont + $contF)
         );
+        
         return $datos;
         //return ($cont + $contF);
     }
@@ -1546,8 +1627,8 @@ class Trabajador extends Eloquent {
     public function recalcularVacaciones($dias, $desde=null)
     {
         $mes = \Session::get('mesActivo');
-        $id = $this->id;       
-        $fichas = FichaTrabajador::where('trabajador_id', $id)->orderBy('fecha', 'DESC')->first();        
+        $id = $this->id;
+        $fichas = FichaTrabajador::where('trabajador_id', $id)->orderBy('fecha', 'DESC')->first();
         $fin = MesDeTrabajo::orderBy('mes', 'DESC')->first();
         $ficha = $this->ficha();
         $diasFiniquito = 0;
@@ -1580,6 +1661,7 @@ class Trabajador extends Eloquent {
                 $vacaciones->dias = ($diasFiniquito + $vac);
                 $vacaciones->save();
             }
+            
             return $diasFiniquito;
         }
         
@@ -2018,7 +2100,7 @@ class Trabajador extends Eloquent {
                 $minutos = ($minutos % 60);
             }
             $totalMinutos = ($minutos + ($horas * 60));
-            $total = date('H:i', mktime($horas,$minutos));
+            $total = Funciones::formatoHora($horas, $minutos);
         }
         
         $datos = array(
@@ -2047,7 +2129,7 @@ class Trabajador extends Eloquent {
                     'fechaIngreso' => date('Y-m-d H:i:s', strtotime($atraso->created_at)),
                     'horas' => $atraso->horas,
                     'minutos' => $atraso->minutos,
-                    'total' => date('H:i', mktime($atraso->horas,$atraso->minutos)),
+                    'total' => Funciones::formatoHora($atraso->horas, $atraso->minutos),
                     'observacion' => $atraso->observacion
                 );
             }
@@ -2156,17 +2238,30 @@ class Trabajador extends Eloquent {
     
     public function totalHorasExtra()
     {
-        $totalHorasExtra = 0.00;
-        $idMes = \Session::get('mesActivo')->id;
-        $horasExtra = HoraExtra::where('trabajador_id', $this->id)->where('mes_id', $idMes)->get();
+        
+        $total = 0;
+        $cantidad = 0;
+        $totalMinutos = 0;
+        $horas = 0;
+        $minutos = 0;
+        $mes = \Session::get('mesActivo');
+        $horasExtra = HoraExtra::where('trabajador_id', $this->id)->where('fecha', '>=', $mes->mes)->where('fecha', '<=', $mes->fechaRemuneracion)->get();
         
         if($horasExtra->count()){
+            $cantidad = $horasExtra->count();
             foreach($horasExtra as $horaExtra){
-                $totalHorasExtra += $horaExtra->cantidad;
+                $minutos += $horaExtra->minutos;
+                $horas += $horaExtra->horas;
+            }            
+            if($minutos>59){
+                $horas += (int) ($minutos / 60);
+                $minutos = ($minutos % 60);
             }
+            $totalMinutos = ($minutos + ($horas * 60));
+            $total = Funciones::formatoHora($horas, $minutos);
         }
-        
-        return $totalHorasExtra;
+
+        return $total;
     }
     
     public function sueldoCalcularHorasExtra()
@@ -2206,7 +2301,9 @@ class Trabajador extends Eloquent {
             $sueldo = $this->sueldoCalcularHorasExtra();
             foreach($horasExtra as $horaExtra){
                 $factor = $horaExtra->factor;
-                $total += (($sueldo * $factor) * $horaExtra->cantidad);    
+                $valor = (($sueldo * $factor) / 60);
+                $tot = ($horaExtra->minutos + ($horaExtra->horas * 60));
+                $total += ($valor * $tot);    
             }
             
         }
@@ -2220,6 +2317,49 @@ class Trabajador extends Eloquent {
         return $datos;
     }
     
+    public function horasExtraPagarDetalle()
+    {
+        $idTrabajador = $this->id;
+        $cantidad = $this->totalHorasExtra();
+        $factor = 0;
+        $total = 0;
+        $horas = array();
+        
+        if($cantidad>0){
+            $idMes = \Session::get('mesActivo')->id;
+            $horasExtra = HoraExtra::where('trabajador_id', $this->id)->where('mes_id', $idMes)->get();
+            $sueldo = $this->sueldoCalcularHorasExtra();
+            foreach($horasExtra as $horaExtra){
+                $factor = $horaExtra->factor;
+                $monto = (($sueldo * $factor) / 60);
+                $tot = ($horaExtra->minutos + ($horaExtra->horas * 60));
+                $total = ($monto * $tot); 
+                
+                if(!isset($horas[$horaExtra->tipo->id])){                   
+                    $horas[$horaExtra->tipo->id] = array(
+                        'id' => $horaExtra->id,
+                        'nombre' => $horaExtra->tipo->nombre,
+                        'cantidad' => Funciones::formatoHora($horaExtra->horas, $horaExtra->minutos),
+                        'idTipo' => $horaExtra->tipo->id,
+                        'imponible' => $horaExtra->tipo->imponible,
+                        'factor' => $factor,
+                        'horas' => $horaExtra->horas,
+                        'minutos' => $horaExtra->minutos,
+                        'total' => $total
+                    );     
+                }else{
+                    $horas[$horaExtra->tipo->id]['total'] += $total;
+                    $horas[$horaExtra->tipo->id]['horas'] += $horaExtra->horas;
+                    $horas[$horaExtra->tipo->id]['minutos'] += $horaExtra->minutos;
+                    $horas[$horaExtra->tipo->id]['cantidad'] = Funciones::formatoHora($horas[$horaExtra->tipo->id]['horas'], $horas[$horaExtra->tipo->id]['minutos']);
+                }
+            }
+            
+        }
+        
+        return $horas;
+    }
+    
     public function misHorasExtra()
     {        
         $idTrabajador = $this->id;
@@ -2231,6 +2371,7 @@ class Trabajador extends Eloquent {
         {
             foreach($horasExtra as $horaExtra)
             {
+                $total = Funciones::formatoHora($horaExtra->horas, $horaExtra->minutos);
                 $listaHorasExtra[] = array(
                     'id' => $horaExtra->id,
                     'sid' => $horaExtra->sid,
@@ -2239,7 +2380,12 @@ class Trabajador extends Eloquent {
                     'fechaIngreso' => date('Y-m-d H:i:s', strtotime($horaExtra->created_at)),
                     'fecha' => $horaExtra->fecha,
                     'factor' => $horaExtra->factor,
+                    'tipo' => array(
+                        'id' => $horaExtra->tipo->id,
+                        'nombre' => $horaExtra->tipo->nombre
+                    ),
                     'cantidad' => $horaExtra->cantidad,
+                    'total' => $total,
                     'observacion' => $horaExtra->observacion
                 );
             }
@@ -2572,7 +2718,7 @@ class Trabajador extends Eloquent {
         }
         
         return $tramos;
-    }
+    }    
     
     public function horasJornada()
     {
@@ -2624,6 +2770,8 @@ class Trabajador extends Eloquent {
         
         if($diasTrabajados<0){
             $diasTrabajados = 0;
+        }else if($diasTrabajados>30){
+            $diasTrabajados = 30;
         }
         
         return $diasTrabajados;
@@ -2804,7 +2952,7 @@ class Trabajador extends Eloquent {
             $semanaCorrida = $this->ficha()->semana_corrida ? true : false;
             $total = 0;
             if($semanaCorrida){
-                $total = $this->totalSemanaCorrida();
+                $total = $this->totalSemanaCorrida()['total'];
             }
             $this->miMiSemanaCorrida = $total;
         }
@@ -2872,7 +3020,7 @@ class Trabajador extends Eloquent {
         $descuentos = DescuentoHora::where('trabajador_id', $this->id)->where('fecha', '<=', $mes->fechaRemuneracion)->where('fecha', '>=', $mes->mes)->get();
         $descuento = 0;
         $valorHora = Funciones::convertir($ficha->sueldo_base, $ficha->moneda_sueldo);
-        $valorMinuto = ($valorHora / 60);
+        $valorMinuto = (($valorHora / 60) / 4);
         $horas = 0;
         $minutos = 0;
         $totalMinutos = 0;
@@ -2893,7 +3041,7 @@ class Trabajador extends Eloquent {
                     'fechaIngreso' => date('Y-m-d H:i:s', strtotime($des->created_at)),
                     'horas' => $des->horas,
                     'minutos' => $des->minutos,
-                    'total' => date('H:i', mktime($des->horas,$des->minutos)),
+                    'total' => Funciones::formatoHora($des->horas, $des->minutos),
                     'observacion' => $des->observacion
                 );
             }
@@ -2902,7 +3050,7 @@ class Trabajador extends Eloquent {
                 $minutos = ($minutos % 60);
             }
             $totalMinutos = ($minutos + ($horas * 60));
-            $total = date('H:i', mktime($horas,$minutos));
+            $total = Funciones::formatoHora($horas, $minutos);
         }
         
         $totalHoras = (($totalHoras * 60) - $totalMinutos);
@@ -3544,8 +3692,10 @@ class Trabajador extends Eloquent {
                     if($ri > $tope){
                         $ri = $tope;
                     }
+                    if($diasLicencia>30){
+                        $diasLicencia = 30;
+                    }
                     $sisLicencia = (( $tasa['tasaSis'] * (($ri / 30) * $diasLicencia)) / 100);
-                    $rentaImponible = (($rentaImponible / 30) * $diasTrabajados);
                     $sisActual = (( $tasa['tasaSis'] * $rentaImponible ) / 100);
                     $sis = ($sisLicencia + $sisActual);
                     $isSIS = $rentaImponibleAnterior['isSIS'];
@@ -3568,7 +3718,8 @@ class Trabajador extends Eloquent {
             'porcentajeCotizacion' => $tasa['tasaObligatoria'],
             'cuentaAhorroVoluntario' => $this->cuentaAhorroVoluntario(),
             'pagaSis' => $tasa['pagaSis'],
-            'rentaImponibleIngresada' => $rentaImponibleIngresada
+            'rentaImponibleIngresada' => $rentaImponibleIngresada,
+            'rentaImponible' => $rentaImponible
         );
         
         return $datos;
@@ -3793,7 +3944,7 @@ class Trabajador extends Eloquent {
                     $cotizacionSalud = $empleado->cotizacion_isapre; 
                     if($cotizacionSalud == 'UF'){
                         $totalSalud = Funciones::convertirUF($empleado->monto_isapre);
-                        if($empleado->estado=='Ingresado' && $diasTrabajados < 30 && !$empresa->salud_completa){
+                        if($diasTrabajados < 30 && !$empresa->salud_completa){
                             $diasTrabajados = $this->diasTrabajados();
                             $totalSalud = (($totalSalud / 30) * $diasTrabajados);
                         }
@@ -3804,7 +3955,7 @@ class Trabajador extends Eloquent {
                         $adicional = ($totalSalud - $montoSalud);
                     }else if($cotizacionSalud == '7% + UF'){
                         $uf = Funciones::convertirUF($empleado->monto_isapre);
-                        if($empleado->estado=='Ingresado' && $diasTrabajados < 30 && !$empresa->salud_completa){
+                        if($diasTrabajados < 30 && !$empresa->salud_completa){
                             $diasTrabajados = $this->diasTrabajados();
                             $uf = (($uf / 30) * $diasTrabajados);
                         }
@@ -3813,7 +3964,7 @@ class Trabajador extends Eloquent {
                         $adicional = ($totalSalud - $montoSalud);
                     }else{
                         $totalSalud = $empleado->monto_isapre;
-                        if($empleado->estado=='Ingresado' && $diasTrabajados < 30 && !$empresa->salud_completa){
+                        if($diasTrabajados < 30 && !$empresa->salud_completa){
                             $diasTrabajados = $this->diasTrabajados();
                             $totalSalud = (($totalSalud / 30) * $diasTrabajados);
                         }
@@ -4128,6 +4279,9 @@ class Trabajador extends Eloquent {
             
             if($nuevaRentaImponible){
                 $ri = $nuevaRentaImponible;
+                if($diasLicencia>30){
+                    $diasLicencia = 30;
+                }
                 $rentaImponibleEmpleador = (($nuevaRentaImponible / 30) * $diasLicencia);
                 $isSC = true;
             }else{
@@ -4142,9 +4296,8 @@ class Trabajador extends Eloquent {
                         $isSC = $rentaImponibleAnterior['isSC'];
                         $ri = $rentaImponibleEmpleador;
                         $rentaImponibleEmpleador = (($rentaImponibleEmpleador / 30) * $diasLicencia);
-                        if($todosImponibles > $topeSeguroPesos && $diasTrabajados < 30){
-                            $diasTrabajados = $this->diasTrabajados();
-                            $rentaImponible = (($topeSeguroPesos / 30) * $diasTrabajados);
+                        if($todosImponibles > $topeSeguroPesos){
+                            $rentaImponible = $topeSeguroPesos;
                         }else{
                             if($rentaImponible > $topeSeguroPesos){
                                 $rentaImponible = $topeSeguroPesos;
@@ -4165,7 +4318,6 @@ class Trabajador extends Eloquent {
             }
             
             if($this->antiguedadCesantia()<11){                          
-              
               if($indefinido){
                   $afcTrabajador = SeguroDeCesantia::valor('Contrato Plazo Indefinido', 'trabajador');    
                   $afcEmpleador = SeguroDeCesantia::valor('Contrato Plazo Indefinido', 'empleador');    
@@ -4417,24 +4569,21 @@ class Trabajador extends Eloquent {
         $mes = MesDeTrabajo::find($idMes);
         $finMes = $mes['fecha_remuneracion'];
         $trabajadores = Trabajador::all();
-        $bool = true;
         
         if($trabajadores){
             foreach($trabajadores as $trabajador){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mes){
                         if(!$trabajador->isLiquidacion($mes['mes'])){
-                        $trabajadore[] = $trabajador;
-                            $bool = false;
-                            break;
+                            return false;
                         }
                     }
                 }
             }
         }
         
-        return $bool;
+        return true;
     }
     
     public function impuestoDeterminado()
@@ -4488,9 +4637,17 @@ class Trabajador extends Eloquent {
     
     public function sueldoBase()
     {
-        $empleado = $this->ficha();
+        $ficha = $this->ficha();
         
-        return Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo);
+        if($ficha->tipo_sueldo=='Mensual'){
+            $sueldoBase = Funciones::convertir($ficha->sueldo_base, $ficha->moneda_sueldo);
+        }else{
+            $sueldoHora = Funciones::convertir($ficha->sueldo_base, $ficha->moneda_sueldo);
+            $horas = $ficha->horas;
+            $sueldoBase = ($sueldoHora * $horas);
+        }
+        
+        return $sueldoBase;
     }
     
     public function remuneracionAnualTrabajador()

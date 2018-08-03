@@ -8,7 +8,7 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('GestionCuentasCtrl', function ($scope, $uibModal, cuenta, $filter, tipoHaber, tipoDescuento, $anchorScroll, aporte, constantes, mesDeTrabajo, $rootScope, Notification) {
+  .controller('GestionCuentasCtrl', function ($scope, $uibModal, tipoHoraExtra, cuenta, $filter, tipoHaber, tipoDescuento, $anchorScroll, aporte, constantes, mesDeTrabajo, $rootScope, Notification) {
     $anchorScroll();
 
     $scope.empresa = $rootScope.globals.currentUser.empresa;
@@ -396,15 +396,24 @@ angular.module('angularjsApp')
     }
 
     $scope.editarHaber = function(apo, tab){
+      console.log(apo)
       $rootScope.cargando = true;
       if($scope.empresa.centroCosto.isCentroCosto){
-        var datos = tipoHaber.centroCosto().get({ sid: apo.sid });
+        if(apo.isHoraExtra){
+          var datos = tipoHoraExtra.centroCosto().get({ sid: apo.sid });          
+        }else{
+          var datos = tipoHaber.centroCosto().get({ sid: apo.sid });          
+        }
         datos.$promise.then(function(response){
           openFormCentrosCosto(response.datos, response.cuentas, 'haber', tab, response.centrosCostos);
           $rootScope.cargando = false;      
         }); 
       }else{
-        var datos = tipoHaber.cuenta().get({ sid: apo.sid });
+        if(apo.isHoraExtra){
+          var datos = tipoHoraExtra.cuenta().get({ sid: apo.sid });          
+        }else{
+          var datos = tipoHaber.cuenta().get({ sid: apo.sid });          
+        }
         datos.$promise.then(function(response){
           openForm(response.datos, response.cuentas, 'haber', tab);
           $rootScope.cargando = false;      
@@ -591,17 +600,17 @@ angular.module('angularjsApp')
 
 
   })
-  .controller('FormCuentaCentrosCostoCtrl', function ($scope, tipo, centrosCostos, tipoHaber, tab, tipoDescuento, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope, aporte) {
+  .controller('FormCuentaCentrosCostoCtrl', function ($scope, tipo, centrosCostos, tipoHoraExtra, tipoHaber, tab, tipoDescuento, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope, aporte) {
 
     $scope.empresa = $rootScope.globals.currentUser.empresa;
     $scope.centrosCostos = angular.copy(centrosCostos);
     $scope.cuentas = angular.copy(cuentas);
     $scope.objeto = angular.copy(objeto);
-    $scope.tipo = angular.copy(tipo);
+    $scope.tipo = angular.copy(tipo);    
     $scope.titulo = 'Modificación de Cuentas de Aportes';
     $scope.encabezado = $scope.objeto.nombre;
     $scope.isSelect = false;
-    $scope.cargado = true;
+    $scope.cargado = true;console.log(objeto)
 
     $scope.guardar = function () {
       $rootScope.cargando=true;
@@ -610,7 +619,11 @@ angular.module('angularjsApp')
       if($scope.tipo==='aporte'){
         var response = aporte.updateCuentaCentrosCosto().post({}, cc);
       }else if($scope.tipo==='haber'){
-        var response = tipoHaber.updateCuentaCentrosCosto().post({}, cc);
+        if(objeto.isHoraExtra){
+          var response = tipoHoraExtra.updateCuentaCentrosCosto().post({}, cc);
+        }else{
+          var response = tipoHaber.updateCuentaCentrosCosto().post({}, cc);          
+        }
       }else if($scope.tipo==='descuento'){
         var response = tipoDescuento.updateCuentaCentrosCosto().post({}, cc);
       }
@@ -687,7 +700,11 @@ angular.module('angularjsApp')
       if($scope.tipo==='aporte'){
         var datos = aporte.centroCosto().get({ sid: sid });
       }else if($scope.tipo==='haber'){
-        var datos = tipoHaber.centroCosto().get({ sid: sid });
+        if(objeto.isHoraExtra){
+          var datos = tipoHoraExtra.centroCosto().get({ sid: sid });
+        }else{
+          var datos = tipoHaber.centroCosto().get({ sid: sid });
+        }
       }else if($scope.tipo==='descuento'){
         var datos = tipoDescuento.centroCosto().get({ sid: sid });
       }      
@@ -703,7 +720,7 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormCuentasMasivo', function ($scope, tipo, centrosCostos, tipoHaber, tipoDescuento, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope, aporte) {
+  .controller('FormCuentasMasivo', function ($scope, tipo, centrosCostos, tipoHoraExtra, tipoHaber, tipoDescuento, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope, aporte) {
 
     $scope.centrosCostos = angular.copy(centrosCostos);
     $scope.cuentas = angular.copy(cuentas);
@@ -724,7 +741,11 @@ angular.module('angularjsApp')
       if($scope.tipo==='aporte'){
         var response = aporte.updateCuentaCentrosCosto().post({}, cc);
       }else if($scope.tipo==='haber'){
-        var response = tipoHaber.updateCuentaCentrosCosto().post({}, cc);
+        if(objeto.isHoraExtra){
+          var response = tipoHoraExtra.updateCuentaCentrosCosto().post({}, cc);
+        }else{
+          var response = tipoHaber.updateCuentaCentrosCosto().post({}, cc);          
+        }
       }else if($scope.tipo==='descuento'){
         var response = tipoDescuento.updateCuentaCentrosCosto().post({}, cc);
       }
@@ -768,7 +789,7 @@ angular.module('angularjsApp')
 
 
   })
-  .controller('FormAsignacionMasiva', function ($scope, aporte, tipoDescuento, tipoHaber, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope) {
+  .controller('FormAsignacionMasiva', function ($scope, aporte, tipoDescuento, tipoHoraExtra, tipoHaber, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope) {
 
     $scope.cuentas = angular.copy(cuentas);
     $scope.objeto = angular.copy(objeto);
@@ -790,7 +811,11 @@ angular.module('angularjsApp')
       if($scope.objeto.tipo==='aporte'){
         var response = aporte.updateCuentaMasivo().post({}, obj);
       }else if($scope.objeto.tipo==='haber'){
-        var response = tipoHaber.updateCuentaMasivo().post({}, obj);
+        if(objeto.isHoraExtra){
+          var response = tipoHoraExtra.updateCuentaMasivo().post({}, obj);
+        }else{          
+          var response = tipoHaber.updateCuentaMasivo().post({}, obj);
+        }
       }else if($scope.objeto.tipo==='descuento'){
         var response = tipoDescuento.updateCuentaMasivo().post({}, obj);
       }
@@ -833,7 +858,7 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormCuentaCtrl', function ($scope, tipo, tipoHaber, tab, tipoDescuento, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope, aporte) {
+  .controller('FormCuentaCtrl', function ($scope, tipo, tipoHaber, tipoHoraExtra, tab, tipoDescuento, $uibModalInstance, $filter, $uibModal, mesDeTrabajo, cuentas, objeto, Notification, $rootScope, aporte) {
 
     $scope.empresa = $rootScope.globals.currentUser.empresa;
     $scope.cuentas = angular.copy(cuentas);
@@ -847,7 +872,11 @@ angular.module('angularjsApp')
       if($scope.tipo==='aporte'){
         var response = aporte.updateCuenta().post({}, $scope.objeto);
       }else if($scope.tipo==='haber'){
-        var response = tipoHaber.updateCuenta().post({}, $scope.objeto);
+        if(objeto.isHoraExtra){
+          var response = tipoHoraExtra.updateCuenta().post({}, $scope.objeto);
+        }else{
+          var response = tipoHaber.updateCuenta().post({}, $scope.objeto);          
+        }
       }else if($scope.tipo==='descuento'){
         var response = tipoDescuento.updateCuenta().post({}, $scope.objeto);
       }

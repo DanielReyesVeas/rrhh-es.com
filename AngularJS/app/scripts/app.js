@@ -361,6 +361,11 @@ angular
         controller: 'SueldoHoraCtrl',
         controllerAs: 'sueldoHora'
       })
+      .when('/generar-reportes', {
+        templateUrl: 'views/generar-reportes.html',
+        controller: 'GenerarReportesCtrl',
+        controllerAs: 'generarReportes'
+      })
       .otherwise({
         redirectTo: '/login'
       });

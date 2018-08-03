@@ -48,7 +48,7 @@
                     <th>RUT</th>        
                     <th>Nombre</th>   
                     @if($datos->conceptos['centro_costo'])
-                        <th>C. Costo</th>        
+                        <th>Cargo</th>        
                     @else
                         @if($datos->conceptos['seccion'])
                             <th>Sección</th> 
@@ -90,9 +90,9 @@
                 @foreach($datos->liquidaciones as $dato)
                     <tr>
                         <td>{{ Funciones::formatear_rut($dato->trabajador_rut) }}</td>
-                        <td>{{ $dato->trabajador_nombres }} {{ $dato->trabajador_apellidos }}</td>
+                        <td>{{ $dato->trabajador_nombres }} {{ $dato->trabajador_apellidos }} | {{ $dato->centro_costo_codigo }}</td>
                         @if($datos->conceptos['centro_costo'])
-                            <td>{{ $dato->centro }}</td>        
+                            <td>{{ $dato->trabajador_cargo }}</td>        
                         @else
                             @if($datos->conceptos['seccion'])
                                 <td>{{ $dato->trabajador_seccion }}</td> 

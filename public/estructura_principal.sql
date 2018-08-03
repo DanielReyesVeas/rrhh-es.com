@@ -2534,6 +2534,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `estado` tinyint(1) NOT NULL DEFAULT '1',
   `perfil_id` int(10) DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
+  `recuperacion` varchar(255) DEFAULT NULL,
   `updated_at` datetime NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -2544,8 +2545,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `sid`, `tipo`, `funcionario_id`, `username`, `password`, `estado`, `perfil_id`, `remember_token`, `updated_at`, `created_at`) VALUES
-(1, '211eefess2544es55', 1, 1, 'root', '$2y$10$3FRqbgAhKTQKiTabKNoHbO9khfOzECCZD3Rezwebtmr3sKY./lQL2', 1, 0, 'ER8P44K9fdrHhhekuXeE5KrDJk0fyPfP8nuyRqiNkGBRfnKJphbDGBYglLs3', '2016-06-16 16:57:23', '2014-11-17 00:00:00');
+INSERT INTO `usuarios` (`id`, `sid`, `tipo`, `funcionario_id`, `username`, `password`, `estado`, `perfil_id`, `remember_token`, `recuperacion`,`updated_at`, `created_at`) VALUES
+(1, '211eefess2544es55', 1, 1, 'root', '$2y$10$3FRqbgAhKTQKiTabKNoHbO9khfOzECCZD3Rezwebtmr3sKY./lQL2', 1, 0, 'ER8P44K9fdrHhhekuXeE5KrDJk0fyPfP8nuyRqiNkGBRfnKJphbDGBYglLs3', NULL, '2016-06-16 16:57:23', '2014-11-17 00:00:00');
 
 
 -- --------------------------------------------------------

@@ -100,6 +100,43 @@ class TipoHaber extends Eloquent {
     	return $listaTiposHaber;
     }
     
+    static function listaHaberes()
+    {
+        $tiposHaber = TipoHaber::all()->sortBy("codigo");
+        $listaImponibles=array();
+        $listaNoImponibles=array();
+        
+        if($tiposHaber->count()){
+            foreach($tiposHaber as $tipoHaber){
+                if($tipoHaber->id>15 || $tipoHaber->id==10 || $tipoHaber->id==11 || $tipoHaber->id==4 || $tipoHaber->id==3 || $tipoHaber->id==5){
+                    if($tipoHaber->imponible){
+                        $listaImponibles[]=array(
+                            'id' => $tipoHaber->id,
+                            'sid' => $tipoHaber->sid,
+                            'codigo' => $tipoHaber->codigo,
+                            'nombre' => $tipoHaber->nombre
+                        );
+                    }else{
+                        $listaImponibles[]=array(
+                            'id' => $tipoHaber->id,
+                            'sid' => $tipoHaber->sid,
+                            'codigo' => $tipoHaber->codigo,
+                            'nombre' => $tipoHaber->nombre
+                        );
+                    }
+                }
+            }
+        }
+        
+        
+        $datos = array(
+            'imponibles' => $listaImponibles,
+            'noImponibles' => $listaNoImponibles
+        );
+        
+        return $listaImponibles;
+    }
+    
     public function misHaberes()
     {        
         $idTipoHaber = $this->id;

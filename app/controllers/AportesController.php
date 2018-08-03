@@ -38,22 +38,49 @@ class AportesController extends \BaseController {
         $listaGenerales = array();
         $haberes = TipoHaber::orderBy('codigo')->get();
         $descuentos = TipoDescuento::orderBy('codigo')->get();
+        $tiposHoraExtra = TipoHoraExtra::all();                
         
         if( $haberes->count() ){
             foreach( $haberes as $haber ){
-                if($haber->imponible){
-                    $listaHaberesImp[]=array(
-                        'id' => $haber->id,
-                        'sid' => $haber->sid,
-                        'cuenta' => $haber->cuenta($cuentas),
-                        'nombre' => $haber->nombre
+                if($haber->id!=7){
+                    if($haber->imponible){
+                        $listaHaberesImp[]=array(
+                            'id' => $haber->id,
+                            'sid' => $haber->sid,
+                            'cuenta' => $haber->cuenta($cuentas),
+                            'nombre' => $haber->nombre,
+                            'isHoraExtra' => false
+                        );
+                    }else{
+                        $listaHaberesNoImp[]=array(
+                            'id' => $haber->id,
+                            'sid' => $haber->sid,
+                            'cuenta' => $haber->cuenta($cuentas),
+                            'nombre' => $haber->nombre,
+                            'isHoraExtra' => false
+                        );
+                    }
+                }
+            }
+        }
+        
+        if($tiposHoraExtra->count()){
+            foreach($tiposHoraExtra as $tipoHoraExtra){
+                if($tipoHoraExtra->imponible){
+                    $listaHaberesImp[] = array(
+                        'id' => $tipoHoraExtra->id,
+                        'sid' => $tipoHoraExtra->sid,
+                        'nombre' => 'Hora Extra: ' . $tipoHoraExtra->nombre,
+                        'cuenta' => $tipoHoraExtra->cuenta($cuentas),
+                        'isHoraExtra' => true
                     );
                 }else{
                     $listaHaberesNoImp[]=array(
-                        'id' => $haber->id,
-                        'sid' => $haber->sid,
-                        'cuenta' => $haber->cuenta($cuentas),
-                        'nombre' => $haber->nombre
+                        'id' => $tipoHoraExtra->id,
+                        'sid' => $tipoHoraExtra->sid,
+                        'nombre' => 'Hora Extra: ' . $tipoHoraExtra->nombre,
+                        'cuenta' => $tipoHoraExtra->cuenta($cuentas),
+                        'isHoraExtra' => true
                     );
                 }
             }

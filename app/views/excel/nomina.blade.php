@@ -13,6 +13,7 @@
                 <th>Nombre</th>                
                 <th>Cargo</th>                
                 <th>Código Banco</th>                
+                <th>Nombre Banco</th>                
                 <th>Tipo Cuenta</th>                
                 <th>N° Cuenta</th>                
                 <th>Monto</th>                
@@ -25,6 +26,7 @@
                     <td>{{ $dato['nombreCompleto'] }}</td>
                     <td>{{ $dato['cargo'] }}</td>
                     <td>{{ $dato['codigoBanco'] }}</td>
+                    <td>{{ $dato['nombreBanco'] }}</td>
                     <td>{{ $dato['tipoCuenta'] }}</td>
                     <td>{{ $dato['numeroCuenta'] }}</td>
                     <td>{{ $dato['monto'] }}</td>

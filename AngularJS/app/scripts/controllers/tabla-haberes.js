@@ -8,7 +8,7 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('TablaHaberesCtrl', function ($rootScope, $scope, $uibModal, $filter, tipoHaber, $anchorScroll, constantes, Notification, mesDeTrabajo) {
+  .controller('TablaHaberesCtrl', function ($rootScope, $scope, $uibModal, tipoHoraExtra, $filter, tipoHaber, $anchorScroll, constantes, Notification, mesDeTrabajo) {
     $anchorScroll();
     
     $scope.datos = [];
@@ -70,7 +70,11 @@ angular.module('angularjsApp')
     
     $scope.editar = function(hab){
       $rootScope.cargando=true;
-      var datos = tipoHaber.datos().get({sid:hab.sid});      
+      if(hab.isHoraExtra){
+        var datos = tipoHoraExtra.datos().get({sid:hab.sid});              
+      }else{
+        var datos = tipoHaber.datos().get({sid:hab.sid});         
+      }
       datos.$promise.then(function(response){
         openHaber(response.datos);
         $rootScope.cargando=false;
@@ -100,7 +104,7 @@ angular.module('angularjsApp')
     };
 
   })
-  .controller('FormTiposHaberCtrl', function ($scope, imponible, $uibModalInstance, objeto, Notification, $rootScope, tipoHaber, $uibModal, $filter) {
+  .controller('FormTiposHaberCtrl', function ($scope, imponible, tipoHoraExtra, $uibModalInstance, objeto, Notification, $rootScope, tipoHaber, $uibModal, $filter) {
 
     if(objeto){
       $scope.tipoHaber = angular.copy(objeto);
@@ -116,7 +120,11 @@ angular.module('angularjsApp')
       $rootScope.cargando=true;
       var response;
       if( $scope.tipoHaber.sid ){
-        response = tipoHaber.datos().update({sid:$scope.tipoHaber.sid}, $scope.tipoHaber);
+        if($scope.tipoHaber.isHoraExtra){
+          response = tipoHoraExtra.datos().update({sid:$scope.tipoHaber.sid}, $scope.tipoHaber);
+        }else{
+          response = tipoHaber.datos().update({sid:$scope.tipoHaber.sid}, $scope.tipoHaber);          
+        }
       }else{
         response = tipoHaber.datos().create({}, $scope.tipoHaber);
       }

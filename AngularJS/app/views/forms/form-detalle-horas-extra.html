@@ -20,9 +20,10 @@
             <tr>
               <th class="col-sm-1">#</th>
               <th class="col-sm-3">Fecha Ingreso</th>
-              <th class="col-sm-3">Fecha Hora Extra</th>
+              <th class="col-sm-2">Fecha Hora Extra</th>
+              <th class="col-sm-2">Tipo</th>
               <th class="col-sm-2">Factor</th>
-              <th class="col-sm-2">Cantidad</th>
+              <th class="col-sm-1">Cantidad</th>
               <th class="col-sm-1"></th>
             </tr>
           </thead>
@@ -31,8 +32,9 @@
               <td>{{ $index + 1 }}</td>
               <td>{{ dato.fechaIngreso | date : "dd-MM-y" }}</td>
               <td>{{ dato.fecha | date : "dd-MM-y" }}</td>
+              <td>{{ dato.tipo.nombre }}</td>
               <td>{{ dato.factor }}</td>
-              <td>{{ dato.cantidad }}</td>
+              <td>{{ dato.total }} hrs.</td>
               <td>
                 <a href="javascript:void(0);" ng-if="accesos.editar && accesos.abierto" ng-click="editar(dato, trabajador.sid)"><i class="fa fa-pencil"></i></a>
                 <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto" confirmation-click="eliminar(dato, trabajador.sid)" confirmation-needed="La Hora Extra seleccionada será eliminada del sistema. ¿Desea continuar?"><i class="fa fa-trash"></i></a>

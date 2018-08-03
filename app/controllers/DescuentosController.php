@@ -76,13 +76,10 @@ class DescuentosController extends \BaseController {
                 $ficha = $trabajador->ficha();
                 if($ficha){
                     $afp = $ficha->afp_id;
-                    if(!$afp){
-                        $afp = $ficha->afp_seguro_id;
-                    }
-                    if(!$afp){
+                    if(!$afp || $ficha->prevision_id!=8){
                         $respuesta=array(
                             'success' => false,
-                            'mensaje' => "La acción no pudo ser completada porque el trabajador no está en AFP.",
+                            'mensaje' => "El descuento Cuenta de Ahorro no puede ser creado porque el trabajador no está en AFP.",
                             'errores' => $errores
                         );
                         return Response::json($respuesta);

@@ -683,6 +683,7 @@ class TrabajadoresController extends \BaseController {
                 'nombreCompleto' => $empleado->nombreCompleto(),
                 'cargo' => $empleado->cargo ? $empleado->cargo->nombre : "",
                 'codigoBanco' => $empleado->banco ? $empleado->banco->codigo : "",
+                'nombreBanco' => $empleado->banco ? $empleado->banco->nombre : "",
                 'tipoCuenta' => $empleado->tipoCuenta ? $empleado->tipoCuenta->nombre : "",
                 'numeroCuenta' => $empleado->numero_cuenta ? $empleado->numero_cuenta : "",
                 'monto' => $liquidacion->sueldo_liquido
@@ -1732,6 +1733,61 @@ class TrabajadoresController extends \BaseController {
                 $trabajador->save();
                 //$trabajador->crearUser();
                 $ficha->save();
+                
+                if($dato['montoColacion'] > 0){
+                    $nuevoHaber = new Haber();
+                    $nuevoHaber->sid = Funciones::generarSID();
+                    $nuevoHaber->trabajador_id = $trabajador->id;
+                    $nuevoHaber->tipo_haber_id = 3;
+                    $nuevoHaber->mes_id = null;
+                    $nuevoHaber->por_mes = 0;
+                    $nuevoHaber->rango_meses = 0;
+                    $nuevoHaber->permanente = 1;
+                    $nuevoHaber->todos_anios = 0;
+                    $nuevoHaber->mes = null;
+                    $nuevoHaber->desde = null;
+                    $nuevoHaber->hasta = null;
+                    $nuevoHaber->moneda = strtoupper($dato['monedaColacion']);
+                    $nuevoHaber->monto = $dato['montoColacion'];
+                    $nuevoHaber->proporcional = $dato['proporcionalColacion'];
+                    $nuevoHaber->save(); 
+                }
+                if($dato['montoMovilizacion'] > 0){
+                    $nuevoHaber = new Haber();
+                    $nuevoHaber->sid = Funciones::generarSID();
+                    $nuevoHaber->trabajador_id = $trabajador->id;
+                    $nuevoHaber->tipo_haber_id = 4;
+                    $nuevoHaber->mes_id = null;
+                    $nuevoHaber->por_mes = 0;
+                    $nuevoHaber->rango_meses = 0;
+                    $nuevoHaber->permanente = 1;
+                    $nuevoHaber->todos_anios = 0;
+                    $nuevoHaber->mes = null;
+                    $nuevoHaber->desde = null;
+                    $nuevoHaber->hasta = null;
+                    $nuevoHaber->moneda = strtoupper($dato['monedaMovilizacion']);
+                    $nuevoHaber->monto = $dato['montoMovilizacion'];
+                    $nuevoHaber->proporcional = $dato['proporcionalMovilizacion'];
+                    $nuevoHaber->save(); 
+                }
+                if($dato['montoViatico'] > 0){
+                    $nuevoHaber = new Haber();
+                    $nuevoHaber->sid = Funciones::generarSID();
+                    $nuevoHaber->trabajador_id = $trabajador->id;
+                    $nuevoHaber->tipo_haber_id = 5;
+                    $nuevoHaber->mes_id = null;
+                    $nuevoHaber->por_mes = 0;
+                    $nuevoHaber->rango_meses = 0;
+                    $nuevoHaber->permanente = 1;
+                    $nuevoHaber->todos_anios = 0;
+                    $nuevoHaber->mes = null;
+                    $nuevoHaber->desde = null;
+                    $nuevoHaber->hasta = null;
+                    $nuevoHaber->moneda = strtoupper($dato['monedaViatico']);
+                    $nuevoHaber->monto = $dato['montoViatico'];
+                    $nuevoHaber->proporcional = $dato['proporcionalViatico'];
+                    $nuevoHaber->save(); 
+                }
                 $cont++;
             }
 
@@ -3266,7 +3322,7 @@ class TrabajadoresController extends \BaseController {
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
                         $listaTrabajadores[]=array(
                             'id' => $trabajador->id,
                             'sid' => $trabajador->sid,
@@ -3567,7 +3623,7 @@ class TrabajadoresController extends \BaseController {
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes && $empleado->tipo_sueldo=='Por Hora' || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior && $empleado->tipo_sueldo=='Por Hora'){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes && $empleado->tipo_sueldo=='Por Hora' || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior && $empleado->tipo_sueldo=='Por Hora'){
                         $listaTrabajadores[]=array(
                             'id' => $trabajador->id,
                             'sid' => $trabajador->sid,
@@ -4064,7 +4120,12 @@ class TrabajadoresController extends \BaseController {
                                     'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
                                     'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
                                 ),
-                                'sueldoBasePesos' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo),
+                                'sueldoBase' => array(
+                                    'tipo' => $empleado->tipo_sueldo,
+                                    'monto' => ($empleado->sueldo_base + 0),
+                                    'moneda' => $empleado->moneda_sueldo,
+                                    'montoPesos' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo)
+                                ),
                                 'estado' => $empleado->estado,
                                 'observaciones' => $observacion ? $observacion->observaciones : ""
                             );
@@ -4078,7 +4139,7 @@ class TrabajadoresController extends \BaseController {
             foreach($trabajadores as $trabajador){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMesAnterior && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMesAnterior && $empleado->fecha_finiquito >= $mesAnterior){
                         if(!$trabajador->isLiquidacion()){
                             $observacion = LiquidacionObservacion::where('periodo', $mes)
                                 ->where('trabajador_id', $trabajador->id )->first();
@@ -4102,7 +4163,12 @@ class TrabajadoresController extends \BaseController {
                                     'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
                                     'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
                                 ),
-                                'sueldoBasePesos' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo),
+                                'sueldoBase' => array(
+                                    'tipo' => $empleado->tipo_sueldo,
+                                    'monto' => ($empleado->sueldo_base + 0),
+                                    'moneda' => $empleado->moneda_sueldo,
+                                    'montoPesos' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo)
+                                ),
                                 'estado' => $empleado->estado,
                                 'observaciones' => $observacion? $observacion->observaciones : ""
                             );
@@ -5647,6 +5713,9 @@ class TrabajadoresController extends \BaseController {
             
             $table .= '<tr><td>No Imponibles ' . $noImponibles . '</td><td>' . Funciones::formatoPesos($datos['mesAviso']['noImponibles']['suma']) . '</td></tr>';*/
         }
+        if($datos['prestamos']['check']){
+            $table .= '<tr><td>Préstamos</td><td>-' . Funciones::formatoPesos($datos['prestamos']['monto']) . '</td></tr>';
+        }
         
         $table .= '</tbody>';
         $table .= '<tfoot>';
@@ -5671,8 +5740,6 @@ class TrabajadoresController extends \BaseController {
         $clausulas = array();
         $trabajador = Trabajador::whereSid($sidTrabajador)->first();
         $empleado = $trabajador->ficha();
-        $idEmpresa = \Session::get('empresa')->id;
-        $empresa = Empresa::find($idEmpresa);
         
         $idEmpresa = \Session::get('empresa')->id;
         $empresa = Empresa::find($idEmpresa);
@@ -5755,7 +5822,7 @@ class TrabajadoresController extends \BaseController {
         $trabajadorAfp = $ficha->afp ? $ficha->afp->glosa : "";
         $trabajadorIsapre = $ficha->isapre ? $ficha->isapre->glosa : "";
         
-        $sb = Funciones::convertir($ficha->sueldo_base, $ficha->moneda_sueldo);
+        $sb = $trabajador->sueldoBase();
         $sueldoBase = Funciones::formatoPesos($sb);
         $sueldoBasePalabras = Funciones::convertirPalabras($sb);
         $col = Funciones::convertir($ficha->monto_colacion, $ficha->moneda_colacion);
@@ -5825,7 +5892,7 @@ class TrabajadoresController extends \BaseController {
         $trabajadorAfp = $ficha->afp ? $ficha->afp->glosa : '' ;
         $trabajadorIsapre = $ficha->isapre ? $ficha->isapre->glosa : '';
         
-        $sb = Funciones::convertir($ficha->sueldo_base, $ficha->moneda_sueldo);
+        $sb = $trabajador->sueldoBase();
         $sueldoBase = Funciones::formatoPesos($sb);
         $sueldoBasePalabras = Funciones::convertirPalabras($sb);
         $col = Funciones::convertir($ficha->monto_colacion, $ficha->moneda_colacion);
@@ -5884,7 +5951,7 @@ class TrabajadoresController extends \BaseController {
         $trabajadorAfp = $ficha->afp->glosa;
         $trabajadorIsapre = $ficha->isapre->glosa;
         
-        $sb = Funciones::convertir($ficha->sueldo_base, $ficha->moneda_sueldo);
+        $sb = $trabajador->sueldoBase();
         $sueldoBase = Funciones::formatoPesos($sb);
         $sueldoBasePalabras = Funciones::convertirPalabras($sb);
         $col = Funciones::convertir($ficha->monto_colacion, $ficha->moneda_colacion);
@@ -6191,6 +6258,7 @@ class TrabajadoresController extends \BaseController {
                         $nuevoHaber->hasta = null;
                         $nuevoHaber->moneda = $haber['moneda'];
                         $nuevoHaber->monto = $haber['monto'];
+                        $nuevoHaber->proporcional = $haber['proporcional'] ? $haber['proporcional'] : 0;
                         $nuevoHaber->save();                                                
                     }else{
                         $respuesta=array(
@@ -6237,7 +6305,7 @@ class TrabajadoresController extends \BaseController {
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
                         $listaTrabajadores[]=array(
                             'id' => $trabajador->id,
                             'sid' => $trabajador->sid,
@@ -6282,7 +6350,7 @@ class TrabajadoresController extends \BaseController {
             foreach($trabajadores as $trabajador){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
                         $totalInasistencias = $trabajador->totalInasistencias();
                         if($totalInasistencias){
                             $listaTrabajadores[] = array(
@@ -6362,7 +6430,7 @@ class TrabajadoresController extends \BaseController {
             foreach($trabajadores as $trabajador){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
                         $atrasos = $trabajador->totalAtrasos();
                         if($atrasos['atrasos']){
                             $listaTrabajadores[] = array(
@@ -6445,7 +6513,7 @@ class TrabajadoresController extends \BaseController {
             foreach($trabajadores as $trabajador){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
                         $licencias = $trabajador->totalLicencias();
                         if($licencias){
                             $listaTrabajadores[] = array(
@@ -6522,7 +6590,7 @@ class TrabajadoresController extends \BaseController {
             foreach($trabajadores as $trabajador){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito < $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
                         $horasExtra = $trabajador->totalHorasExtra();
                         if($horasExtra){
                             $listaTrabajadores[] = array(
@@ -6577,6 +6645,7 @@ class TrabajadoresController extends \BaseController {
         $trabajador = Trabajador::whereSid($sid)->first();
         $empleado = $trabajador->ficha();
         $permisos = MenuSistema::obtenerPermisosAccesosURL(Auth::usuario()->user(), '#ingreso-horas-extra');
+        $tipos = TipoHoraExtra::listaTiposHoraExtra();
         
         $trabajadorHorasExtra = array(
             'id' => $trabajador->id,
@@ -6585,8 +6654,10 @@ class TrabajadoresController extends \BaseController {
             'rut' => $trabajador->rut,
             'nombreCompleto' => $empleado->nombreCompleto(),
             'tramos' => $trabajador->tramosHorasExtra(),
+            'tipos' => $tipos,
             'horasExtra' => $trabajador->misHorasExtra()
         );
+        
         $datos = array(
             'accesos' => $permisos,
             'datos' => $trabajadorHorasExtra
@@ -7357,39 +7428,47 @@ class TrabajadoresController extends \BaseController {
                 $empleado = $trabajador->ficha();
                 if($empleado){
                     if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito >= $mesAnterior && $empleado->fecha_ingreso<=$finMes){
-                        $listaActivos[] = array(
-                            'id' => $trabajador->id,
-                            'sid' => $trabajador->sid,
-                            'rutFormato' => $trabajador->rut_formato(),
-                            'rut' => $trabajador->rut,
-                            'nombreCompleto' => $empleado->nombreCompleto(),
-                            'apellidos' => ucwords(strtolower($empleado->apellidos)),      
-                            'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
-                            'cargo' => array(
-                                'id' => $empleado->cargo ? $empleado->cargo->id : "",
-                                'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
-                            ),             
-                            'fechaIngreso' => $empleado->fecha_ingreso,
-                            'contratoOrden' => $empleado->tipoContrato ? ucwords(strtolower($empleado->tipoContrato->nombre)) : "", 
-                            'tipoContrato' => array(
-                                'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
-                                'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
-                            ),
-                            'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
-                            'seccion' => array(
-                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
-                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
-                            ), 
-                            'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
-                            'centroCosto' => array(
-                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
-                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
-                            ),
-                            'monedaSueldo' => $empleado->moneda_sueldo,
-                            'sueldoBase' => $empleado->sueldo_base,        
-                            'estado' => $empleado->estado,
-                            'isLiquidacion' => $trabajador->isLiquidacion()
-                        );
+                        $agregar = true;
+                        if($mostrarFiniquitados && $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito<=$mes){
+                            if(!$trabajador->isLiquidacion()){
+                                $agregar = false;
+                            }
+                        }
+                        if($agregar){
+                            $listaActivos[] = array(
+                                'id' => $trabajador->id,
+                                'sid' => $trabajador->sid,
+                                'rutFormato' => $trabajador->rut_formato(),
+                                'rut' => $trabajador->rut,
+                                'nombreCompleto' => $empleado->nombreCompleto(),
+                                'apellidos' => ucwords(strtolower($empleado->apellidos)),      
+                                'cargoOrden' => $empleado->cargo ? ucwords(strtolower($empleado->cargo->nombre)) : "", 
+                                'cargo' => array(
+                                    'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                    'nombre' => $empleado->cargo ? $empleado->cargo->nombre : "",
+                                ),             
+                                'fechaIngreso' => $empleado->fecha_ingreso,
+                                'contratoOrden' => $empleado->tipoContrato ? ucwords(strtolower($empleado->tipoContrato->nombre)) : "", 
+                                'tipoContrato' => array(
+                                    'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
+                                    'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
+                                ),
+                                'seccionOrden' => $empleado->seccion ? ucwords(strtolower($empleado->seccion->nombre)) : "", 
+                                'seccion' => array(
+                                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                                ), 
+                                'centroCostoOrden' => $empleado->centroCosto ? ucwords(strtolower($empleado->centroCosto->nombre)) : "", 
+                                'centroCosto' => array(
+                                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                                ),
+                                'monedaSueldo' => $empleado->moneda_sueldo,
+                                'sueldoBase' => $empleado->sueldo_base,        
+                                'estado' => $empleado->estado,
+                                'isLiquidacion' => $trabajador->isLiquidacion()
+                            );
+                        }
                     }
                 }
             }
@@ -7615,6 +7694,7 @@ class TrabajadoresController extends \BaseController {
             $diasDescontados = $trabajador->diasDescontados();
             $diasTrabajados = $trabajador->diasTrabajados();
             $horasExtra = $trabajador->horasExtraPagar();
+            $horasExtraDetalle = $trabajador->horasExtraPagarDetalle();
             if($comprobarRentaImponibleAnterior){
                 $totalAfp = $trabajador->totalAfp($listaRentaImponibleAnteriorSIS[0]);
                 $totalSeguroCesantia = $trabajador->totalSeguroCesantia($listaRentaImponibleAnteriorSC[0]);
@@ -7662,6 +7742,18 @@ class TrabajadoresController extends \BaseController {
                 $movimientoPersonal = $trabajador->movimientoPersonal();
                 $prestamosCaja = $trabajador->prestamosCaja();
                 $miCentroCosto = $empleado->miCentroCosto();
+                $diasLicencia = $trabajador->totalDiasLicencias();
+                $diasInasistencia = $trabajador->totalInasistencias();
+                
+                $licencias = array(
+                    'dias' => $diasLicencia,
+                    'total' => ($diasLicencia * $sueldoDiario)                    
+                );
+                
+                $inasistencias = array(
+                    'dias' => $diasInasistencia,
+                    'total' => ($diasInasistencia * $sueldoDiario)                    
+                );
 
                 $filename = date("m-Y", strtotime($mes->mes))."_".$empresa->rut."_Liquidacion_".$trabajador->rut. '.pdf';
                 $alias = 'Liquidación de Sueldo ' . $empleado->nombreCompleto() . ' ' . $mes->nombre . ' del ' . $mes->anio . '.pdf';
@@ -7696,7 +7788,7 @@ class TrabajadoresController extends \BaseController {
                         'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
                     ),
                     'monedaSueldo' => $empleado->moneda_sueldo,
-                    'sueldoBase' => Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo),
+                    'sueldoBase' => $trabajador->sueldoBase(),
                     'colacion' => array(
                         'monto' => 0
                     ),
@@ -7723,6 +7815,8 @@ class TrabajadoresController extends \BaseController {
                         'id' => $empleado->isapre ? $empleado->isapre->id : "",
                         'nombre' => $empleado->isapre ? $empleado->isapre->glosa : ""
                     ),
+                    'licencias' => $licencias,
+                    'inasistencias' => $inasistencias,
                     'cotizacionIsapre' => $empleado->cotizacion_isapre,
                     'montoIsapre' => $empleado->monto_isapre,
                     'sindicato' => $empleado->sindicato ? true : false,
@@ -7735,12 +7829,13 @@ class TrabajadoresController extends \BaseController {
                     'sueldo' => $sueldo,
                     'gratificacion' => $gratificacion,
                     'horasExtra' => $horasExtra,
+                    'horasExtraDetalle' => $horasExtraDetalle,
                     'imponibles' => $sumaImponibles,
                     'totalHaberes' => $totalHaberes,
                     'cargasFamiliares' => $cargasFamiliares,
                     'asignacionRetroactiva' => $asignacionRetroactiva,
                     'noImponibles' => $noImponibles,
-                    'semanaCorrida' => $semanaCorrida['total'],
+                    'semanaCorrida' => $semanaCorrida,
                     'semanaCorridas' => $semanaCorridas,
                     'isSemanaCorrida' => $empleado->semana_corrida ? true : false,
                     'rentaImponible' => $rentaImponible,
@@ -7777,7 +7872,8 @@ class TrabajadoresController extends \BaseController {
                     'nombreDocumento' => $filename,
                     'aliasDocumento' => $alias,
                     'atrasos' => $atrasos,
-                    'logoEmpresa' => $logo
+                    'logoEmpresa' => $logo,
+                    'z' => $trabajador->horasExtraPagarDetalle()
                 );
 
                 $documento = new Documento();
@@ -7833,7 +7929,7 @@ class TrabajadoresController extends \BaseController {
                 $liquidacion->horas_extra = $horasExtra['cantidad'];
                 $liquidacion->total_horas_extra = $horasExtra['total'];
                 $liquidacion->tipo_contrato = $empleado->tipoContrato->nombre;
-                $liquidacion->sueldo_base = Funciones::convertir($empleado->sueldo_base, $empleado->moneda_sueldo);
+                $liquidacion->sueldo_base = $trabajador->sueldoBase();
                 $liquidacion->seguro_cesantia = $empleado->seguro_desempleo ? $empleado->seguro_desempleo : 0;
                 $liquidacion->base_impuesto_unico = $baseImpuestoUnico['base'];
                 $liquidacion->rebaja_zona = $baseImpuestoUnico['rebaja'];
@@ -7874,11 +7970,11 @@ class TrabajadoresController extends \BaseController {
 
                 $liquidacion->save();
 
-                if($liquidacion->prevision_id==8){
+                if(($totalAfp['cotizacion'] > 0) || ($totalAfp['sis'] > 0) || ($totalAfp['cuentaAhorroVoluntario'] > 0)){
                     $detalleAfp = new DetalleAfp();
                     $detalleAfp->liquidacion_id = $liquidacion->id;
                     $detalleAfp->afp_id = $empleado->afp_id;
-                    $detalleAfp->renta_imponible = $rentaImponible;
+                    $detalleAfp->renta_imponible = $totalAfp['rentaImponible'];
                     $detalleAfp->cotizacion = $totalAfp['cotizacion'];
                     $detalleAfp->sis = $totalAfp['sis'];
                     $detalleAfp->paga_sis = $totalAfp['pagaSis'];
@@ -7954,15 +8050,15 @@ class TrabajadoresController extends \BaseController {
 
                     $liquidacion->detalles->add( $detalleLiquidacion );
                 }  */
-                if($semanaCorrida['total']>0){                
+                if($semanaCorrida>0){                
                     $detalleLiquidacion = new DetalleLiquidacion();
                     $detalleLiquidacion->sid = Funciones::generarSID();
                     $detalleLiquidacion->liquidacion_id = $liquidacion->id;
                     $detalleLiquidacion->nombre = 'Semana Corrida';
                     $detalleLiquidacion->tipo = 'imponible';
                     $detalleLiquidacion->tipo_id = 1;
-                    $detalleLiquidacion->valor = $semanaCorrida['total'];
-                    $detalleLiquidacion->valor_2 = $semanaCorrida['total'];
+                    $detalleLiquidacion->valor = $semanaCorrida;
+                    $detalleLiquidacion->valor_2 = $semanaCorrida;
                     $detalleLiquidacion->valor_3 = '$';
                     $detalleLiquidacion->valor_4 = null;
                     $detalleLiquidacion->valor_5 = null;
@@ -7988,6 +8084,28 @@ class TrabajadoresController extends \BaseController {
                         $detalleLiquidacion->valor_5 = null;
                         $detalleLiquidacion->valor_6 = null;
                         $detalleLiquidacion->detalle_id = $haber['tipo']['id'];
+                        //$detalleLiquidacion->save(); 
+
+                        $liquidacion->detalles->add($detalleLiquidacion);
+                    }
+                }
+                
+                if($horasExtraDetalle){                
+                    foreach($horasExtraDetalle as $horaExtra)
+                    {
+                        $detalleLiquidacion = new DetalleLiquidacion();
+                        $detalleLiquidacion->sid = Funciones::generarSID();
+                        $detalleLiquidacion->liquidacion_id = $liquidacion->id;
+                        $detalleLiquidacion->nombre = $horaExtra['nombre'];
+                        $detalleLiquidacion->tipo = $horaExtra['imponible'] ? 'imponible' : 'no imponible';
+                        $detalleLiquidacion->tipo_id = 5;
+                        $detalleLiquidacion->valor = round($horaExtra['total']);
+                        $detalleLiquidacion->valor_2 = null;
+                        $detalleLiquidacion->valor_3 = $horaExtra['cantidad'];
+                        $detalleLiquidacion->valor_4 = $horaExtra['horas'];
+                        $detalleLiquidacion->valor_5 = $horaExtra['minutos'];
+                        $detalleLiquidacion->valor_6 = null;
+                        $detalleLiquidacion->detalle_id = $horaExtra['idTipo'];
                         //$detalleLiquidacion->save(); 
 
                         $liquidacion->detalles->add($detalleLiquidacion);
@@ -8204,7 +8322,7 @@ class TrabajadoresController extends \BaseController {
                     $detalleSeguroCesantia->liquidacion_id = $liquidacion->id;
                     $detalleSeguroCesantia->renta_imponible = $totalSeguroCesantia['rentaImponible'];
                     $detalleSeguroCesantia->renta_imponible_ingresada = $totalSeguroCesantia['rentaImponibleIngresada'];
-                    $detalleSeguroCesantia->afp_id = $empleado->afp_seguro_id;
+                    $detalleSeguroCesantia->afp_id = $empleado->afp_seguro_id ? $empleado->afp_seguro_id : $empleado->afp_id;
                     $detalleSeguroCesantia->aporte_trabajador = $totalSeguroCesantia['total'];
                     $detalleSeguroCesantia->afc_trabajador = $totalSeguroCesantia['afc'];
                     $detalleSeguroCesantia->aporte_empleador = $totalSeguroCesantia['totalEmpleador'];

@@ -1,0 +1,104 @@
+<div class="box">
+  <div class="row">
+    <h2> <i class="fa fa-th"> </i> Reportes</h2>
+    
+    <div class="column col-sm-12" ng-if="cargado">  
+
+      <div class="col-sm-12">
+        <a ng-click="generar()" ng-disabled="!objeto.isSelectedTrabajadores || !objeto.isSelectedConceptos" href="" class="btn btn-primary pull-right" ng-class="{ 'hidden' : false }"><i class="fa fa-check"></i> Generar</a>
+      </div>
+
+      <div class="col-sm-12" style="margin-bottom: 20px; margin-top: 20px;"> 
+        <div>
+          <label class="control-label col-md-1">
+            Concepto:
+          </label>
+          <div class="col-md-3">
+            <select class="form-control form-white" ng-model="objeto.concepto" ng-options="con as con.nombre for con in conceptos" ng-change="selectConcepto()" required> </select> 
+          </div>
+        </div>
+      </div>     
+
+      <fieldset>
+        <legend>{{ objeto.concepto.nombre }}</legend>
+        <div class="col-sm-6">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todosConceptos" ng-change="selectAllConceptos()" icheck></th>
+                <th class="col-sm-11">Nombre</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in datos" ng-if="$index<=(datos.length / 2)">
+                <td><input type="checkbox" ng-model="dato.check" ng-change="selectDatos(dato.check)" icheck></td>
+                <td>{{ dato.nombre }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col-sm-6">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-1"></th>
+                <th class="col-sm-11">Nombre</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in datos" ng-if="$index>(datos.length / 2)">
+                <td><input type="checkbox" ng-model="dato.check" ng-change="selectAllConceptos()" icheck></td>
+                <td>{{ dato.nombre }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Trabajadores</legend>
+
+        <div class="col-sm-12" style="margin-bottom: 20px;" ng-class="{ 'hidden' : datos.length==0}"> 
+          <div class="form-group">
+            <div class="col-sm-7 col-sm-offset-2">
+              <label for="filtro.nombre" class="col-md-3 control-label" >Filtrar:</label>
+              <div class="col-md-9">
+                <input type="text" ng-model="filtro.nombre" class="form-control form-white" ng-change="filtrar()" ng-model-options="{debounce: 1000}" />
+                <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+              </div>
+            </div>
+          </div>
+        </div> 
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todosTrabajadores" ng-change="selectAll(filtro.itemsFiltrados, objeto.todosTrabajadores)" icheck></th>
+                <th class="col-sm-2">RUT</th>
+                <th class="col-sm-4">Nombre</th>
+                <th class="col-sm-2">Cargo</th>
+                <th class="col-sm-1">Contrato</th>
+                <th class="col-sm-2" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+                <th class="col-sm-2" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in filtro.itemsFiltrados | limitTo:limiteDinamico">
+                <td><input type="checkbox" ng-model="dato.check" ng-change="selectTrabajadores(dato.check)" icheck> {{ $index + 1 }}</td>
+                <td>{{ dato.rutFormato }}</td>
+                <td>{{ dato.nombreCompleto }}</td>
+                <td>{{ dato.cargo.nombre }}</td>
+                <td>{{ dato.tipoContrato.nombre }}</td>
+                <td ng-if="empresa.centroCosto.isCentroCosto">{{ dato.centroCosto.nombre }}</td>
+                <td ng-if="!empresa.centroCosto.isCentroCosto">{{ dato.seccion.nombre }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+
+
+    </div>
+  </div>  
+</div>

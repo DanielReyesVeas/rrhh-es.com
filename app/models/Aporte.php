@@ -69,6 +69,51 @@ class Aporte extends Eloquent {
 
         return null;
     }       
+    
+    static function listaAportes()
+    {
+        $empresa = \Session::get('empresa');
+        $aportes = Aporte::all();
+        $listaAportes = array();
+    
+        if( $aportes->count() ){
+            foreach( $aportes as $aporte ){
+                if($aporte->tipo_aporte==1){
+                    if($empresa->mutual_id==263){
+                        if($aporte->id==1){
+                            $listaAportes[]=array(
+                                'id' => $aporte->id,
+                                'sid' => $aporte->sid,
+                                'nombre' => $aporte->nombre
+                            );
+                        }
+                    }else{
+                        if($aporte->id==2){
+                            $listaAportes[]=array(
+                                'id' => $aporte->id,
+                                'sid' => $aporte->sid,
+                                'nombre' => $aporte->nombre
+                            );
+                        }
+                    }
+                }else if($aporte->tipo_aporte==2){
+                    $listaAportes[]=array(
+                        'id' => $aporte->id,
+                        'sid' => $aporte->sid,
+                        'nombre' => 'SIS AFP ' . $aporte->afp()
+                    );
+                }else if($aporte->tipo_aporte==6){
+                    $listaAportes[]=array(
+                        'id' => $aporte->id,
+                        'sid' => $aporte->sid,
+                        'nombre' => 'Seguro Cesantía Empleador AFP ' . $aporte->afp()
+                    );
+                }
+            }
+        }
+        
+        return $listaAportes;
+    }
    
     static function aportes()
     {

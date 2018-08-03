@@ -329,6 +329,7 @@ class FiniquitosController extends \BaseController {
                     }
                     $totalNoImponibles = $sumaNoImponibles;
                 }else{
+                                        
                     $respuesta=array(
                         'success' => false,
                         'trabajador' => $datosTrabajador,
@@ -336,6 +337,7 @@ class FiniquitosController extends \BaseController {
                         'mensaje2' => 'Por favor genere su Liquidación para poder calcular el Finiquito.',
                         'errores' => ''
                     ); 
+                    
                     return Response::json($respuesta);
                 }
                 
@@ -377,6 +379,7 @@ class FiniquitosController extends \BaseController {
                             'mensaje2' => 'Para generar el finiquito debe escoger promediar los meses posteriores a esa fecha.',
                             'errores' => $erroresSistema
                         ); 
+                        
                         return Response::json($respuesta);
                     }
                     
@@ -393,8 +396,7 @@ class FiniquitosController extends \BaseController {
                         $sumaImponibles = 0;
                         
                         if($detalles){
-                            foreach($detalles as $det){
-                                
+                            foreach($detalles as $det){                                
                                 if($det['tipo_id']==1){
                                     if($det['tipo']=='imponible'){
                                         $imponibles[] = array(
@@ -403,7 +405,6 @@ class FiniquitosController extends \BaseController {
                                             'monto' => $det['valor']
                                         );
                                         $sumaImponibles = ($sumaImponibles + $det['valor']);
-
                                     }else if($det['tipo']=='no imponible' && $datos['noImponibles']){
                                         $noImponibles[] = array(
                                             'id' => $det['id'],
@@ -479,6 +480,7 @@ class FiniquitosController extends \BaseController {
                         'mensaje2' => 'Por favor genere su Liquidación para poder calcular el Finiquito.',
                         'errores' => $errores
                     ); 
+                    
                     return Response::json($respuesta);
                 }      
             }

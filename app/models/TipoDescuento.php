@@ -151,6 +151,7 @@ class TipoDescuento extends Eloquent {
                     } 
                     $listaTiposDescuento[]=array(
                         'id' => $tipoDescuento->id,
+                        'sid' => $tipoDescuento->sid,
                         'nombre' => $nombre
                     );
                 }
@@ -165,6 +166,7 @@ class TipoDescuento extends Eloquent {
         $listaDescuentos = array();
         $idMes = \Session::get('mesActivo')->id;
         $mes = \Session::get('mesActivo')->mes;
+        $activos = Trabajador::trabajadoresActivos();
         
         $misDescuentos = Descuento::where('tipo_descuento_id', $idTipoDescuento)->where('mes_id', $idMes)
             ->orWhere('permanente', 1)->where('tipo_descuento_id', $idTipoDescuento)
@@ -177,20 +179,23 @@ class TipoDescuento extends Eloquent {
                     || $descuento->permanente && !$descuento->hasta && $descuento->desde && $descuento->desde <= $mes 
                     || $descuento->permanente && $descuento->desde && $descuento->desde <= $mes && $descuento->hasta && $descuento->hasta >= $mes 
                     || !$descuento->permanente){
-                    $listaDescuentos[] = array(
-                        'id' => $descuento->id,
-                        'sid' => $descuento->sid,
-                        'moneda' => $descuento->moneda,
-                        'monto' => $descuento->monto,
-                        'porMes' => $descuento->por_mes ? true : false,
-                        'rangoMeses' => $descuento->rango_meses ? true : false,
-                        'permanente' => $descuento->permanente ? true : false,
-                        'mes' => $descuento->mes ? Funciones::obtenerMesAnioTextoAbr($descuento->mes) : '',
-                        'desde' => $descuento->desde ? Funciones::obtenerMesAnioTextoAbr($descuento->desde) : '',
-                        'hasta' => $descuento->hasta ? Funciones::obtenerMesAnioTextoAbr($descuento->hasta) : '',
-                        'trabajador' => $descuento->trabajadorDescuento(),
-                        'fechaIngreso' => date('Y-m-d H:i:s', strtotime($descuento->created_at))
-                    );
+                    if(in_array($descuento->trabajador_id, $activos)){
+                        $listaDescuentos[] = array(
+                            'id' => $descuento->id,
+                            'sid' => $descuento->sid,
+                            'moneda' => $descuento->moneda,
+                            'monto' => $descuento->monto,
+                            'porMes' => $descuento->por_mes ? true : false,
+                            'rangoMeses' => $descuento->rango_meses ? true : false,
+                            'permanente' => $descuento->permanente ? true : false,
+                            'mes' => $descuento->mes ? Funciones::obtenerMesAnioTextoAbr($descuento->mes) : '',
+                            'desde' => $descuento->desde ? Funciones::obtenerMesAnioTextoAbr($descuento->desde) : '',
+                            'hasta' => $descuento->hasta ? Funciones::obtenerMesAnioTextoAbr($descuento->hasta) : '',
+                            'trabajador' => $descuento->trabajadorDescuento(),
+                            'fechaIngreso' => date('Y-m-d H:i:s', strtotime($descuento->created_at)),
+                            'ac' => $activos
+                        );
+                    }
                 }
             }
         }

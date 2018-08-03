@@ -7,6 +7,9 @@
       <div class="col-sm-12">
         <a ng-click="open(0)" ng-if="accesos.crear && accesos.abierto" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-plus"></i> Hora Extra</a>
       </div>
+      <div class="col-sm-12">
+        <a ng-click="gestionar()" ng-if="accesos.crear && accesos.abierto" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-cog"></i> Tipos de Hora Extra</a>
+      </div>
 
       <div class="col-sm-12" style="margin-top: 40px;" ng-class="{ 'hidden' : datos.length==0}">        
         <div class="form-group">
@@ -58,7 +61,7 @@
               <td>{{ trabajador.nombreCompleto }}</td>
               <td>{{ trabajador.cargo.nombre }}</td>
               <td>{{ trabajador.jornada.nombre }} ({{ trabajador.jornada.horas }} hrs)</td>
-              <td class="text-center">{{ trabajador.totalHorasExtra }}</td>
+              <td class="text-center">{{ trabajador.totalHorasExtra }} hrs.</td>
               <td>
                 <!--<a href="" ng-if="accesos.crear && accesos.abierto" ng-click="open(trabajador.sid)"><i class="fa fa-plus-circle"></i></a>-->
                 <a href="" ng-click="detalle(trabajador.sid)"><i class="fa fa-search" uib-tooltip-html="toolTipDetalle(trabajador.nombreCompleto)"></i></a>

@@ -68,6 +68,10 @@ angular.module('angularjsApp')
     $scope.trabajador = angular.copy(objeto.datos);
     $scope.detalle = angular.copy(objeto.datos.detalle);
     var mes = angular.copy(objeto.mes);
+    var max = new Date();
+    max.setHours(99);
+    max.setMinutes(0);
+    $scope.max = max;
 
     function cargarDatos(sid){
       $rootScope.cargando=true;
@@ -134,12 +138,19 @@ angular.module('angularjsApp')
   .controller('FormNuevoDescuentoHoraCtrl', function ($rootScope, descuentoHora, fecha, trab, $uibModal, mes, $filter, Notification, $scope, $uibModalInstance, objeto, trabajador) { 
 
     var mes = angular.copy(mes);    
+    $scope.max = false;
+
+    $scope.cambiarMinutos = function(){
+      if($scope.descuentoHora.minutos>59){
+        $scope.max = true;
+      }else{
+        $scope.max = false;
+      }
+    }
 
     if(objeto){
       $scope.trabajador = angular.copy(objeto.trabajador);
-      var hora = new Date(objeto.fecha);
-      hora.setHours(objeto.horas, objeto.minutos)
-      $scope.descuentoHora = { id : objeto.id, sid : objeto.sid, fecha : fecha.convertirFecha(objeto.fecha), hora : hora, observacion : objeto.observacion };
+      $scope.descuentoHora = { id : objeto.id, sid : objeto.sid, fecha : fecha.convertirFecha(objeto.fecha), horas : objeto.horas, minutos : objeto.minutos, observacion : objeto.observacion };
       $scope.isEdit = true;
       $scope.titulo = 'Descuentos Hora';
       $scope.encabezado = 'Modificación Descuento';
@@ -148,13 +159,13 @@ angular.module('angularjsApp')
       $scope.isEdit = false;
       $scope.titulo = 'Descuentos Hora';
       $scope.encabezado = 'Ingreso Descuento';
-      $scope.descuentoHora = { fecha : fecha.fechaActiva(), hora : fecha.fechaActiva(), observacion : null };
+      $scope.descuentoHora = { fecha : fecha.fechaActiva(), horas : 0, minutos : 0, observacion : null };
     }
 
     $scope.guardar = function(){
       $rootScope.cargando=true;
       var response;
-      var Des = { idTrabajador : $scope.trabajador.id, fecha : fecha.convertirFechaFormato($scope.descuentoHora.fecha), horas : $scope.descuentoHora.hora.getHours(), minutos : $scope.descuentoHora.hora.getMinutes(), observacion : $scope.descuentoHora.observacion };
+      var Des = { idTrabajador : $scope.trabajador.id, fecha : fecha.convertirFechaFormato($scope.descuentoHora.fecha), horas : $scope.descuentoHora.horas, minutos : $scope.descuentoHora.minutos, observacion : $scope.descuentoHora.observacion };
       if( $scope.descuentoHora.sid ){
         response = descuentoHora.datos().update({sid:$scope.descuentoHora.sid}, Des);
       }else{

@@ -8,7 +8,7 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('IngresoHorasExtraCtrl', function ($scope, horaExtra, $uibModal, $filter, $anchorScroll, trabajador, constantes, $rootScope, Notification) {
+  .controller('IngresoHorasExtraCtrl', function ($scope, horaExtra, tipoHoraExtra, $uibModal, $filter, $anchorScroll, trabajador, constantes, $rootScope, Notification) {
     $anchorScroll();
 
     $scope.datos = [];
@@ -36,6 +36,34 @@ angular.module('angularjsApp')
         $scope.openHoraExtra(response);
       })
     }
+
+    $scope.gestionar = function(){
+      $rootScope.cargando = true;
+      var datos = tipoHoraExtra.datos().get();
+      datos.$promise.then(function(response){
+        openTiposHorasExtra(response.datos);
+        $rootScope.cargando = false;        
+      });
+    }
+
+    function openTiposHorasExtra(obj){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-tipos-horas-extra.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormTiposHorasExtraCtrl',
+        resolve: {
+          objeto: function () {
+            return obj;          
+          }
+        }
+      });
+     miModal.result.then(function (mensaje) {
+        Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
+        cargarDatos();           
+      }, function () {
+        javascript:void(0)
+      });
+    };
 
     $scope.openHoraExtra = function(obj){
       var miModal = $uibModal.open({
@@ -90,6 +118,100 @@ angular.module('angularjsApp')
 
     $scope.toolTipDetalle = function( nombre ){
       return 'Gestionar horas extra del trabajador <b>' + nombre + '</b>';
+    };
+
+  })
+  .controller('FormNuevoTipoHoraExtraCtrl', function ($rootScope, $scope, $filter, $uibModalInstance, $uibModal, tipoHoraExtra, objeto, Notification) {
+
+    if(objeto){
+      $scope.tipoHoraExtra = objeto;
+      $scope.titulo = "Modificación Tipos de Hora Extra";
+      $scope.encabezado = $scope.tipoHoraExtra.nombre;
+      $scope.isEdit = true;
+    }else{
+      $scope.titulo = "Ingreso Tipos de Hora Extra";
+      $scope.encabezado = "Nuevo Tipo de Hora Extra";
+      $scope.isEdit = false;
+      $scope.tipoHoraExtra = { codigo : '', nombre : '', imponible : true, tributable : true, gratificacion  : true, proporcionalDiasTrabajados : false, calculaSemanaCorrida : true };
+    }
+
+    $scope.guardar = function(tip){
+      $rootScope.cargando=true;
+      var response;
+      if( tip.sid ){
+        response = tipoHoraExtra.datos().update({sid:tip.sid}, $scope.tipoHoraExtra);
+      }else{
+        response = tipoHoraExtra.datos().create({}, $scope.tipoHoraExtra);
+      }
+      response.$promise.then(
+        function(response){
+          if(response.success){
+            $uibModalInstance.close(response.mensaje);
+          }else{
+            // error
+            $scope.erroresDatos = response.errores;
+            Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
+          }
+          $rootScope.cargando=false;
+        }
+      );
+    }
+
+  })
+  .controller('FormTiposHorasExtraCtrl', function ($rootScope, $scope, $filter, $uibModalInstance, $uibModal, tipoHoraExtra, objeto, Notification) {
+
+    $scope.datos = objeto;
+
+    function cargarDatos(){
+      $rootScope.cargando = true;
+      var datos = tipoHoraExtra.datos().get();
+      datos.$promise.then(function(response){
+        $scope.datos = response.datos;
+        $rootScope.cargando = false;        
+      });
+    };
+
+    $scope.open = function(obj){
+      var miModal = $uibModal.open({
+        animation: true,
+        templateUrl: 'views/forms/form-nuevo-tipo-hora-extra.html?v=' + $filter('date')(new Date(), 'ddMMyyyyHHmmss'),
+        controller: 'FormNuevoTipoHoraExtraCtrl',
+        resolve: {
+          objeto: function () {
+            return obj;          
+          }
+        }
+      });
+     miModal.result.then(function (mensaje) {
+        Notification.success({message: mensaje, title: 'Mensaje del Sistema'});
+        cargarDatos();             
+      }, function () {
+        javascript:void(0)
+      });
+    };
+
+    $scope.eliminar = function(tip){
+      $rootScope.cargando=true;
+      $scope.result = tipoHoraExtra.datos().delete({ sid: tip });
+      $scope.result.$promise.then( function(response){
+        if(response.success){
+          Notification.success({message: response.mensaje, title:'Notificación del Sistema'});
+          cargarDatos();
+        }else{
+          $scope.erroresDatos = response.errores;
+          Notification.error({message: response.errores.error[0], title: 'Mensaje del Sistema', delay: ''});
+          $rootScope.cargando=false;
+        }
+      });
+    };
+
+    $scope.editar = function(tip){
+      $rootScope.cargando=true;
+      $scope.result = tipoHoraExtra.datos().get({ sid: tip });
+      $scope.result.$promise.then( function(response){
+        $scope.open(response.datos);
+        $rootScope.cargando=false;
+      });
     };
 
   })
@@ -154,6 +276,15 @@ angular.module('angularjsApp')
   .controller('FormHorasExtraCtrl', function ($rootScope, $filter, trabajador, Notification, tramos, $scope, $uibModalInstance, objeto, horaExtra, fecha) {
 
     $scope.isTrabajador = false;
+    $scope.max = false;
+
+    $scope.cambiarMinutos = function(){
+      if($scope.horaExtra.minutos>59){
+        $scope.max = true;
+      }else{
+        $scope.max = false;
+      }
+    }
 
     if(objeto.datos){
       $scope.trabajador = angular.copy(objeto.datos.trabajador);
@@ -161,19 +292,21 @@ angular.module('angularjsApp')
       $scope.horaExtra.fecha = fecha.convertirFecha($scope.horaExtra.fecha);
       $scope.isEdit = true;
       $scope.tramos = angular.copy(objeto.datos.trabajador.tramos.tramos);
+      $scope.tipos = angular.copy(objeto.tipos);
       $scope.titulo = 'Horas Extra';
       $scope.encabezado = 'Modificación Hora Extra';
       $scope.horaExtra.tramo = $filter('filter')( $scope.tramos, { tramo : $scope.horaExtra.tramo }, true )[0];
+      $scope.horaExtra.tipo = $filter('filter')( $scope.tipos, { id : $scope.horaExtra.tipo.id }, true )[0];
     }else{
       $scope.trabajador = angular.copy(objeto);    
       $scope.trabajadores = angular.copy(objeto.trabajadores);  
       $scope.isEdit = false;
       $scope.titulo = 'Horas Extra';
       $scope.encabezado = 'Nueva Hora Extra';
-      $scope.horaExtra = { fecha : fecha.fechaActiva() };
+      $scope.horaExtra = { fecha : fecha.fechaActiva(), horas : 0, minutos : 0 };
     }    
     var mesActual = objeto.mesActual;
-
+    
     $scope.jornadas = [
                       { id : 1, nombre : '4 x 3' },
                       { id : 2, nombre : '4 x 4' },
@@ -194,6 +327,7 @@ angular.module('angularjsApp')
         $scope.isTrabajador = true;
         $scope.trabajador = response.datos;
         $scope.tramos = angular.copy(response.datos.tramos.tramos);
+        $scope.tipos = angular.copy(response.datos.tipos);
         $rootScope.cargando=false;
       });
     }
@@ -206,7 +340,7 @@ angular.module('angularjsApp')
         horas.fecha = fecha.convertirFecha(fecha.convertirFechaFormato(horas.fecha));
       }
 
-      var HorasExtra = { idTrabajador : $scope.trabajador.id, idMes : mes.id, factor : horas.tramo.factor, cantidad : horas.cantidad, jornada : horas.jornada, fecha : horas.fecha, observacion : horas.observacion };
+      var HorasExtra = { idTrabajador : $scope.trabajador.id, idMes : mes.id, factor : horas.tramo.factor, tipo : horas.tipo, cantidad : 1, horas : horas.horas, minutos : horas.minutos, jornada : horas.jornada, fecha : horas.fecha, observacion : horas.observacion };
 
       if( $scope.horaExtra.sid ){
         response = horaExtra.datos().update({sid:$scope.horaExtra.sid}, HorasExtra);

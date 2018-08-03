@@ -11,11 +11,24 @@
 
         <div class="col-sm-12" style="margin-top: 20px;">
 
-          <label class="col-sm-2 control-label required">Total:</label>            
-          <div class="col-sm-4">
-            <div uib-timepicker ng-model="descuentoHora.hora" show-meridian="false" required></div>
+          <label class="col-sm-3 control-label required">Cantidad:</label>    
+          <div class="col-sm-2">        
+            <input type="number" max="150" class="form-control form-white" ng-model="descuentoHora.horas" required style="width: 70px;" />
+          </div>          
+          <div style="margin-left: 4px; margin-top: 5px; margin-right: 0px; float: left;"><b>:</b></div>
+          <div class="col-sm-2" style="padding-left: 3px;">    
+            <input type="number" class="form-control form-white" ng-model="descuentoHora.minutos" required style="width: 70px;" ng-change="cambiarMinutos()" />
           </div>
+          <span class="text-danger" ng-show="max">
+            Los minutos no deben superar 59!
+          </span>
+        </div>
+        <div class="col-sm-12" style="margin-top:0px;">
+          <div class="col-sm-2 col-sm-offset-3 text-muted">horas</div>    
+          <div class="col-sm-2 text-muted">minutos</div>    
+        </div>
 
+        <div class="col-sm-12" style="margin-top: 20px;">
           <label class="col-sm-3 control-label required">Fecha:</label>            
           <div class="col-sm-5" >
             <div class="input-group"> 
@@ -47,7 +60,7 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="descuentoHoraForm.$invalid" ng-show="!isEdit">Ingresar</button>
-  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="descuentoHoraForm.$invalid" ng-show="isEdit">Modificar</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="descuentoHoraForm.$invalid || max" ng-show="!isEdit">Ingresar</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar()" ng-disabled="descuentoHoraForm.$invalid || max" ng-show="isEdit">Modificar</button>
   <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancelar</button>
 </div>

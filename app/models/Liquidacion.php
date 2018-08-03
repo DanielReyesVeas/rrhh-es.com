@@ -445,7 +445,7 @@ class Liquidacion extends Eloquent {
         if($detalleAfp){
             $codigoAfp = $detalleAfp->afp_id ? $detalleAfp->codigoAfp(1) : '';
             $nombreAfp = $detalleAfp->afp_id ? $detalleAfp->nombreAfp(1) : '';
-            $rentaImponible = $detalleAfp->renta_imponible;
+            $rentaImponible = $detalleAfp->renta_imponible;                                
             $cotizacionAfp = $detalleAfp->cotizacion;
             //$sis = $this->sisDetalleAfp();
             $sis = $detalleAfp->sis;
@@ -1102,6 +1102,17 @@ class Liquidacion extends Eloquent {
 
                     $listaDescuentos[] = array(
                         'nombre' => 'Préstamo',
+                        'codigo' => $detalle->tipo,
+                        'glosa' => $detalle->nombre,
+                        'monto' => $detalle->valor,
+                        'idCuenta' => $codigo
+                    );                  
+                }else if($detalle->tipo_id==5){
+                    $horaExtra = TipoHoraExtra::find($detalle->detalle_id);
+                    $codigo = $horaExtra->cuenta($cuentasCodigo, $centroCostoId);
+
+                    $listaHaberes[] = array(
+                        'nombre' => 'Hora Extra: ' . $detalle->nombre,
                         'codigo' => $detalle->tipo,
                         'glosa' => $detalle->nombre,
                         'monto' => $detalle->valor,

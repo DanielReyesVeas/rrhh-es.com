@@ -41,13 +41,30 @@
           </div>
 
           <div class="col-sm-12" style="margin-top: 20px;">
-            <div class="form-group form-group-md ">          
-              <label class="col-sm-3 control-label required">Cantidad:</label>
-              <div class="col-sm-4">
-                <div class="input-group">
-                  <input class="form-control form-white" min="0.01" ng-model="horaExtra.cantidad" aria-describedby="basic-addon1" required>
-                  <span class="input-group-addon" id="basic-addon1">horas</span>
-                </div> 
+
+            <label class="col-sm-3 control-label required">Total:</label>    
+            <div class="col-sm-2">        
+              <input type="number" min="0" max="150" class="form-control form-white" ng-model="horaExtra.horas" required style="width: 70px;" />
+            </div>          
+            <div style="margin-left: 4px; margin-top: 5px; margin-right: 0px; float: left;">:</div>
+            <div class="col-sm-2" style="padding-left: 3px;">    
+              <input type="number" class="form-control form-white" ng-model="horaExtra.minutos" required style="width: 70px;" ng-change="cambiarMinutos()" />
+            </div>
+            <span class="text-danger" ng-show="max">
+              Los minutos no deben superar 59!
+            </span>
+          </div>
+          <div class="col-sm-12" style="margin-top:0px;">
+            <div class="col-sm-2 col-sm-offset-3 text-muted">horas</div>    
+            <div class="col-sm-2 text-muted">minutos</div>    
+          </div>
+
+          <div class="col-sm-12" style="margin-top: 20px;">
+            <div class="form-group form-group-md required">          
+              <label class="col-sm-3 control-label">Tipo Hora Extra:</label>
+              <div class="col-sm-6">
+                <select class="form-control form-white" ng-model="horaExtra.tipo" ng-options="tip as tip.nombre for tip in tipos" required> 
+                  <option value="">-- Seleccione un Tipo --</option>
                 </select>
               </div>
             </div>
@@ -64,16 +81,6 @@
             </div>
           </div>
 
-          <!--<div class="col-sm-12" style="margin-top: 20px;">
-            <div class="form-group form-group-md ">          
-              <label class="col-sm-3 control-label">Jornada:</label>
-              <div class="col-sm-5">
-                <select class="form-control form-white" ng-model="horaExtra.jornada" ng-options="jor.nombre as jor.nombre for jor in jornadas" required>  
-                </select>
-              </div>
-            </div>
-          </div>-->
-
           <div class="col-sm-12" style="margin-top: 20px;">
             <div class="form-group form-group-md ">          
               <label class="col-sm-3 control-label">Observación:</label>
@@ -82,7 +89,6 @@
                 </div>
               </div>
             </div>
-
           </div>
 
         </div>
@@ -93,7 +99,7 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" type="button" ng-click="guardar(horaExtra)" ng-disabled="horasExtraForm.$invalid" ng-show="!isEdit">Ingresar Hora Extra</button>
-  <button class="btn btn-primary" type="button" ng-click="guardar(horaExtra)" ng-disabled="horasExtraForm.$invalid" ng-show="isEdit">Modificar Hora Extra</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar(horaExtra)" ng-disabled="horasExtraForm.$invalid || max" ng-show="!isEdit">Ingresar Hora Extra</button>
+  <button class="btn btn-primary" type="button" ng-click="guardar(horaExtra)" ng-disabled="horasExtraForm.$invalid || max" ng-show="isEdit">Modificar Hora Extra</button>
   <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancelar</button> 
 </div>

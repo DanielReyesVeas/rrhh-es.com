@@ -1359,6 +1359,17 @@ class Funciones{
         return $numero;
     }
     
+    static function formatoHora($horas, $minutos)
+    {
+        if($horas<10){
+            $horas = "0" . $horas;
+        }
+        if($minutos<10){
+            $minutos = "0" . $minutos;
+        }
+        return $horas . ":" . $minutos;
+    }
+    
     static function formatoPesos($valor, $currency=true, $round=true)
     {
         if($round){
