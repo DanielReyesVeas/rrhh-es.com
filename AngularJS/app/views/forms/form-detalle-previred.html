@@ -12,18 +12,21 @@
         <table class="table table-striped table-hover">
           <thead>
             <tr>
+              <th class="col-sm-1">#</th>
               <th class="col-sm-3">RUT</th>
               <th class="col-sm-6">Nombre</th>
-              <th class="col-sm-3">Total</th>
+              <th class="col-sm-2">Total</th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="dato in datos.trabajadores">
+              <td>{{ $index + 1 }}</td>
               <td>{{ dato.rut }}</td>
               <td>{{ dato.nombreCompleto }}</td>
               <td>${{ dato.total | currency :"":0 }}</td>
             </tr>
             <tr>
+              <td></td>
               <td></td>
               <td><b>Total:</b></td>
               <td><b>${{ datos.total | currency :"":0 }}</b></td>

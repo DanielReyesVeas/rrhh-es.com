@@ -129,13 +129,11 @@ angular.module('angularjsApp')
     }
 
     $scope.ingresoSeccion = function(hab){
-      $scope.cargado = false;
       $rootScope.cargando = true;
       var datos = trabajador.secciones().get();
       datos.$promise.then(function(response){
         openIngresoSeccionHaber(hab, response);
         $rootScope.cargando = false;
-        $scope.cargado = true;
       });
     }
 
@@ -333,10 +331,12 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormReporteHaberCtrl', function ($scope, $uibModal, $uibModalInstance, objeto, $http, $filter, $rootScope, Notification, trabajador, tipoHaber, haber) {
+  .controller('FormReporteHaberCtrl', function ($scope, filterFilter, $timeout, $uibModal, $uibModalInstance, objeto, $http, $filter, $rootScope, Notification, trabajador, tipoHaber, haber) {
    
     $scope.haber = angular.copy(objeto.datos);
     $scope.accesos = angular.copy(objeto.accesos);
+    $scope.filtro = { nombre : "" };
+    $scope.empresa = $rootScope.globals.currentUser.empresa;
     
     $scope.reporteTrabajador = function(trab){
       $rootScope.cargando=true;
@@ -346,6 +346,36 @@ angular.module('angularjsApp')
         $rootScope.cargando=false;
       });
     }
+
+    $scope.filtrar = function(){
+      $scope.filtro.itemsFiltrados=[];
+      var listaTemp = filterFilter($scope.haber.haberes, $scope.filtro.nombre);
+      if(listaTemp.length){
+        for(var ind in listaTemp){
+          $scope.filtro.itemsFiltrados.push( listaTemp[ind] );
+        }
+      }
+    };
+
+    $scope.clearText = function(){
+      $scope.filtro.nombre = "";
+      $scope.filtrar();
+    }
+
+    $scope.cargaElementos=0;
+
+    function aumentarLimite(){
+      if( $scope.limiteDinamico < $scope.haber.haberes.length ){
+        $scope.cargaElementos = Math.round(($scope.limiteDinamico/$scope.haber.haberes.length) * 100);
+        $scope.limiteDinamico+=5;
+        $timeout( function(){
+          aumentarLimite();
+        }, 250);
+      }else{
+        $rootScope.cargando=false;
+        $scope.cargaElementos=100;
+      }
+    };
 
     $scope.confirmacion = function(hab, tipo){
       var miModal = $uibModal.open({
@@ -379,6 +409,10 @@ angular.module('angularjsApp')
         console.log(response)
         $scope.haber = response.datos;
         $scope.accesos = response.accesos;
+        $scope.filtrar();                
+        $timeout(function() {
+          aumentarLimite();
+        }, 250);
         $rootScope.cargando=false;
       });
     }; 
@@ -448,6 +482,11 @@ angular.module('angularjsApp')
         javascript:void(0)
       });
     }
+
+    $scope.filtrar();                
+    $timeout(function() {
+      aumentarLimite();
+    }, 250);
 
   })
   .controller('FormReporteTrabajadorHaberesCtrl', function ($scope, $uibModal, $uibModalInstance, objeto, $http, $filter, $rootScope, Notification, trabajador, haber) {
@@ -542,6 +581,14 @@ angular.module('angularjsApp')
     $scope.monedaActualGlobal = 'pesos'; 
     $scope.cargado = true;  
 
+    $scope.conceptosSelect = [
+      { id : 1, nombre : 'Sección', select : 'sección'},
+      { id : 2, nombre : 'Centro de Costo', select : 'centro de costo'}
+    ];
+
+    $scope.conceptoSelect = $scope.conceptosSelect[0];
+    $scope.conceptos = $scope.datos.secciones;
+
     $scope.convertir = function(valor, mon){
       return moneda.convertir(valor, mon);
     }
@@ -570,6 +617,18 @@ angular.module('angularjsApp')
           $scope.monedaActualGlobal = 'UTM'; 
           break;
       }    
+    }
+
+    $scope.selectConceptoSelect = function(){
+      if($scope.conceptoSelect.id==1){
+        $scope.conceptos = $scope.datos.secciones;
+      }else{
+        $scope.conceptos = $scope.datos.centrosCosto;        
+      }
+      $scope.datos.todos = false;
+      $scope.datos = angular.copy(trabajadores); 
+      $scope.objeto.haber.concepto = "";
+      crearModels();
     }
 
     $scope.openMeses = function (obj, hab, mon) {
@@ -613,14 +672,22 @@ angular.module('angularjsApp')
       }
     }
 
-    function getTrabajadoresSeccion(sid){
+    function getTrabajadores(sid){
       $scope.cargado = false;
       $rootScope.cargando = true;
 
       var array = [];
-      for(var i=0,len=$scope.datos.trabajadores.length; i<len; i++){
-        if($scope.datos.trabajadores[i].seccion.sid===sid){
-          array.push($scope.datos.trabajadores[i]);
+      if($scope.conceptoSelect.id == 1){
+        for(var i=0,len=$scope.datos.trabajadores.length; i<len; i++){
+          if($scope.datos.trabajadores[i].seccion.sid===sid){
+            array.push($scope.datos.trabajadores[i]);
+          }
+        }
+      }else{
+        for(var i=0,len=$scope.datos.trabajadores.length; i<len; i++){
+          if($scope.datos.trabajadores[i].centroCosto.sid===sid){
+            array.push($scope.datos.trabajadores[i]);
+          }
         }
       }
       $scope.datos.trabajadores = array;
@@ -629,16 +696,16 @@ angular.module('angularjsApp')
       crearModels();
     }
 
-    $scope.cambiarSeccion = function(){
+    $scope.cambiarConcepto = function(){
       $scope.datos.todos = false;
-      if(!$scope.objeto.haber.seccion){
+      if(!$scope.objeto.haber.concepto){
         $scope.datos = angular.copy(trabajadores); 
         crearModels();
       }
     }
 
-    $scope.seleccionarSeccion = function(seccion){      
-      getTrabajadoresSeccion(seccion.sid);
+    $scope.seleccionarConcepto = function(con){      
+      getTrabajadores(con.sid);
       $scope.datos.todos = false;
     }
 
@@ -646,7 +713,7 @@ angular.module('angularjsApp')
       $scope.datos.haber = [];
       for(var i=0, len=$scope.datos.trabajadores.length; i<len; i++){
         $scope.datos.haber.push({ check : false, monto : null, tipo_haber_id : $scope.haber.id, trabajador_id : $scope.datos.trabajadores[i].id, moneda : $scope.monedas[0].nombre, monedaActual : 'pesos' });
-      }         
+      }               
     }
 
     crearModels();

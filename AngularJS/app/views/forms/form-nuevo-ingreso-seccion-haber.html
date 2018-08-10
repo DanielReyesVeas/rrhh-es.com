@@ -13,13 +13,18 @@
 
       <div class="panel-body">     
         <div class="form-group">     
-          <label class="col-sm-2 control-label">Sección:</label>
+          <label class="col-sm-2 control-label">{{ conceptoSelect.nombre }}:</label>
           <div class="col-sm-3" style="padding:0px !important;">
             <ul class="dropdown-menu">
               <li ng-repeat="match in matches track by $index" id="{{::match.id}}">
               </li>
             </ul>
-            <input type="text" ng-model="objeto.haber.seccion" placeholder="Buscar sección" typeahead-editable="false" uib-typeahead="sec as sec.nombre for sec in datos.secciones | filter:{nombre:$viewValue}" class="form-control" typeahead-on-select="seleccionarSeccion(objeto.haber.seccion)" ng-change="cambiarSeccion()" typeahead-show-hint="true" typeahead-min-length="0" />
+            <input type="text" ng-model="objeto.haber.concepto" placeholder="Buscar {{ conceptoSelect.select }}" typeahead-editable="false" uib-typeahead="con as con.nombre for con in conceptos | filter:{nombre:$viewValue}" class="form-control" typeahead-on-select="seleccionarConcepto(objeto.haber.concepto)" ng-change="cambiarConcepto()" typeahead-show-hint="true" typeahead-min-length="0" />
+          </div>
+
+          <div class="col-md-3">
+            <select ng-model="conceptoSelect" id="conceptoSelect" class="form-control form-white" ng-options="con as con.nombre for con in conceptosSelect" ng-change="selectConceptoSelect()">
+            </select>
           </div>
 
           <button type="button" class="btn btn-primary btn-sm pull-right col-sm-2" ng-class="{'hidden' : monto.montoGlobal}" ng-click="cambiarMontoGlobal()">Ingresar monto global</button>          
@@ -41,7 +46,8 @@
         </div>                 
 
         <div class="container text-center" ng-if="datos.trabajadores.length<=0 && cargado" style="margin: 40px;">
-          <i>No hay trabajadores en esta sección</i>
+          <i ng-if="conceptoSelect.id==1">No hay trabajadores en esta sección</i>
+          <i ng-if="conceptoSelect.id==2">No hay trabajadores en este centro de costo</i>
         </div>
 
         <table class="table table-striped table-hover" ng-if="cargado && datos.trabajadores.length>0" style="margin-top: 20px;">

@@ -52,8 +52,7 @@ class LiquidacionesController extends \BaseController {
                     ),
                     'sueldoBasePesos' => $liquidacion->sueldo_base,
                     'sueldo' => $liquidacion->sueldo,
-                    'sueldoLiquido' => $liquidacion->sueldo_liquido
-                    
+                    'sueldoLiquido' => $liquidacion->sueldo_liquido                    
                 );
             }
         }
@@ -104,8 +103,7 @@ class LiquidacionesController extends \BaseController {
             $documento->descripcion = 'Liquidación de Sueldo de ' . $dato['nombres'] . ' ' . $dato['apellidos'];
             $documento->save();
             $totalApv = 0;
-            if($dato['apvs']){    
-                
+            if($dato['apvs']){                    
                 foreach($dato['apvs'] as $apv)
                 {
                     $totalApv = ($totalApv + $apv['montoPesos']);
@@ -177,8 +175,7 @@ class LiquidacionesController extends \BaseController {
             	'sid' => $liquidacion->sid
             );
             
-            if($dato['haberes']){    
-                
+            if($dato['haberes']){                    
                 foreach($dato['haberes'] as $haber)
                 {
                     $detalleLiquidacion = new DetalleLiquidacion();
@@ -196,8 +193,7 @@ class LiquidacionesController extends \BaseController {
                     $detalleLiquidacion->save(); 
                 }
             }
-            if($dato['descuentos']){    
-                
+            if($dato['descuentos']){                    
                 foreach($dato['descuentos'] as $descuento)
                 {
                     $detalleLiquidacion = new DetalleLiquidacion();
@@ -220,8 +216,7 @@ class LiquidacionesController extends \BaseController {
                 }
             }
             
-            if($dato['apvs']){    
-                
+            if($dato['apvs']){                    
                 foreach($dato['apvs'] as $apv)
                 {
                     $detalleLiquidacion = new DetalleLiquidacion();
@@ -240,8 +235,7 @@ class LiquidacionesController extends \BaseController {
                 }
             }
             
-            if($dato['prestamos']){    
-                
+            if($dato['prestamos']){                    
                 foreach($dato['prestamos'] as $prestamo)
                 {
                     $detalleLiquidacion = new DetalleLiquidacion();
@@ -327,13 +321,17 @@ class LiquidacionesController extends \BaseController {
                     'id' => $liquidacion->id,
                     'sid' => $liquidacion->sid,
                     'apellidos' => $liquidacion->trabajador_apellidos,
+                    'apellidosOrden' => ucwords(strtolower($liquidacion->trabajador_apellidos)),
                     'nombreTrabajador' => $liquidacion->trabajador_nombres . ' ' . $liquidacion->trabajador_apellidos,
                     'rutTrabajador' => $liquidacion->trabajador_rut,
                     'idTrabajador' => $liquidacion->trabajador_id,
                     'rutFormatoTrabajador' => $liquidacion->trabajador->rut_formato(),
                     'seccion' => $liquidacion->trabajador_seccion,
+                    'seccionOrden' => ucwords(strtolower($liquidacion->trabajador_seccion)),
                     'centroCosto' => $centro,
+                    'centroCostoOrden' => $centro ? ucwords(strtolower($centro)) : "",
                     'cargo' => $liquidacion->trabajador_cargo,   
+                    'cargoOrden' => ucwords(strtolower($liquidacion->trabajador_cargo)),   
                     'tipoContrato' => $liquidacion->tipo_contrato,   
                     'sueldoBase' => $liquidacion->sueldo_base,
                     'diasTrabajados' => $liquidacion->dias_trabajados,

@@ -15,6 +15,7 @@
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                <th class="col-sm-2">#</th>
                 <th class="col-sm-2">RUT</th>
                 <th class="col-sm-2">Nombre</th>
                 <th class="col-sm-2">Renta Imponible</th>
@@ -29,6 +30,7 @@
             </thead>
             <tbody>
               <tr ng-repeat="dato in datos.trabajadores">
+                <td>{{ $index + 1 }}</td>
                 <td>{{ dato.rut }}</td>
                 <td>{{ dato.nombreCompleto }}</td>
                 <td>${{ dato.rentaImponible | currency :"":0 }}</td>
@@ -41,6 +43,7 @@
                 <td>${{ dato.total | currency :"":0 }}</td>
               </tr>
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td><b>Total:</b></td>
@@ -65,15 +68,17 @@
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                <th class="col-sm-1">#</th>
                 <th class="col-sm-2">RUT</th>
                 <th class="col-sm-3">Nombre</th>
-                <th class="col-sm-3">Renta Imponible</th>
+                <th class="col-sm-2">Renta Imponible</th>
                 <th class="col-sm-2">Cotización</th>
                 <th class="col-sm-2">SIS</th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="dato in datos.afp.trabajadores">
+                <td>{{ $index + 1 }}</td>
                 <td>{{ dato.rut }}</td>
                 <td>{{ dato.nombreCompleto }}</td>
                 <td>${{ dato.rentaImponible | currency :"":0 }}</td>
@@ -81,6 +86,7 @@
                 <td>${{ dato.empleador | currency :"":0 }}</td>
               </tr>
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td><b>Total:</b></td>
@@ -100,15 +106,17 @@
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                <th class="col-sm-1">#</th>
                 <th class="col-sm-2">RUT</th>
                 <th class="col-sm-3">Nombre</th>
-                <th class="col-sm-3">Renta Imponible</th>
+                <th class="col-sm-2">Renta Imponible</th>
                 <th class="col-sm-2">AFC Empleador</th>
                 <th class="col-sm-2">AFC Trabajador</th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="dato in datos.afp.trabajadores">
+                <td>{{ $index + 1 }}</td>
                 <td>{{ dato.rut }}</td>
                 <td>{{ dato.nombreCompleto }}</td>
                 <td>${{ dato.rentaImponibleSeguroCesantia | currency :"":0 }}</td>
@@ -116,6 +124,7 @@
                 <td>${{ dato.afcTrabajador | currency :"":0 }}</td>
               </tr>
               <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td><b>Total:</b></td>
@@ -135,18 +144,21 @@
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                <th class="col-sm-1">RUT</th>
                 <th class="col-sm-3">RUT</th>
                 <th class="col-sm-6">Nombre</th>
-                <th class="col-sm-3">Total</th>
+                <th class="col-sm-2">Total</th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="dato in datos.apvi.trabajadores">
+                <td>{{ $index + 1 }}</td>
                 <td>{{ dato.rut }}</td>
                 <td>{{ dato.nombreCompleto }}</td>
                 <td>${{ dato.total | currency :"":0 }}</td>
               </tr>
               <tr>
+                <td></td>
                 <td></td>
                 <td><b>Total:</b></td>
                 <td><b>${{ datos.apvi.total | currency :"":0 }}</b></td>
@@ -164,18 +176,21 @@
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                <th class="col-sm-1">#</th>
                 <th class="col-sm-3">RUT</th>
                 <th class="col-sm-6">Nombre</th>
-                <th class="col-sm-3">Total</th>
+                <th class="col-sm-2">Total</th>
               </tr>
             </thead>
             <tbody>
               <tr ng-repeat="dato in datos.apvc.trabajadores">
+                <td>{{ $index + 1 }}</td>
                 <td>{{ dato.rut }}</td>
                 <td>{{ dato.nombreCompleto }}</td>
                 <td>${{ dato.total | currency :"":0 }}</td>
               </tr>
               <tr>
+                <td></td>
                 <td></td>
                 <td><b>Total:</b></td>
                 <td><b>${{ datos.apvc.total | currency :"":0 }}</b></td>

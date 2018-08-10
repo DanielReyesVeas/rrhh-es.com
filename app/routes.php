@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.8.3');
+define('VERSION_SISTEMA', '1.8.5');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -28,7 +28,7 @@ Route::get('/', function(){
     return View::make('index');
 });
 
-Route::get('aaa', function(){
+Route::get('fichass', function(){
     Config::set('database.default', 'principal' );
     $empresas = Empresa::all();
     
@@ -40,46 +40,16 @@ Route::get('aaa', function(){
             echo '<h1>' . $empresa->razon_social . '</h1>';
             echo '<h3>' . $empresa->rut . '</h3>';
             $count = 0;
-            foreach($empleados as $empleado){
-                $ultimaFicha = $empleado->ultimaFicha();
-                if($ultimaFicha){
-                    if($ultimaFicha->estado!='En Creación'){
-                        $haberes = $empleado->haberes;
-                        if($haberes->count()){
-                            echo '<br />' . $ultimaFicha->nombreCompleto() . '<br />';
-                            foreach($haberes as $haber){
-                                if($haber->tipoHaber->nombre=='Colación'){
-                                    echo $haber->tipoHaber->nombre;
-                                    if($ultimaFicha->proporcional_colacion){
-                                        echo ' proporcional<br />';
-                                        $haber->proporcional = 1;
-                                        $haber->save();
-                                    }else{
-                                        echo ' no proporcional<br />';                                        
-                                    }
-                                }else if($haber->tipoHaber->nombre=='Movilización'){
-                                    echo $haber->tipoHaber->nombre;
-                                    if($ultimaFicha->proporcional_movilizacion){
-                                        echo ' proporcional<br />';
-                                        $haber->proporcional = 1;
-                                        $haber->save();
-                                    }else{
-                                        echo ' no proporcional<br />';                                        
-                                    }
-                                }else if($haber->tipoHaber->nombre=='Viático'){
-                                    echo $haber->tipoHaber->nombre;
-                                    if($ultimaFicha->proporcional_viatico){
-                                        echo ' proporcional<br />';
-                                        $haber->proporcional = 1;
-                                        $haber->save();
-                                    }else{
-                                        echo ' no proporcional<br />';                                        
-                                    }
-                                }
-                            }
-                        }
-                    }                    
-                }                
+            foreach($empleados as $empleado){                
+                $fichas = $empleado->fichaTrabajador;
+                foreach($fichas as $ficha){
+                    if($ficha->fecha=='0000-00-00'){
+                        echo '<br />' . $ficha->nombres . ' ' . $ficha->apellidos;
+                        $fecha = $empleado->fechaFicha($ficha->fecha_ingreso);
+                        $ficha->fecha = $fecha;
+                        $ficha->save();
+                    }
+                }
             }            
         }        
     }else{
@@ -472,12 +442,12 @@ Route::get('restablecer/{sid}/{portal?}', function($sid, $portal=null){
 
             $config = array(
                 'driver' => 'smtp',
-                'host' => 'smtp.gmail.com',
+                'host' => 'rrhh-es.com',
                 'port' => 465,
-                'from' => array('address' => 'no-reply@easysystems.cl', 'name' => 'Soporte EasySystems'),
+                'from' => array('address' => 'no-reply@rrhh-es.com', 'name' => 'Soporte EasySystems'),
                 'encryption' => 'ssl',
-                'username' => 'soporte@easysystems.cl',
-                'password' => 'easy1q2w3e',
+                'username' => 'soporte@rrhh-es.com',
+                'password' => 'easy1q2w3e4r',
                 'sendmail' => '/usr/sbin/sendmail -bs',
                 'pretend' => false
             );
@@ -491,8 +461,8 @@ Route::get('restablecer/{sid}/{portal?}', function($sid, $portal=null){
 
             Mail::send('envio_password', $datos, function ($message) use ($correo) {
                 $message->to($correo);
-                $message->from('no-reply@easysystems.cl', 'EasySystems - Restablecer Contraseña de Acceso');
-                $message->replyTo('no-reply@easysystems.cl', 'EasySystems - Restablecer Contraseña de Acceso');
+                $message->from('no-reply@rrhh-es.com', 'EasySystems - Restablecer Contraseña de Acceso');
+                $message->replyTo('no-reply@rrhh-es.com', 'EasySystems - Restablecer Contraseña de Acceso');
                 $message->subject("Nueva Contraseña de Acceso");
             });
             return View::make('password_enviada')->with('email', $correo)->with('empresa', $empresa);
@@ -548,12 +518,12 @@ Route::post('login/password/reestablecer', function (){
 
         $config = array(
             'driver' => 'smtp',
-            'host' => 'easysystems.cl',
+            'host' => 'rrhh-es.com',
             'port' => 465,
-            'from' => array('address' => 'no-reply@easysystems.cl', 'name' => 'Soporte EasySystems'),
+            'from' => array('address' => 'no-reply@rrhh-es.com', 'name' => 'Soporte EasySystems'),
             'encryption' => 'ssl',
-            'username' => 'soporte@easysystems.cl',
-            'password' => 'easy1q2w3e',
+            'username' => 'soporte@rrhh-es.com',
+            'password' => 'easy1q2w3e4r',
             'sendmail' => '/usr/sbin/sendmail -bs',
             'pretend' => false
         );
@@ -562,8 +532,8 @@ Route::post('login/password/reestablecer', function (){
 
         Mail::send('restablecer_password', $datos, function ($message) use ($correo) {
             $message->to($correo);
-            $message->from('no-reply@easysystems.cl', 'EasySystems - Restablecer Contraseña de Acceso');
-            $message->replyTo('no-reply@easysystems.cl', 'EasySystems - Restablecer Contraseña de Acceso');
+            $message->from('no-reply@rrhh-es.com', 'EasySystems - Restablecer Contraseña de Acceso');
+            $message->replyTo('no-reply@rrhh-es.com', 'EasySystems - Restablecer Contraseña de Acceso');
             $message->subject("Restablecer Contraseña de Acceso");
         });
 
@@ -2229,12 +2199,13 @@ Route::group(array('before'=>'auth_ajax'), function() {
     /*   CUENTAS    */
     Route::resource('cuentas', 'CuentasController');
     
-    /*   REPORTES    */
-    Route::resource('reportes', 'LogsController');
+    /*   REPORTES / LOGS    */
+    Route::resource('reportes', 'LogsController');    
     
-    /*   REPORTES    */
+    /*   REPORTES / GENERAR REPORTES   */
     Route::resource('generar-reportes', 'ReportesController');
     Route::post('generar-reportes/obtener/generar', 'ReportesController@generar');
+    Route::get('trabajadores/reporte/descargar', 'ReportesController@descargarReporte');
 
     
     

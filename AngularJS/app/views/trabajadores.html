@@ -30,7 +30,7 @@
           <label for="orden" class="control-label col-md-1">
             Ordenar:
           </label>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <select ng-model="orden" id="orden" ng-init="orden='apellidos'" class="form-control form-white" ng-change="reverse = false">
               <option value="rut">RUT</option>
               <option value="apellidos">Nombre</option>
@@ -48,10 +48,23 @@
               <i ng-class="{ 'hidden' : !reverse }" class="fa fa-arrow-up"></i></a>
           </div>
           <label for="filtro" class="col-md-1 control-label" >Filtrar:</label>
+          <div class="col-md-2">
+            <select ng-model="filtro.filtrarPor" id="orden" ng-change="filtrar()" class="form-control form-white">
+              <option value="todo">Todo</option>
+              <option value="rut">RUT</option>
+              <option value="apellidos">Nombre</option>
+              <option value="cargoOrden">Cargo</option>
+              <option value="estado">Estado</option>
+              <option value="seccionOrden" ng-if="!empresa.centroCosto.isCentroCosto">Sección</option>
+              <option value="centroCostoOrden" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</option>
+              <option value="contratoOrden">Contrato</option>
+              <option value="fechaIngreso">Ingreso</option>
+            </select>
+          </div>
           <div class="col-md-4">
             <!--<input id="filtro" type="text"  class="form-control form-white form-white" ng-model="filtro">-->
             <input type="text" ng-model="filtro.nombre" class="form-control form-white" ng-change="filtrar()" ng-model-options="{debounce: 1000}" />
-            <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+            <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
           </div>
         </div>
       </div>      
@@ -78,7 +91,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="trabajador in filtro.itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden : reverse">
+            <tr ng-repeat="trabajador in filtro.itemsFiltrados| limitTo:limiteDinamico | orderObjectBy:orden : reverse track by $index ">
               <td>{{ $index + 1 }}</td>
               <td>{{ trabajador.rutFormato }}</td>
               <td>{{ trabajador.nombreCompleto }}</td>

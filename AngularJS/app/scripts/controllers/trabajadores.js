@@ -8,12 +8,16 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('TrabajadoresCtrl', function ($scope, $uibModal, filterFilter, $timeout, $filter, $anchorScroll, trabajador, $rootScope, Notification, plantillaContrato, fecha) {
+  .controller('TrabajadoresCtrl', function ($scope, $uibModal, filterFilter, utilities, $timeout, $filter, $anchorScroll, trabajador, $rootScope, Notification, plantillaContrato, fecha) {
     $anchorScroll();
     $scope.datos = [];
     $scope.cargado = false;
     $scope.empresa = $rootScope.globals.currentUser.empresa;
-    $scope.filtro = {};
+    $scope.filtro = { filtrarPor : 'todo' };    
+
+    function filtrar(arr, exp, prop){
+      return utilities.filtrar(arr, exp, prop);
+    }
 
     function cargarDatos(){
       $rootScope.cargando = true;
@@ -29,11 +33,18 @@ angular.module('angularjsApp')
         $rootScope.cargando = false;
         $scope.cargado = true;
       });
-    };
+    };    
 
     $scope.filtrar = function(){
       $scope.filtro.itemsFiltrados=[];
-      var listaTemp = filterFilter($scope.datos, $scope.filtro.nombre);
+      console.log($scope.filtro.filtrarPor)
+      if($scope.filtro.filtrarPor=='todo'){
+        console.log('t')
+        var listaTemp = filterFilter($scope.datos, $scope.filtro.nombre);      
+      }else{
+        console.log('n')
+        var listaTemp = filtrar($scope.datos, $scope.filtro.nombre, $scope.filtro.filtrarPor);
+      }
       if(listaTemp.length){
         for(var ind in listaTemp){
           $scope.filtro.itemsFiltrados.push( listaTemp[ind] );

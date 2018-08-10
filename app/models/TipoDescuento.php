@@ -192,8 +192,7 @@ class TipoDescuento extends Eloquent {
                             'desde' => $descuento->desde ? Funciones::obtenerMesAnioTextoAbr($descuento->desde) : '',
                             'hasta' => $descuento->hasta ? Funciones::obtenerMesAnioTextoAbr($descuento->hasta) : '',
                             'trabajador' => $descuento->trabajadorDescuento(),
-                            'fechaIngreso' => date('Y-m-d H:i:s', strtotime($descuento->created_at)),
-                            'ac' => $activos
+                            'fechaIngreso' => date('Y-m-d H:i:s', strtotime($descuento->created_at))
                         );
                     }
                 }

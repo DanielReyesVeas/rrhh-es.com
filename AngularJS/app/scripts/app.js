@@ -1135,9 +1135,19 @@ angular
           return false;
         },
         validaFechaMin: function(date, fechaMin){
+          console.log(date)
           date = fecha.convertirFechaFormato(date)
           fechaMin = fecha.convertirFechaFormato(fechaMin)
           if(date < fechaMin){
+            return false;
+          }
+          return true;
+        },
+        validaFechaMax: function(date, fechaMax){
+          console.log(date)
+          date = fecha.convertirFechaFormato(date)
+          fechaMax = fecha.convertirFechaFormato(fechaMax)
+          if(date > fechaMax){
             return false;
           }
           return true;
@@ -1542,6 +1552,26 @@ angular
           }else if(numero.length===9){
             return this.centena(numero, false, true, true);
           }          
+        },
+        filtrar: function (arr, exp, prop){
+          var result = arr;
+          if(arr && exp){
+            result = [];
+            exp = exp.toLowerCase();
+            if(prop){
+              if(typeof arr[0][prop] !== 'undefined'){                
+                for(var i=0,len=arr.length; i<len; i++){                  
+                  if(arr[i][prop].toString().toLowerCase().indexOf(exp)>-1){
+                    result.push(arr[i]);
+                  }
+                }                  
+              }
+            }else{
+              
+            }
+          }
+
+          return result;
         }
       }    
       return fun;       

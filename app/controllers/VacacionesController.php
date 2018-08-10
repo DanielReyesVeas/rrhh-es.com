@@ -251,6 +251,7 @@ class VacacionesController extends \BaseController {
                 'errores' => $errores
             );
         } 
+        
         return Response::json($respuesta);
     }
 

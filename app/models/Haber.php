@@ -16,17 +16,32 @@ class Haber extends Eloquent {
         return $this->belongsTo('TipoHaber','tipo_haber_id');
     }
     
-    public function trabajadorHaber(){  
+    public function trabajadorHaber()
+    {  
         $datosTrabajador = array();
         if( $this->trabajador ){
             $trabajador = $this->trabajador;
+            $empleado = $trabajador->ficha();
             $datosTrabajador = array(
                 'id' => $trabajador->id,
                 'sid' => $trabajador->sid,
-                'nombreCompleto' => $trabajador->ficha()->nombreCompleto(),
-                'rutFormato' => Funciones::formatear_rut($trabajador->rut)
+                'nombreCompleto' => $empleado->nombreCompleto(),
+                'rutFormato' => Funciones::formatear_rut($trabajador->rut),
+                'cargo' => array(
+                    'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                    'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
+                ),
+                'seccion' => array(
+                    'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                    'nombre' => $empleado->seccion ? $empleado->seccion->nombre : "",
+                ), 
+                'centroCosto' => array(
+                    'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                    'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : "",
+                )
             );        
         }
+        
         return $datosTrabajador;
     }
     

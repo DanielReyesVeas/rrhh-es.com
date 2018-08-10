@@ -1142,6 +1142,7 @@ class Liquidacion extends Eloquent {
         $listaSalud = array();
         $listaHaberes = array();
         $listaDescuentos = array();
+        
         if($liquidaciones->count()){
             foreach($liquidaciones as $liquidacion){
                 $detalleAfp = $liquidacion->detalleAfp;
@@ -1204,6 +1205,7 @@ class Liquidacion extends Eloquent {
                 }
             }   
         }
+        
         $datos = array(
             'aportes' => $listaAportes,
             'afps' => $listaAfps,

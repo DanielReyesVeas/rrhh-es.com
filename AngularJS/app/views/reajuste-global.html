@@ -30,7 +30,7 @@
           <label for="filtro" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
             <input type="text" ng-model="filtro.nombre" class="form-control form-white" ng-change="filtrar()" ng-model-options="{debounce: 1000}" />
-            <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+            <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
           </div>
         </div>
       </div>

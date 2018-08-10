@@ -212,6 +212,7 @@ class Trabajador extends Eloquent {
             );
         }
         $mes = $meses[ intval(date("m", strtotime($fecha)))-1 ]['value'];
+        
         $datos = array(
             'general' => array(
                 'rut' => '112223334',
@@ -288,7 +289,7 @@ class Trabajador extends Eloquent {
             $fecha = $y . '-' . $m . '-01';
         }
 
-        return $empresa;
+        return $fecha;
     }
     
     public function crearUser()
@@ -3549,6 +3550,7 @@ class Trabajador extends Eloquent {
         $tasa = 0;
         $tasaSis = 0;
         $tasaEmpleador = 0;
+        $isAfp = true;
         
         if($empleado->tipo_id==11 || $empleado->tipo_id==12){        
             if($empleado->prevision_id==8){
@@ -3568,9 +3570,12 @@ class Trabajador extends Eloquent {
                 }
             }else if($empleado->prevision_id==9){
                 $mes = '2017-01-01';
-                $tasa = TasaCajasExRegimen::where('caja_id', 9)->where('mes', $mes)->first()['tasa'];
+                $tasa = TasaCajasExRegimen::where('caja_id', 1)->where('mes', $mes)->first()['tasa'];
                 $tasaTrabajador = $tasa;
+                $isAfp = false;
             }
+        }else{
+            $isAfp = false;
         }
         
         $datos = array(
@@ -3578,7 +3583,8 @@ class Trabajador extends Eloquent {
             'tasaEmpleador' => $tasaEmpleador,
             'tasaObligatoria' => $tasa,
             'tasaSis' => $tasaSis,
-            'pagaSis' => $pagaSis
+            'pagaSis' => $pagaSis,
+            'isAfp' => $isAfp
         );
         
         return $datos;
@@ -3667,6 +3673,7 @@ class Trabajador extends Eloquent {
         $tasa = $this->tasaAfp();
         $rentaImponible = $this->rentaImponible();
         $rentaImponibleIngresada = NULL;
+        $isAfp = $tasa['isAfp'];
         $totalTrabajador = (($tasa['tasaTrabajador'] * $rentaImponible ) / 100);
         $totalEmpleador = (( $tasa['tasaEmpleador'] * $rentaImponible ) / 100);
         $cotizacion = (( $tasa['tasaObligatoria'] * $rentaImponible ) / 100);
@@ -3708,6 +3715,8 @@ class Trabajador extends Eloquent {
             }
         }
         
+        $cuentaAhorroVoluntario = $this->cuentaAhorroVoluntario();
+        
         $datos = array(
             'totalTrabajador' => round($totalTrabajador),
             'totalEmpleador' => round($totalEmpleador),
@@ -3716,10 +3725,11 @@ class Trabajador extends Eloquent {
             'isSIS' => $isSIS,
             'porcentajeSis' => $tasa['tasaSis'],
             'porcentajeCotizacion' => $tasa['tasaObligatoria'],
-            'cuentaAhorroVoluntario' => $this->cuentaAhorroVoluntario(),
+            'cuentaAhorroVoluntario' => $cuentaAhorroVoluntario,
             'pagaSis' => $tasa['pagaSis'],
             'rentaImponibleIngresada' => $rentaImponibleIngresada,
-            'rentaImponible' => $rentaImponible
+            'rentaImponible' => $rentaImponible,
+            'isAfp' => ($isAfp || $cuentaAhorroVoluntario)
         );
         
         return $datos;
@@ -4351,7 +4361,7 @@ class Trabajador extends Eloquent {
             'afcEmpleador' => $afcEmpleador,
             'total' => $totalSeguroCesantiaTrabajador,
             'totalEmpleador' => $totalSeguroCesantiaEmpleador,
-            'rentaImponible' => $rentaImponible ? $rentaImponible : $ri,
+            'rentaImponible' => $rentaImponible ? $rentaImponible : ($rentaImponibleEmpleador + $rentaImponible),
             'rentaImponibleIngresada' => $nuevaRentaImponible ? $rentaImponibleEmpleador : NULL,
             'isSC' => $isSC
         );
@@ -4775,8 +4785,7 @@ class Trabajador extends Eloquent {
                             }else{
                                 if($proporcional['inasistencias'] && $this->totalInasistencias()>0){
                                     $diasTrabajados = $this->diasTrabajados();
-                                    $gratificacion = (($gratificacion / 30) * $diasTrabajados);
-                                    
+                                    $gratificacion = (($gratificacion / 30) * $diasTrabajados);                                    
                                 } 
                             }
                         }

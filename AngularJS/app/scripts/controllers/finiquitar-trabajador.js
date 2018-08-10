@@ -1058,10 +1058,11 @@ angular.module('angularjsApp')
     }
 
   })
-  .controller('FormFiniquitarTrabajadorCtrl', function ($rootScope, $uibModal, $scope, $uibModalInstance, objeto, causalFiniquito, finiquito, Notification, causales, $filter, fecha) {
+  .controller('FormFiniquitarTrabajadorCtrl', function ($rootScope, validations, $uibModal, $scope, $uibModalInstance, objeto, causalFiniquito, finiquito, Notification, causales, $filter, fecha) {
 
     $scope.causales = angular.copy(causales); 
     var mesActual = $rootScope.globals.currentUser.empresa.mesDeTrabajo;
+    $scope.mes = mesActual.mesActivo;
       
     $scope.meses = [ 
             { id : 2, nombre : '2 meses' },
@@ -1124,6 +1125,20 @@ angular.module('angularjsApp')
         $rootScope.cargando = false;      
       });
     };        
+
+    $scope.validaFecha = function(){
+      var date = $scope.finiquito.fecha;
+      if(date!=fecha.fechaActiva()){
+        date = date.setHours(0, 0, 0, 0);
+        console.log(date)
+      }
+      if(date){        
+        $scope.invalidFecha = (!validations.validaFechaMin(date, mesActual.mes) || !validations.validaFechaMax(date, mesActual.fechaRemuneracion));
+      }else{
+        $scope.invalidFecha = false;                      
+      }
+      console.log($scope.invalidFecha)
+    }  
 
     $scope.cambiarSueldo = function(sueldo){
       if(sueldo === 'normal'){

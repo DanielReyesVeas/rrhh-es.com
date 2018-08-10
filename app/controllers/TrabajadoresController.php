@@ -75,6 +75,7 @@ class TrabajadoresController extends \BaseController {
         $conceptos = $datos['conceptos'];
         $tipo = $datos['tipo'];
         $excel = $datos['excel'];
+        $reverse = 'ASC';
         $libroRemuneraciones = array();
         $haberes = array('imponibles' => array(), 'noImponibles' => array());
         $descuentos = array();
@@ -109,8 +110,32 @@ class TrabajadoresController extends \BaseController {
         $sumas = array('imponibles' => array(), 'noImponibles' => array(), 'descuentos' => array(), 'apvs' => array());  
         $centro = '';
         
+        if($datos['reverse']){
+            $reverse = 'DESC';
+        }
+        switch($datos['orden']){
+            case 'rut':
+                $orden = 'trabajador_rut';
+                break;
+            case 'apellidosOrden':
+                $orden = 'trabajador_apellidos';
+                break;
+            case 'cargoOrden':
+                $orden = 'trabajador_cargo';
+                break;
+            case 'seccionOrden':
+                $orden = 'trabajador_seccion';
+                break;
+            case 'centroCostoOrden':
+                $orden = 'trabajador_centro_costo';
+                break;
+            default:
+                $orden = 'trabajador_apellidos';
+                break;
+        }
+        
         $mes = \Session::get('mesActivo');
-        $liquidaciones = Liquidacion::where('mes', $mes->mes)->orderBy('trabajador_apellidos')->get();        
+        $liquidaciones = Liquidacion::where('mes', $mes->mes)->orderBy($orden, $reverse)->get();        
         
         foreach($liquidaciones as $liquidacion){            
             if(in_array($liquidacion->trabajador_id, $trabajadores)){
@@ -6293,7 +6318,9 @@ class TrabajadoresController extends \BaseController {
     public function seccionesFormulario()
     {
         $listaSecciones=array();
+        $listaCentrosCosto=array();
         Seccion::listaSecciones($listaSecciones, 0, 1);
+        CentroCosto::arbolCentrosCosto($listaCentrosCosto, 0, 1);
         $mes = \Session::get('mesActivo');
         $finMes = $mes->fechaRemuneracion;    
         $trabajadores = Trabajador::all();        
@@ -6316,6 +6343,11 @@ class TrabajadoresController extends \BaseController {
                                 'id' => $empleado->seccion ? $empleado->seccion->id : "",
                                 'sid' => $empleado->seccion ? $empleado->seccion->sid : "",
                                 'nombre' => $empleado->seccion ? $empleado->seccion->nombre : ""
+                            ),
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'sid' => $empleado->centroCosto ? $empleado->centroCosto->sid : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : ""
                             )
                         );
                     }
@@ -6327,6 +6359,7 @@ class TrabajadoresController extends \BaseController {
         
 		$datos=array(
 			'secciones' => $listaSecciones,
+			'centrosCosto' => $listaCentrosCosto,
 			'trabajadores' => $listaTrabajadores
 		);
         
@@ -7695,12 +7728,11 @@ class TrabajadoresController extends \BaseController {
             $diasTrabajados = $trabajador->diasTrabajados();
             $horasExtra = $trabajador->horasExtraPagar();
             $horasExtraDetalle = $trabajador->horasExtraPagarDetalle();
+            $totalMutual = $trabajador->totalMutual();  
             if($comprobarRentaImponibleAnterior){
                 $totalAfp = $trabajador->totalAfp($listaRentaImponibleAnteriorSIS[0]);
                 $totalSeguroCesantia = $trabajador->totalSeguroCesantia($listaRentaImponibleAnteriorSC[0]);
-                $totalMutual = $trabajador->totalMutual($listaRentaImponibleAnteriorSIS[0]);  
             }else{
-                $totalMutual = $trabajador->totalMutual();  
                 $totalAfp = $trabajador->totalAfp();
                 $totalSeguroCesantia = $trabajador->totalSeguroCesantia();
             }
@@ -7970,7 +8002,7 @@ class TrabajadoresController extends \BaseController {
 
                 $liquidacion->save();
 
-                if(($totalAfp['cotizacion'] > 0) || ($totalAfp['sis'] > 0) || ($totalAfp['cuentaAhorroVoluntario'] > 0)){
+                if($totalAfp['isAfp']){
                     $detalleAfp = new DetalleAfp();
                     $detalleAfp->liquidacion_id = $liquidacion->id;
                     $detalleAfp->afp_id = $empleado->afp_id;

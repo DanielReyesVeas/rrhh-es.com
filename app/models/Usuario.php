@@ -83,7 +83,6 @@ class Usuario extends Eloquent implements UserInterface, RemindableInterface {
     
     public function enviarClave($correo, $nuevo, $clave=null)
     {
-        //$correo = 'danielreyesveas@gmail.com';
         $empresa = \Session::get('empresa');
         $accesos = $this->arrayAccesos();
         $url = $empresa->url();

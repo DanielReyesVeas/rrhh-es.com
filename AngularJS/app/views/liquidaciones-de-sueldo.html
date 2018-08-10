@@ -31,7 +31,7 @@
           <label for="filtro" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
             <input type="text" ng-model="filtro[0].nombre" class="form-control form-white" ng-change="filtrar(0)" ng-model-options="{debounce: 1000}" />
-            <span ng-if="filtro[0].nombre" ng-click="clearText(0)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+            <span ng-if="filtro[0].nombre" ng-click="clearText(0)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
           </div>
           <div class="col-md-2">
             <a href="" confirmation-click="generar(0, null, true, false)" confirmation-needed="{{ mensaje[0] }} ¿Desea continuar?" class="btn btn-primary pull-right" ng-class="{ 'hidden' : !isSelect[0] }"><i class="fa fa-print"></i> Generar</a>  
@@ -59,7 +59,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in filtro[0].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden : reverse">
+            <tr ng-repeat="dato in filtro[0].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy: orden : reverse">
               <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 0)" ng-if="accesos.crear && accesos.abierto" icheck> {{ $index + 1 }}</td>
               <td>{{ ::dato.rutFormato }}</td>
               <td>{{ ::dato.nombreCompleto }}</td>
@@ -119,7 +119,7 @@
           <label for="filtro2" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
             <input type="text" ng-model="filtro[1].nombre" class="form-control form-white" ng-change="filtrar(1)" ng-model-options="{debounce: 1000}" />
-            <span ng-if="filtro[1].nombre" ng-click="clearText(1)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+            <span ng-if="filtro[1].nombre" ng-click="clearText(1)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
           </div>
         </div>
       </div>      
@@ -151,7 +151,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in filtro[1].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden2 : reverse2">
+            <tr ng-repeat="dato in filtro[1].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy: orden2 : reverse2">
               <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 1)" ng-if="accesos.crear && accesos.abierto" icheck> {{ $index + 1 }}</td>
               <td>{{ ::dato.rutFormato }}</td>
               <td>{{ ::dato.nombreCompleto }}</td>
@@ -211,7 +211,7 @@
           <label for="filtro3" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
             <input type="text" ng-model="filtro[2].nombre" class="form-control form-white" ng-change="filtrar(2)" ng-model-options="{debounce: 1000}" />
-            <span ng-if="filtro[2].nombre" ng-click="clearText(2)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+            <span ng-if="filtro[2].nombre" ng-click="clearText(2)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
           </div>
           <div class="col-md-2">
             <a href="" confirmation-click="generar(2, null, true, false)" confirmation-needed="{{ mensaje[0] }} ¿Desea continuar?" class="btn btn-primary pull-right" ng-class="{ 'hidden' : !isSelect[2] }"><i class="fa fa-print"></i> Generar</a>  
@@ -236,7 +236,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in filtro[2].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden3 : reverse3">
+            <tr ng-repeat="dato in filtro[2].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy: orden3 : reverse3">
               <td><input type="checkbox" ng-model="dato.check" ng-change="select($index, 2)" ng-if="accesos.crear && accesos.abierto" icheck> {{ $index + 1 }}</td>
               <td>{{ ::dato.rutFormato }}</td>
               <td>{{ ::dato.nombreCompleto }}</td>
@@ -298,7 +298,7 @@
           <label for="filtro4" class="col-md-1 control-label" >Filtrar:</label>
           <div class="col-md-4">
             <input type="text" ng-model="filtro[3].nombre" class="form-control form-white" ng-change="filtrar(3)" ng-model-options="{debounce: 1000}" />
-            <span ng-if="filtro[0].nombre" ng-click="clearText(0)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="clear"></span>
+            <span ng-if="filtro[0].nombre" ng-click="clearText(0)" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
           </div>
         </div>
       </div>      
@@ -324,7 +324,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dato in filtro[3].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy:orden4 : reverse4">
+            <tr ng-repeat="dato in filtro[3].itemsFiltrados | limitTo:limiteDinamico | orderObjectBy: orden4 : reverse4">
               <td><input type="checkbox" ng-model="dato.check" ng-if="accesos.crear && accesos.abierto" ng-change="select($index, 3)" icheck> {{ $index + 1 }}</td>
               <td>{{ ::dato.rutFormato }}</td>
               <td>{{ ::dato.nombreCompleto }}</td>

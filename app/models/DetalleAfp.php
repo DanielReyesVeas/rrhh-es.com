@@ -33,7 +33,11 @@ class DetalleAfp extends Eloquent {
     
     public function cuenta($cuentasCodigo=null, $centroCostoId=null)
     {
-        $aporte = Aporte::where('tipo_aporte', 4)->where('nombre', $this->afp_id)->first();
+        if($this->afp_id>105){
+            $aporte = Aporte::where('tipo_aporte', 3)->where('nombre', $this->afp_id)->first();
+        }else{
+            $aporte = Aporte::where('tipo_aporte', 4)->where('nombre', $this->afp_id)->first();
+        }
         if($aporte){
             $codigo = $aporte->cuenta($cuentasCodigo, $centroCostoId);
             if($codigo){

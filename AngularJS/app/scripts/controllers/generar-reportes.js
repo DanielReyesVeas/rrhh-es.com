@@ -8,9 +8,10 @@
  * Controller of the angularjsApp
  */
 angular.module('angularjsApp')
-  .controller('GenerarReportesCtrl', function ($scope, generarReporte, $filter, filterFilter, $timeout, $rootScope, $uibModal, Notification, $anchorScroll) {
+  .controller('GenerarReportesCtrl', function ($scope, constantes, generarReporte, $filter, filterFilter, $timeout, $rootScope, $uibModal, Notification, $anchorScroll) {
   
     $anchorScroll();
+    $scope.constantes = constantes;
     $scope.cargado = false;
     $scope.objeto = {};
     $scope.filtro = {};
@@ -197,9 +198,20 @@ angular.module('angularjsApp')
 
       var datos = generarReporte.generar().post({}, obj);
       datos.$promise.then(function(response){
-
+        if(response.success){
+          Notification.success({message: response.mensaje, title: 'Mensaje del Sistema'});
+          descargar();
+          $rootScope.cargando = false;
+        }else{
+          Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
+          $rootScope.cargando = false;
+        }        
       });
+    }
 
+    function descargar(){
+      var url = $scope.constantes.URL + 'trabajadores/reporte/descargar';
+      window.open(url, "_self");
     }
 
   });

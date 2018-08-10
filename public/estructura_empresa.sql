@@ -1421,7 +1421,7 @@ CREATE TABLE IF NOT EXISTS `horas_extra` (
   `horas` int(11) NOT NULL,
   `minutos` int(11) NOT NULL,
   `factor` decimal(10,9) NOT NULL,
-  `tipo_id` int(11) NOT NULL,
+  `tipo_id` int(11) NOT NULL DEFAULT '1',
   `observacion` text,
   `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -2148,19 +2148,22 @@ INSERT INTO `tipos_haber` (`id`, `cuenta_id`, `codigo`, `sid`, `nombre`, `tribut
 CREATE TABLE IF NOT EXISTS `tipos_hora_extra` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sid` varchar(50) NOT NULL,
+  `cuenta_id` int(11) DEFAULT NULL,
+  `codigo` int(20) NOT NULL,
   `nombre` varchar(255) NOT NULL,
+  `tributable` tinyint(4) NOT NULL DEFAULT '1',
+  `proporcional_dias_trabajados` tinyint(4) NOT NULL DEFAULT '0',
+  `calcula_semana_corrida` tinyint(4) NOT NULL DEFAULT '1',
+  `imponible` tinyint(4) NOT NULL DEFAULT '1',
+  `gratificacion` tinyint(4) NOT NULL DEFAULT '1',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
---
--- Volcado de datos para la tabla `tipo_hora_extra`
---
-
-INSERT INTO `tipos_hora_extra` (`id`, `sid`, `nombre`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'L20180731135623BPO3169', 'Hora Extra', '2018-07-31 13:56:24', '2018-07-31 13:56:24', NULL);
+INSERT INTO `tipos_hora_extra` (`id`, `sid`, `cuenta_id`, `codigo`, `nombre`, `tributable`, `proporcional_dias_trabajados`, `calcula_semana_corrida`, `imponible`, `gratificacion`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'U20180803134933RKH4316', 1, 20010, 'Hora Extra', 1, 0, 1, 1, 1, '2018-08-03 13:49:33', '2018-08-03 16:31:26', NULL);
 
 
 -- --------------------------------------------------------

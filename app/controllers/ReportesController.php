@@ -8,6 +8,17 @@ class ReportesController extends \BaseController {
      */
 
     
+    public function descargarReporte()
+    {
+        $filename = "Reporte.xlsx";
+        $destination = public_path('stories/reporte.xlsx');
+        
+        return Response::make(file_get_contents($destination), 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+        ]);
+    }
+    
     public function index()
     {
         
@@ -44,6 +55,8 @@ class ReportesController extends \BaseController {
         $datos = Input::all();
         $tipo = $datos['tipo'];
         $destination = public_path('planillas/reporte.xlsx');
+        $folder = public_path() . '/stories/';
+        $filename = 'reporte';
         
         switch($tipo){
             case 'haberes':
@@ -60,17 +73,7 @@ class ReportesController extends \BaseController {
                 break;
         }
 
-        $trabajadores = Trabajador::whereIn('sid', $datos['trabajadores'])->get();
-        
-        $data = array(
-            'trabajadores' => $trabajadores,
-            'conceptos' => $conceptos,
-            'tipo' => $tipo
-        );
-        
-        //return Response::json($data);
-        
-        
+        $trabajadores = Trabajador::whereIn('sid', $datos['trabajadores'])->get();                
         
         Excel::create('reporte', function($reader) use ($trabajadores, $conceptos) {
             $reader->sheet('Reporte', function($sheet) use ($trabajadores, $conceptos) {
@@ -166,11 +169,20 @@ class ReportesController extends \BaseController {
                             }                                
                         }
                     }
-                }
-                
+                }                
             });
-
-        })->export('xlsx');  
+        })->setFilename($filename)->store('xlsx', $folder);  
+        
+        $respuesta = array(
+            'trabajadores' => $trabajadores,
+            'conceptos' => $conceptos,
+            'tipo' => $tipo,
+            'nombre' => $filename . '.xlsx',
+            'success' => true,
+            'mensaje' => "La Información fue generada correctamente"
+        );
+        
+        return Response::json($respuesta);
     }
     
 

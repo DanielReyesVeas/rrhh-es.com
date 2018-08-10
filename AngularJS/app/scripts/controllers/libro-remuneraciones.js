@@ -92,6 +92,7 @@ angular.module('angularjsApp')
     $scope.objeto = { todosTrabajadores : true, todosConceptos : true };
     $scope.tipo = tipo;
     $scope.filtro = {};
+    
     if($scope.empresa.centroCosto.isCentroCosto){
       var nombre = 'Centro de Costo';
       var codigo = 'centro_costo';
@@ -149,7 +150,7 @@ angular.module('angularjsApp')
         }
       }
       var thereSelected = isThereAllSelected($scope.filtro.itemsFiltrados);
-      console.log(thereSelected)
+      console.log($scope.filtro.itemsFiltrados)
       if(!thereSelected.one){
         $scope.objeto.todosTrabajadores = false;
       };
@@ -295,7 +296,7 @@ angular.module('angularjsApp')
 
       conceptos[noIncluir.codigo] = noIncluir.check;
 
-      var obj = { trabajadores : trabajadores, conceptos : conceptos, tipo : tipo, excel : excel };
+      var obj = { trabajadores : trabajadores, conceptos : conceptos, tipo : tipo, excel : excel, orden : $scope.orden, reverse : $scope.reverse };
       var datos = trabajador.generarLibro().post({}, obj);
 
       datos.$promise.then(function(response){

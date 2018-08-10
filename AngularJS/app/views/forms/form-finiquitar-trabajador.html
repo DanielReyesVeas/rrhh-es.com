@@ -24,18 +24,21 @@
           </div>  
 
           <div class="col-sm-12" style="margin-top: 20px;">
-            <div class="form-group form-group-md">
+            <div class="form-group form-group-md" ng-class="{ 'has-error': invalidFecha }">
 
               <label class="col-sm-3 control-label required" style="padding: 0px;">Fecha:</label>            
               <div class="col-sm-6">
                 <div class="input-group"> 
-                  <input type="text" class="form-control form-white" uib-datepicker-popup="dd-MM-yyyy" regularFecha ng-model="finiquito.fecha" is-open="popupFecha.opened" datepicker-options="dateOptions" close-text="Close" required />
+                  <input type="text" class="form-control form-white" uib-datepicker-popup="dd-MM-yyyy" regularFecha ng-model="finiquito.fecha" is-open="popupFecha.opened" datepicker-options="dateOptions" ng-blur="validaFecha()" close-text="Close" required />  
                   <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="openFecha()">
                       <i class="fa fa-calendar"></i>
                     </button>
                   </span>                  
                 </div>
+                <span class="help-block" ng-show="invalidFecha">
+                  La fecha debe corresponder al mes de {{ mes }}
+                </span>
                 <div>
                   <i>*El día del Finiquito será considerado como día trabajado.</i>
                 </div>
@@ -157,6 +160,6 @@
 <div class="modal-footer">
   <!--<button class="btn btn-primary" type="button" ng-click="finiquitar(finiquito, trabajador)" ng-disabled="finiquitoForm.$invalid" ng-if="isEdit">Modificar Finiquito</button>-->
   <!--<button class="btn btn-primary" type="button" ng-click="finiquitar(finiquito, trabajador)" ng-disabled="finiquitoForm.$invalid" ng-if="!isEdit">Finiquitar Trabajador</button>-->
-  <button class="btn btn-primary" type="button" ng-click="calcular(finiquito)" ng-disabled="finiquitoForm.$invalid" ng-if="!isEdit">Calcular</button>
+  <button class="btn btn-primary" type="button" ng-click="calcular(finiquito)" ng-disabled="finiquitoForm.$invalid || invalidFecha" ng-if="!isEdit">Calcular</button>
   <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancelar</button> 
 </div>

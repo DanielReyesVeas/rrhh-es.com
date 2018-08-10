@@ -14,60 +14,78 @@
           <i>Aun no hay registros</i>
         </div>
 
-        <table class="table table-striped table-hover" ng-show="descuento.descuentos.length>0">
-          <thead>
-            <tr>
-              <th class="col-sm-1">#</th>
-              <th class="col-sm-2">RUT</th>
-              <th class="col-sm-3">Nombre</th>
-              <th class="col-sm-1">Temporalidad</th>
-              <th class="col-sm-2 text-center">Meses</th>
-              <th class="col-sm-1">Monto</th>
-              <th class="col-sm-1"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="dato in descuento.descuentos">
-              <td>{{ $index + 1 }}</td>
-              <td>{{ dato.trabajador.rutFormato }}</td>
-              <td><a href="javascript:void(0);" ng-click="reporteTrabajador(dato.trabajador)">{{ dato.trabajador.nombreCompleto }}</a></td>
-              <td>
-                <span ng-if="dato.porMes">Por Mes</span>
-                <span ng-if="dato.rangoMeses">Rango Meses</span>
-                <span ng-if="dato.permanente">Permanente</span>
-              </td>
-              <td class="text-center">
-                <span ng-if="dato.porMes">{{ dato.mes }}</span>
-                <span ng-if="dato.rangoMeses">{{ dato.desde }} - {{ dato.hasta }}</span>
-                <span ng-if="dato.permanente">
-                  <span ng-if="dato.hasta && dato.desde">
-                    <span style="color: #0a0;">{{ dato.desde }}</span>
-                     - 
-                     <span style="color: #ff3300;">{{ dato.hasta }}</span>
+        <div class="col-sm-12" style="margin-bottom: 20px;" ng-class="{ 'hidden' : descuento.descuentos.length==0}"> 
+          <div class="form-group">
+            <div class="col-sm-7 col-sm-offset-2">
+              <label for="filtro.nombre" class="col-md-3 control-label" >Filtrar:</label>
+              <div class="col-md-9">
+                <input type="text" ng-model="filtro.nombre" class="form-control form-white" ng-change="filtrar()" ng-model-options="{debounce: 1000}" />
+                <span ng-if="filtro.nombre" ng-click="clearText()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all; margin-right: 10px;" uib-tooltip="borrar"></span>
+              </div>
+            </div>
+          </div>
+        </div> 
+
+        <div class="col-sm-12">
+          <table class="table table-striped table-hover" ng-show="descuento.descuentos.length>0">
+            <thead>
+              <tr>
+                <th class="col-sm-1">#</th>
+                <th class="col-sm-2">RUT</th>
+                <th class="col-sm-2">Nombre</th>
+                <th class="col-sm-2" ng-if="empresa.centroCosto.isCentroCosto">Centro de Costo</th>
+                <th class="col-sm-2" ng-if="!empresa.centroCosto.isCentroCosto">Sección</th>
+                <th class="col-sm-1">Temporalidad</th>
+                <th class="col-sm-2 text-center">Meses</th>
+                <th class="col-sm-1">Monto</th>
+                <th class="col-sm-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="dato in filtro.itemsFiltrados | limitTo:limiteDinamico">
+                <td>{{ $index + 1 }}</td>
+                <td>{{ dato.trabajador.rutFormato }}</td>
+                <td><a href="javascript:void(0);" ng-click="reporteTrabajador(dato.trabajador)">{{ dato.trabajador.nombreCompleto }}</a></td>
+                <td ng-if="empresa.centroCosto.isCentroCosto">{{ dato.trabajador.centroCosto.nombre }}</td>
+                <td ng-if="!empresa.centroCosto.isCentroCosto">{{ dato.trabajador.seccion.nombre }}</td>
+                <td>
+                  <span ng-if="dato.porMes">Por Mes</span>
+                  <span ng-if="dato.rangoMeses">Rango Meses</span>
+                  <span ng-if="dato.permanente">Permanente</span>
+                </td>
+                <td class="text-center">
+                  <span ng-if="dato.porMes">{{ dato.mes }}</span>
+                  <span ng-if="dato.rangoMeses">{{ dato.desde }} - {{ dato.hasta }}</span>
+                  <span ng-if="dato.permanente">
+                    <span ng-if="dato.hasta && dato.desde">
+                      <span style="color: #0a0;">{{ dato.desde }}</span>
+                       - 
+                       <span style="color: #ff3300;">{{ dato.hasta }}</span>
+                    </span>
+                    <span ng-if="!dato.hasta && dato.desde">
+                      <span style="color: #0a0;">Desde</span>
+                      : {{ dato.desde }}
+                    </span>
+                    <span ng-if="dato.hasta && !dato.desde">
+                      <span style="color: #ff3300;">Hasta</span>
+                      : {{ dato.hasta }}
+                    </span>
+                    <span ng-if="!dato.hasta && !dato.desde">-</span>
                   </span>
-                  <span ng-if="!dato.hasta && dato.desde">
-                    <span style="color: #0a0;">Desde</span>
-                    : {{ dato.desde }}
-                  </span>
-                  <span ng-if="dato.hasta && !dato.desde">
-                    <span style="color: #ff3300;">Hasta</span>
-                    : {{ dato.hasta }}
-                  </span>
-                  <span ng-if="!dato.hasta && !dato.desde">-</span>
-                </span>
-              </td>
-              <td>
-                <div ng-show="dato.moneda==='$'">${{ dato.monto | currency:'':0 }}</div>                 
-                <div ng-show="dato.moneda!=='$'">{{ dato.monto }} {{ dato.moneda }}</div>                 
-              </td>
-              <td>
-                <a href="javascript:void(0);" ng-if="accesos.editar && accesos.abierto" ng-click="editar(dato)"><i class="fa fa-pencil"></i></a>
-                <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto && !dato.permanente" confirmation-click="eliminar(dato, descuento, true)" confirmation-needed="El Descuento seleccionado será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
-                <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto && dato.permanente" confirmation-click="confirmacion(dato, descuento)" confirmation-needed="El Descuento seleccionado será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+                <td>
+                  <div ng-show="dato.moneda==='$'">${{ dato.monto | currency:'':0 }}</div>                 
+                  <div ng-show="dato.moneda!=='$'">{{ dato.monto }} {{ dato.moneda }}</div>                 
+                </td>
+                <td>
+                  <a href="javascript:void(0);" ng-if="accesos.editar && accesos.abierto" ng-click="editar(dato)"><i class="fa fa-pencil"></i></a>
+                  <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto && !dato.permanente" confirmation-click="eliminar(dato, descuento, true)" confirmation-needed="El Descuento seleccionado será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
+                  <a href="javascript:void(0);" ng-if="accesos.eliminar && accesos.abierto && dato.permanente" confirmation-click="confirmacion(dato, descuento)" confirmation-needed="El Descuento seleccionado será eliminado del sistema. ¿Desea continuar?"><i class="fa fa-trash"></i></a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
       </div>
 

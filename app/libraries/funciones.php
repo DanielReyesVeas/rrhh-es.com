@@ -1361,6 +1361,10 @@ class Funciones{
     
     static function formatoHora($horas, $minutos)
     {
+        if($minutos>59){
+            $horas += (int) ($minutos / 60);
+            $minutos = ($minutos % 60);   
+        }
         if($horas<10){
             $horas = "0" . $horas;
         }

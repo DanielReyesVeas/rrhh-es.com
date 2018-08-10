@@ -143,6 +143,8 @@ class TipoHaber extends Eloquent {
         $listaHaberes = array();
         $idMes = \Session::get('mesActivo')->id;
         $mes = \Session::get('mesActivo')->mes;
+        $activos = Trabajador::trabajadoresActivos();
+        
         $misHaberes = Haber::where('tipo_haber_id', $idTipoHaber)->where('mes_id', $idMes)
                 ->orWhere('permanente', 1)->where('tipo_haber_id', $idTipoHaber)
                 ->orWhere('hasta', '>=', $mes)->where('tipo_haber_id', $idTipoHaber)->get();
@@ -154,21 +156,22 @@ class TipoHaber extends Eloquent {
                 || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
                 || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
                 || !$haber->permanente){
-                    
-                    $listaHaberes[] = array(
-                        'id' => $haber->id,
-                        'sid' => $haber->sid,
-                        'moneda' => $haber->moneda,
-                        'permanente' => $haber->permanente ? true : false,
-                        'porMes' => $haber->por_mes ? true : false,
-                        'rangoMeses' => $haber->rango_meses ? true : false,
-                        'monto' => $haber->monto,
-                        'trabajador' => $haber->trabajadorHaber(),
-                        'mes' => $haber->mes ? Funciones::obtenerMesAnioTextoAbr($haber->mes) : '',
-                        'desde' => $haber->desde ? Funciones::obtenerMesAnioTextoAbr($haber->desde) : '',
-                        'hasta' => $haber->hasta ? Funciones::obtenerMesAnioTextoAbr($haber->hasta) : '',
-                        'fechaIngreso' => date('Y-m-d H:i:s', strtotime($haber->created_at))
-                    );
+                    if(in_array($haber->trabajador_id, $activos)){
+                        $listaHaberes[] = array(
+                            'id' => $haber->id,
+                            'sid' => $haber->sid,
+                            'moneda' => $haber->moneda,
+                            'permanente' => $haber->permanente ? true : false,
+                            'porMes' => $haber->por_mes ? true : false,
+                            'rangoMeses' => $haber->rango_meses ? true : false,
+                            'monto' => $haber->monto,
+                            'trabajador' => $haber->trabajadorHaber(),
+                            'mes' => $haber->mes ? Funciones::obtenerMesAnioTextoAbr($haber->mes) : '',
+                            'desde' => $haber->desde ? Funciones::obtenerMesAnioTextoAbr($haber->desde) : '',
+                            'hasta' => $haber->hasta ? Funciones::obtenerMesAnioTextoAbr($haber->hasta) : '',
+                            'fechaIngreso' => date('Y-m-d H:i:s', strtotime($haber->created_at))
+                        );
+                    }
                 }
             }
         }

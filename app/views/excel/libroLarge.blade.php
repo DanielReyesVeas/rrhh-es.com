@@ -81,7 +81,7 @@
                         <td>{{ Funciones::formatear_rut($dato->trabajador_rut) }}</td>
                         <td>{{ $dato->trabajador_nombres }} {{ $dato->trabajador_apellidos }} | {{ $dato->centro_costo_codigo }}</td>
                         @if($datos->conceptos['centro_costo'])
-                            <td>{{ $dato->centro }}</td>        
+                            <td>{{ $dato->trabajador_centro_costo }}</td>        
                         @else
                             @if($datos->conceptos['seccion'])
                                 <td>{{ $dato->trabajador_seccion }}</td> 

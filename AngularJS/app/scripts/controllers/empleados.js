@@ -505,7 +505,7 @@ angular.module('angularjsApp')
       response.$promise.then(
         function(response){
           if(response.success){
-            $uibModalInstance.close(response.mensaje);
+            $uibModalInstance.close(response);
           }else{
             // error
             $scope.erroresDatos = response.errores;
