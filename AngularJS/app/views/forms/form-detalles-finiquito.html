@@ -84,14 +84,14 @@
                   <td><input type="checkbox" ng-model="haber.check" ng-change="select(haber.check, mesIndex)" icheck></td>
                   <td>{{ haber.nombre }}</td>
                   <td>
-                  <span ng-if="!haber.edit">${{ haber.monto | currency:'':0 }}               
-                    <a href="" class="pull-right" ng-click="edit(haber, mesIndex)"><i class="fa fa-pencil"></i></a>
-                  </span>   
-                  <span ng-if="haber.edit">
-                    $<input type="number" ng-if="haber.edit" ng-model="haber.monto" style="width: 90px" />
-                    <a href="" class="pull-right" ng-click="edit(haber, mesIndex)"><i class="fa fa-check"></i></a>
-                  </span>
-                </td>
+                    <span ng-if="!haber.edit">${{ haber.monto | currency:'':0 }}               
+                      <a href="" class="pull-right" ng-click="edit(haber, mesIndex)"><i class="fa fa-pencil"></i></a>
+                    </span>   
+                    <span ng-if="haber.edit">
+                      $<input type="number" ng-if="haber.edit" ng-model="haber.monto" style="width: 90px" />
+                      <a href="" class="pull-right" ng-click="edit(haber, mesIndex)"><i class="fa fa-check"></i></a>
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <td></td>
@@ -115,6 +115,38 @@
                {{ concepto }}: ${{ suma | currency:'':0 }}
             </b>
           </p>
+        </fieldset>
+
+        <fieldset ng-if="concepto==='Vacaciones'">
+          <legend>{{ datos.mes }}</legend>
+
+         <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="col-sm-1"><input type="checkbox" ng-model="objeto.todos" ng-change="selectAllVacaciones()" icheck></th>
+                <th class="col-sm-6">Nombre</th>
+                <th class="col-sm-5">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" ng-model="vacaciones.check" ng-change="selectVacaciones(vacaciones)" icheck></td>
+                <td>Vacaciones ({{ datos.detalle.dias }} días)</td>
+                <td>${{ datos.detalle.totalNormal | currency:'':0 }}</td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" ng-model="feriado.check" ng-change="selectVacaciones(feriado)" icheck></td>
+                <td>Feriado Proporcional ({{ datos.detalle.feriadoProporcional.diasF }} días)</td>
+                <td>${{ datos.detalle.totalProporcional | currency:'':0 }}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td><b>Total ({{ datos.dias }} días)</b></td>
+                <td><b>${{ datos.monto | currency:'':0 }}</b></td>
+              </tr>
+            </tbody>
+          </table>
+
         </fieldset>
 
       </div>

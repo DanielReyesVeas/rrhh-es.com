@@ -174,7 +174,7 @@ angular.module('angularjsApp')
     $scope.datos = angular.copy(objeto.detalle);    
     $scope.sueldoNormal = angular.copy(objeto.sueldoNormal);
     $scope.sueldoVariable = angular.copy(objeto.sueldoVariable);
-    $scope.suma = angular.copy(objeto.suma);    
+    $scope.suma = angular.copy(objeto.suma); 
     
     function crearModels(){
       if($scope.concepto==='Imponibles'){       
@@ -184,6 +184,18 @@ angular.module('angularjsApp')
         if(!$scope.datos.imponibles.sueldo.check || !$scope.datos.imponibles.gratificacion.check || !$scope.datos.imponibles.haberes.check){
           $scope.objeto.todos= false;
         }
+      }else if($scope.concepto=='Vacaciones'){
+        $scope.datos.edit = false;
+        
+        $scope.vacaciones = { tipo : 'vacaciones', check : true, edit : false };
+        $scope.feriado = { tipo : 'feriado', check : true, edit : false };
+        if($scope.datos.checkVacaciones!==undefined){
+          $scope.vacaciones.check = $scope.datos.checkVacaciones;
+        }
+        if($scope.datos.checkFeriado!==undefined){
+          $scope.feriado.check = $scope.datos.checkFeriado;
+        }
+        $scope.objeto = { todos : ($scope.vacaciones.check && $scope.feriado.check) };
       }else{
         $scope.data = [];
         if($scope.concepto==='No Imponibles'){
@@ -203,7 +215,7 @@ angular.module('angularjsApp')
             }
           }
         }
-      }
+      }      
     }
     
     crearModels();
@@ -280,6 +292,29 @@ angular.module('angularjsApp')
       }
     }
 
+    $scope.selectAllVacaciones = function(){
+      $scope.vacaciones.check = $scope.objeto.todos;
+      $scope.feriado.check = $scope.objeto.todos;
+      var days = (($scope.vacaciones.check ? $scope.datos.detalle.dias : 0) + ($scope.feriado.check ? $scope.datos.detalle.feriadoProporcional.diasF : 0));
+      $scope.datos.dias = Number(Math.round(days+'e2')+'e-2');
+      $scope.datos.monto = (($scope.vacaciones.check ? $scope.datos.detalle.totalNormal : 0) + ($scope.feriado.check ? $scope.datos.detalle.totalProporcional : 0));
+    }
+
+    $scope.selectVacaciones = function(dat){
+      if(dat.check){
+        if($scope.vacaciones.check && $scope.feriado.check){
+          $scope.objeto.todos = true;
+        }
+      }else{
+        if(!$scope.vacaciones.check || !$scope.feriado.check){
+          $scope.objeto.todos = false;
+        }
+      }      
+      var days = (($scope.vacaciones.check ? $scope.datos.detalle.dias : 0) + ($scope.feriado.check ? $scope.datos.detalle.feriadoProporcional.diasF : 0));
+      $scope.datos.dias = Number(Math.round(days+'e2')+'e-2');
+      $scope.datos.monto = (($scope.vacaciones.check ? $scope.datos.detalle.totalNormal : 0) + ($scope.feriado.check ? $scope.datos.detalle.totalProporcional : 0));
+    }
+
     $scope.selectAll = function(index){
       if($scope.concepto==='Imponibles'){
         $scope.datos.imponibles.sueldo.check = $scope.objeto.todos;
@@ -299,11 +334,22 @@ angular.module('angularjsApp')
       if($scope.concepto==='Imponibles'){
         var datos = $scope.datos;
         var suma = $scope.datos.imponibles.rentaImponible.monto;
+        var index = $scope.index;
+        var dias = 0;
+      }else if($scope.concepto==='Vacaciones'){
+        $scope.datos.checkVacaciones = $scope.vacaciones.check;
+        $scope.datos.checkFeriado = $scope.feriado.check;
+        var datos = $scope.datos;
+        var suma = $scope.datos.monto;
+        var index = 0;
+        var dias = $scope.datos.dias;
       }else{
         var datos = $scope.data;
         var suma = $scope.suma;
+        var index = $scope.index;
+        var dias = 0;
       }
-      $uibModalInstance.close({ datos : datos, concepto : $scope.concepto, suma : suma, index : $scope.index });
+      $uibModalInstance.close({ datos : datos, dias : dias, concepto : $scope.concepto, suma : suma, index : index });
     }
 
     function recibirModels(obj){
@@ -805,6 +851,12 @@ angular.module('angularjsApp')
       openDetalles(concepto, titulo);
     }
 
+    $scope.detalleVacaciones = function(){
+      var concepto = { detalle : $scope.vacaciones, suma : $scope.vacaciones.monto };
+      var titulo = { nombreCompleto : $scope.trabajador.nombreCompleto, concepto : "Vacaciones" };
+      openDetalles(concepto, titulo);
+    }
+
     function recibirModels(obj){
       if(obj.concepto == 'Imponibles'){
         var check = false;
@@ -829,6 +881,12 @@ angular.module('angularjsApp')
           }
         }    
         $scope.noImponibles.check = check;
+      }else if(obj.concepto == 'Vacaciones'){
+        $scope.vacaciones.monto = obj.suma;
+        $scope.vacaciones.dias = obj.dias;
+        $scope.vacaciones.check = ($scope.vacaciones.monto>0);
+        $scope.vacaciones.checkVacaciones = obj.datos.checkVacaciones;
+        $scope.vacaciones.checkFeriado = obj.datos.checkFeriado;
       }
       /*if($scope.noImponibles.noImponibles){
         if($scope.imponibles.check || $scope.noImponibles.check){
@@ -1128,16 +1186,14 @@ angular.module('angularjsApp')
 
     $scope.validaFecha = function(){
       var date = $scope.finiquito.fecha;
-      if(date!=fecha.fechaActiva()){
-        date = date.setHours(0, 0, 0, 0);
-        console.log(date)
-      }
-      if(date){        
+      if(date){                
+        if(date!=fecha.fechaActiva()){
+          date = date.setHours(0, 0, 0, 0);
+        }
         $scope.invalidFecha = (!validations.validaFechaMin(date, mesActual.mes) || !validations.validaFechaMax(date, mesActual.fechaRemuneracion));
       }else{
-        $scope.invalidFecha = false;                      
+        $scope.invalidFecha = true;                      
       }
-      console.log($scope.invalidFecha)
     }  
 
     $scope.cambiarSueldo = function(sueldo){

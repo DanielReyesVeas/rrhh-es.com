@@ -160,6 +160,55 @@ class TipoDescuento extends Eloquent {
     	return $listaTiposDescuento;
     }
     
+    static function reporteDescuentos($ids, $trabajadores)
+    {
+        $mes = \Session::get('mesActivo');
+        $conceptos = TipoDescuento::whereIn('id', $ids)->get();
+        $detalle = array();
+        $detalleTrabajadores = array();
+        
+        $descuentos = Descuento::where('mes_id', $mes->id)->whereIn('tipo_descuento_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                ->orWhere('permanente', 1)->whereIn('tipo_descuento_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                ->orWhere('hasta', '>=', $mes->mes)->whereIn('tipo_descuento_id', $ids)->whereIn('trabajador_id', $trabajadores)->get();
+        
+        if($conceptos->count()){
+            foreach($descuentos as $descuento){
+                if($descuento->permanente && !$descuento->desde && !$descuento->hasta 
+                || $descuento->permanente && !$descuento->desde && $descuento->hasta && $descuento->hasta >= $mes->mes 
+                || $descuento->permanente && !$descuento->hasta && $descuento->desde && $descuento->desde <= $mes->mes 
+                || $descuento->permanente && $descuento->desde && $descuento->desde <= $mes->mes && $descuento->hasta && $descuento->hasta >= $mes->mes 
+                || !$descuento->permanente){
+                    if(isset($detalle[$descuento->tipoDescuento->id])){
+                        $detalle[$descuento->tipoDescuento->id]['total'] += Funciones::convertir($descuento->monto, $descuento->moneda);
+                        if(isset($detalle[$descuento->tipoDescuento->id]['trabajadores'][$descuento->trabajador_id])){
+                            $detalle[$descuento->tipoDescuento->id]['trabajadores'][$descuento->trabajador_id] += Funciones::convertir($descuento->monto, $descuento->moneda);
+                        }else{
+                            $detalle[$descuento->tipoDescuento->id]['trabajadores'][$descuento->trabajador_id] = Funciones::convertir($descuento->monto, $descuento->moneda);
+                        }
+                    }else{                    
+                        if($descuento->tipoDescuento->estructuraDescuento->id==3){                        
+                            $nombre = 'APVC AFP ' . $descuento->tipoDescuento->nombreAfp();
+                        }else if($descuento->tipoDescuento->estructuraDescuento->id==7){                        
+                            $nombre = 'Cuenta de Ahorro AFP ' . $descuento->tipoDescuento->nombreAfp();
+                        }else{                    
+                            $nombre = $descuento->tipoDescuento->nombre;
+                        }
+                        $detalle[$descuento->tipoDescuento->id] = array(
+                            'id' => $descuento->tipoDescuento->id,
+                            'codigo' => $descuento->tipoDescuento->codigo,
+                            'nombre' => $nombre,
+                            'total' => Funciones::convertir($descuento->monto, $descuento->moneda),
+                            'trabajadores' => array()
+                        );
+                        $detalle[$descuento->tipoDescuento->id]['trabajadores'][$descuento->trabajador_id] = Funciones::convertir($descuento->monto, $descuento->moneda);
+                    }
+                }
+            }
+        }
+                
+        return array_values($detalle);
+    }
+    
     public function misDescuentos()
     {        
         $idTipoDescuento = $this->id;

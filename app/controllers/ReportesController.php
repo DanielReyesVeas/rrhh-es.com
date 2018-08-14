@@ -54,26 +54,27 @@ class ReportesController extends \BaseController {
     {
         $datos = Input::all();
         $tipo = $datos['tipo'];
+        $desde = $datos['desde']['nombre'];
         $destination = public_path('planillas/reporte.xlsx');
         $folder = public_path() . '/stories/';
         $filename = 'reporte';
         
         switch($tipo){
             case 'haberes':
-                $conceptos = TipoHaber::whereIn('sid', $datos['conceptos'])->get();
+                $conceptos = TipoHaber::reporteHaberes($datos['conceptos'], $datos['trabajadores'], $desde);
                 break;
             case 'descuentos':
-                $conceptos = TipoDescuento::whereIn('sid', $datos['conceptos'])->get();
+                $conceptos = TipoDescuento::reporteDescuentos($datos['conceptos'], $datos['trabajadores'], $desde);
                 break;
             case 'aportes':
-                $conceptos = Aporte::whereIn('sid', $datos['conceptos'])->get();
+                $conceptos = Aporte::whereIn('id', $datos['conceptos'])->get();
                 break;
             default:
                 $conceptos = null;
                 break;
         }
 
-        $trabajadores = Trabajador::whereIn('sid', $datos['trabajadores'])->get();                
+        $trabajadores = Trabajador::whereIn('id', $datos['trabajadores'])->get();                
         
         Excel::create('reporte', function($reader) use ($trabajadores, $conceptos) {
             $reader->sheet('Reporte', function($sheet) use ($trabajadores, $conceptos) {
@@ -97,28 +98,50 @@ class ReportesController extends \BaseController {
                 
                 if(count($lista)){
                     foreach($lista as $trab){        
-                       $sheet->cell('A'.$i, function($cell) use ($i, $trab) {
+                       $sheet->cell('A'.$i, function($cell) use ($trab) {
+                            //$cell->setValue($trab['rut']);
                             $cell->setValue($trab['rut']);
                         });
-                        $sheet->cell('B'.$i, function($cell) use ($i, $trab) {
+                        $sheet->cell('B'.$i, function($cell) use ($trab) {
                             $cell->setValue($trab['nombreCompleto']);
                         });
                         $i++;
                     }
+                    $sheet->cell('B'.$i, function($cell) {
+                        $cell->setValue('TOTAL');
+                    });
                 }
                 
                 if(true){
-                    if($conceptos){
+                    if($conceptos){                        
                         foreach($conceptos as $concepto){
-                            if($concepto->id>15 || $concepto->id==10 || $concepto->id==11){
+                            //if($concepto['id']>15 || $concepto['id']==10 || $concepto['id']==11){
+                                $count = 3;
                                 $sheet->cell($letter.'1', function($cell) use ($letter, $concepto) {
-                                    $cell->setValue($concepto->codigo);                       
+                                    $cell->setValue($concepto['codigo']);                       
                                 });
                                 $sheet->cell($letter.'2', function($cell) use ($letter, $concepto) {
-                                    $cell->setValue($concepto->nombre);                       
+                                    $cell->setValue($concepto['nombre']);                       
+                                });
+                                
+                                foreach($trabajadores as $trab){
+                                    if(isset($concepto['trabajadores'][$trab->id])){
+                                        $monto = $concepto['trabajadores'][$trab->id];
+                                        $sheet->cell($letter.$count, function($cell) use ($monto) {
+                                            $cell->setValue(Funciones::formatoPesos($monto));
+                                        });
+                                    }else{
+                                        $sheet->cell($letter.$count, function($cell) use ($letter) {
+                                            $cell->setValue('$0');                       
+                                        });
+                                    }
+                                    $count++;
+                                }
+                                $sheet->cell($letter.$count, function($cell) use ($concepto) {
+                                    $cell->setValue(Funciones::formatoPesos($concepto['total']));
                                 });
                                 $letter++;
-                            }
+                            //}
                         }
                     }
                 }else{

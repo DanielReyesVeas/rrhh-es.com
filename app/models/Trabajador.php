@@ -323,18 +323,24 @@ class Trabajador extends Eloquent {
     
     static function listaTrabajadores()
     {
-        $mes = \Session::get('mesActivo');
-        $finMes = $mes->fechaRemuneracion;
-        $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes->mes)));
-        $finMesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($finMes)));
+        $mesActual = \Session::get('mesActivo');
+        $finMes = $mesActual->fechaRemuneracion;
+        $mes = $mesActual->mes;
+        $mostrarFiniquitados = Empresa::variableConfiguracion('finiquitados_liquidacion');
         $trabajadores = Trabajador::all();
-        
         $listaTrabajadores=array();
+        
+        if($mostrarFiniquitados){
+            $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes)));
+        }else{
+            $mesAnterior = $mes;
+        }        
+        
         if( $trabajadores->count() ){
             foreach( $trabajadores as $trabajador ){
                 $empleado = $trabajador->ficha();
                 if($empleado){
-                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito <= $finMes && $empleado->fecha_finiquito >= $mesAnterior){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito >= $mesAnterior && $empleado->fecha_ingreso<=$finMes){
                         $listaTrabajadores[]=array(
                             'id' => $trabajador->id,
                             'sid' => $trabajador->sid,
@@ -1336,7 +1342,7 @@ class Trabajador extends Eloquent {
         
         $datos = array(
             'total' => $total,
-            'dias' => $dias,
+            'dias' => round($dias, 2),
             'hasta' => $hasta,
             'calcularDesde' => $calcularDesde,
             'desde' => $desde,
@@ -1552,7 +1558,7 @@ class Trabajador extends Eloquent {
         $diasMes = (int) date('d', strtotime($fecha));
         $diaIngreso = (( (int) date('d', strtotime($ficha->fecha_ingreso) )) - 1);
         $diasTrabajados = ($diasMes - $diaIngreso);
-        if($diasTrabajados > 30){
+        if($diasTrabajados > 30 || $diasTrabajados == $diasMes){
             $diasTrabajados = 30;
         }
         $dias = (($dias / 30) * $diasTrabajados);
@@ -3811,7 +3817,6 @@ class Trabajador extends Eloquent {
                 $fechaDesde = $fechaReconocimiento;
             }else if($tipoContrato==2){
                 $fechaDesde = $fechaReconocimiento;
-                $fechaHasta = $empleado->fecha_vencimiento;
                 $codigo = 7;
             }
             $fechaDesde = $fechaReconocimiento;

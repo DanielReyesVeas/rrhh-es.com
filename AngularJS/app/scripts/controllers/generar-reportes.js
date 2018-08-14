@@ -16,7 +16,11 @@ angular.module('angularjsApp')
     $scope.objeto = {};
     $scope.filtro = {};
     $scope.empresa = $rootScope.globals.currentUser.empresa;
-    $scope.objeto = { todosTrabajadores : true, todosConceptos : true, isSelectedConceptos : true,  isSelectedTrabajadores : true };
+    $scope.opcionesDesde = [
+      { id : 1, nombre : "Liquidaciones" },
+      { id : 2, nombre : "Ingresos" }
+    ];
+    $scope.objeto = { todosTrabajadores : true, todosConceptos : true, isSelectedConceptos : true,  isSelectedTrabajadores : true, desde : $scope.opcionesDesde[0] };
 
     function cargarDatos(){
       $rootScope.cargando = true;
@@ -38,6 +42,16 @@ angular.module('angularjsApp')
         }, 250);
         $scope.cargado = true;
       });
+    }
+
+    $scope.filtro = function(){
+      return function(item) {
+        if(item.id==2 && $scope.objeto.concepto.id==3){          
+          return false;
+        }else{
+          return true;
+        }
+      }
     }
 
     function isThereAllSelected(datos){
@@ -166,7 +180,6 @@ angular.module('angularjsApp')
           $scope.datos[i].check = true
           total++;  
         }
-
       }else{
         for(var i=0, len=$scope.datos.length; i<len; i++){
           $scope.datos[i].check = false
@@ -177,22 +190,24 @@ angular.module('angularjsApp')
 
     cargarDatos();
 
-    $scope.selectConcepto = function(){
-      $scope.datos = $scope[$scope.objeto.concepto.concepto];     
+    $scope.selectConcepto = function(){      
+      if($scope.objeto.concepto.id==3){
+        $scope.objeto.desde = $scope.opcionesDesde[0];
+      }   
+      $scope.datos = $scope[$scope.objeto.concepto.concepto];  
       crearModels();
     }
 
     $scope.generar = function(){
-      var obj = { conceptos :  [], trabajadores : [], tipo : $scope.objeto.concepto.concepto };
-
+      var obj = { conceptos :  [], trabajadores : [], tipo : $scope.objeto.concepto.concepto, desde : $scope.objeto.desde };
       for(var i=0,len=$scope.datos.length; i<len; i++){
         if($scope.datos[i].check){
-          obj.conceptos.push($scope.datos[i].sid);
+          obj.conceptos.push($scope.datos[i].id);
         }
       }
       for(var i=0,len=$scope.filtro.itemsFiltrados.length; i<len; i++){
         if($scope.filtro.itemsFiltrados[i].check){
-          obj.trabajadores.push($scope.filtro.itemsFiltrados[i].sid);
+          obj.trabajadores.push($scope.filtro.itemsFiltrados[i].id);
         }
       }
 

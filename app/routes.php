@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.8.5');
+define('VERSION_SISTEMA', '1.8.6');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -555,6 +555,7 @@ Route::post('login/password/reestablecer', function (){
             'mensaje' => 'El Nombre de Usuario y/o Correo Electrónico ingresado son incorrectos!'
         );
     }
+    
     return Response::json($resultado);
 });
 

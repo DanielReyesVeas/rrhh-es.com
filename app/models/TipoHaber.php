@@ -137,6 +137,82 @@ class TipoHaber extends Eloquent {
         return $listaImponibles;
     }
     
+    static function reporteHaberes($ids, $trabajadores, $desde)
+    {
+        $mes = \Session::get('mesActivo');
+        $conceptos = TipoHaber::whereIn('id', $ids)->get();
+        $detalle = array();
+        $detalleTrabajadores = array();
+        
+        if($desde=='Ingresos'){
+            $haberes = Haber::where('mes_id', $mes->id)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                    ->orWhere('permanente', 1)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                    ->orWhere('hasta', '>=', $mes->mes)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)->get();
+
+            if($conceptos->count()){
+                foreach($haberes as $haber){
+                    if($haber->permanente && !$haber->desde && !$haber->hasta 
+                    || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes->mes 
+                    || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes->mes 
+                    || $haber->permanente && $haber->desde && $haber->desde <= $mes->mes && $haber->hasta && $haber->hasta >= $mes->mes 
+                    || !$haber->permanente){
+                        if(isset($detalle[$haber->tipoHaber->id])){
+                            $detalle[$haber->tipoHaber->id]['total'] += Funciones::convertir($haber->monto, $haber->moneda);
+                            if(isset($detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id])){
+                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] += Funciones::convertir($haber->monto, $haber->moneda);
+                            }else{
+                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
+                            }
+                        }else{                    
+                            $detalle[$haber->tipoHaber->id] = array(
+                                'id' => $haber->tipoHaber->id,
+                                'codigo' => $haber->tipoHaber->codigo,
+                                'nombre' => $haber->tipoHaber->nombre,
+                                'total' => Funciones::convertir($haber->monto, $haber->moneda),
+                                'trabajadores' => array()
+                            );
+                            $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
+                        }
+                    }
+                }
+            }
+        }else{
+            $haberes = Haber::where('mes_id', $mes->id)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                    ->orWhere('permanente', 1)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                    ->orWhere('hasta', '>=', $mes->mes)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)->get();
+
+            if($conceptos->count()){
+                foreach($haberes as $haber){
+                    if($haber->permanente && !$haber->desde && !$haber->hasta 
+                    || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes->mes 
+                    || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes->mes 
+                    || $haber->permanente && $haber->desde && $haber->desde <= $mes->mes && $haber->hasta && $haber->hasta >= $mes->mes 
+                    || !$haber->permanente){
+                        if(isset($detalle[$haber->tipoHaber->id])){
+                            $detalle[$haber->tipoHaber->id]['total'] += Funciones::convertir($haber->monto, $haber->moneda);
+                            if(isset($detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id])){
+                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] += Funciones::convertir($haber->monto, $haber->moneda);
+                            }else{
+                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
+                            }
+                        }else{                    
+                            $detalle[$haber->tipoHaber->id] = array(
+                                'id' => $haber->tipoHaber->id,
+                                'codigo' => $haber->tipoHaber->codigo,
+                                'nombre' => $haber->tipoHaber->nombre,
+                                'total' => Funciones::convertir($haber->monto, $haber->moneda),
+                                'trabajadores' => array()
+                            );
+                            $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
+                        }
+                    }
+                }
+            }
+        }
+                
+        return array_values($detalle);
+    }
+    
     public function misHaberes()
     {        
         $idTipoHaber = $this->id;

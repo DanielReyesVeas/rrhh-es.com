@@ -16,6 +16,12 @@
           <div class="col-md-3">
             <select class="form-control form-white" ng-model="objeto.concepto" ng-options="con as con.nombre for con in conceptos" ng-change="selectConcepto()" required> </select> 
           </div>
+          <label class="control-label col-md-1">
+            Desde:
+          </label>
+          <div class="col-md-3">
+            <select class="form-control form-white" ng-model="objeto.desde" ng-options="desde as desde.nombre for desde in opcionesDesde | filter : filtro()" required> </select> 
+          </div>
         </div>
       </div>     
 

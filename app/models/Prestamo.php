@@ -49,16 +49,20 @@ class Prestamo extends Eloquent {
     public function cuotaPagar()
     {
         $idPrestamo = $this->id;
-        $cuota = new stdClass();
         $mes = \Session::get('mesActivo')->mes;
         $cuotas = Cuota::where('prestamo_id', $idPrestamo)->where('mes', $mes)->first();
-
-        $cuota->id = $cuotas->id;
-        $cuota->sid = $cuotas->sid;
-        $cuota->numero = $cuotas->numero;
-        $cuota->monto = $cuotas->monto;
         
-        return $cuota;
+        if($cuotas){
+            $cuota = new stdClass();
+            $cuota->id = $cuotas->id;
+            $cuota->sid = $cuotas->sid;
+            $cuota->numero = $cuotas->numero;
+            $cuota->monto = $cuotas->monto;
+            
+            return $cuota;
+        }
+        
+        return null;
     }
     
     public function cuotasPagar()
@@ -67,13 +71,15 @@ class Prestamo extends Eloquent {
         $mes = \Session::get('mesActivo')->mes;
         $cuotas = Cuota::where('prestamo_id', $idPrestamo)->where('mes', '>=', $mes)->get();
         $cuotaPagar = $this->cuotaPagar();
-        $cuotasPagadas = DetalleLiquidacion::where('tipo_id', 4)->where('detalle_id', $this->id)->where('valor_4', '<=', $cuotaPagar->numero)->lists('valor_4');
         $total = 0;
         
-        if($cuotas->count()){
-            foreach($cuotas as $cuota){
-                if(!in_array($cuota->numero, $cuotasPagadas)){
-                    $total += $cuota->monto;
+        if($cuotaPagar){
+            $cuotasPagadas = DetalleLiquidacion::where('tipo_id', 4)->where('detalle_id', $this->id)->where('valor_4', '<=', $cuotaPagar->numero)->lists('valor_4');
+            if($cuotas->count()){
+                foreach($cuotas as $cuota){
+                    if(!in_array($cuota->numero, $cuotasPagadas)){
+                        $total += $cuota->monto;
+                    }
                 }
             }
         }

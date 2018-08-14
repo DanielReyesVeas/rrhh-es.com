@@ -510,13 +510,15 @@ class FiniquitosController extends \BaseController {
             }
 
             if($datos['vacaciones']){
+                $sueldoVacaciones = $trabajador->sueldoBase();
                 if($datos['vacacionesManual']){
                     $vacaciones = $datos['diasVacaciones'];
                 }else{
                     $vacacionesDetalle = $trabajador->misVacacionesFiniquito($datos['fecha']);   
                     $vacaciones = $vacacionesDetalle['total'];
+                    $vacacionesDetalle['totalProporcional'] = round(($sueldoVacaciones / 30 ) * $vacacionesDetalle['feriadoProporcional']['diasF']);
+                    $vacacionesDetalle['totalNormal'] = round(($sueldoVacaciones / 30 ) * $vacacionesDetalle['dias']);
                 }
-                $sueldoVacaciones = $trabajador->sueldoBase();
                 $montoVacaciones = round(($sueldoVacaciones / 30 ) * $vacaciones);
             }      
             $sueldoBase = 0;

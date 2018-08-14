@@ -171,7 +171,7 @@ class TrabajadoresController extends \BaseController {
                         $sumas['apvs'][$index] = isset($sumas['apvs'][$index]) ? ($sumas['apvs'][$index] + $apvi->monto) : $apvi->monto;
                     }
                 }
-                if($liquidacion->colacion){                    
+                if($liquidacion->colacion && false){                    
                     $haberes['noImponibles']['colacion_permanente'] = 'Colación Permanente';
                     $liquidacion->$index = isset($liquidacion->colacion_permanente) ? ($liquidacion->colacion_permanente + $liquidacion->colacion) : $liquidacion->colacion;
                     $sumas['noImponibles']['colacion_permanente'] = isset($sumas['noImponibles']['colacion_permanente']) ? ($sumas['noImponibles']['colacion_permanente'] + $liquidacion->colacion) : $liquidacion->colacion;
@@ -3309,8 +3309,6 @@ class TrabajadoresController extends \BaseController {
             $trabajadoresEmpresa = Trabajador::all();
             $totalTrabajadores+=$trabajadoresEmpresa->count();
         }
-
-
 
         if( $totalTrabajadores >= $trabajadoresPermitidos ){
             $permisos['crear']=false;

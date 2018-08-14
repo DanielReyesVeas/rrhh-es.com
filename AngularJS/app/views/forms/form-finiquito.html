@@ -113,7 +113,8 @@
                 <td>{{ vacaciones.dias }} <span ng-if="vacaciones.dias!=1"> días</span><span ng-if="vacaciones.dias==1"> día</span></td>
                 <td>
                   <span ng-if="!vacaciones.edit">${{ vacaciones.monto | currency:'':0 }}               
-                    <a href="" class="pull-right" ng-click="edit(vacaciones)"><i class="fa fa-pencil"></i></a>
+                    <!--<a href="" class="pull-right" ng-click="edit(vacaciones)"><i class="fa fa-pencil"></i></a>-->
+                    <a href="" class="pull-right" ng-click="detalleVacaciones()"><i class="fa fa-search"></i></a>
                   </span>   
                   <span ng-if="vacaciones.edit">
                     $<input type="number" ng-if="vacaciones.edit" ng-model="vacaciones.monto" style="width: 90px" />

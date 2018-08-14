@@ -1135,7 +1135,6 @@ angular
           return false;
         },
         validaFechaMin: function(date, fechaMin){
-          console.log(date)
           date = fecha.convertirFechaFormato(date)
           fechaMin = fecha.convertirFechaFormato(fechaMin)
           if(date < fechaMin){
@@ -1144,9 +1143,7 @@ angular
           return true;
         },
         validaFechaMax: function(date, fechaMax){
-          console.log(date)
           date = fecha.convertirFechaFormato(date)
-          fechaMax = fecha.convertirFechaFormato(fechaMax)
           if(date > fechaMax){
             return false;
           }
