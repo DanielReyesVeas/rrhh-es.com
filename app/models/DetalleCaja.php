@@ -23,6 +23,9 @@ class DetalleCaja extends Eloquent {
         }
         return null;
     }*/
+    public function caja(){
+        return $this->belongsTo('Glosa', 'caja_id');
+    }
     
     public function cuenta($cuentasCodigo, $centroCostoId)
     {
@@ -47,6 +50,17 @@ class DetalleCaja extends Eloquent {
         $codigo = Codigo::find($caja)->codigo;
         
         return $codigo;
+    }
+    
+    public function nombreCaja()
+    {
+        $caja = $this->caja;
+        $nombre = '';
+        if($caja){
+            $nombre = $caja->glosa;
+        }
+        
+        return $nombre;
     }
     
     public function rentaImponible()

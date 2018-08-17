@@ -52,6 +52,26 @@ angular.module('angularjsApp')
       }
     };
 
+    $scope.reporte = function(){
+      $rootScope.cargando = true;
+      var obj = {};
+      var datos = trabajador.reporte().post({}, obj);
+      datos.$promise.then(function(response){
+        if(response.success){
+          descargar();
+          $rootScope.cargando = false;
+        }else{
+          Notification.error({message: response.mensaje, title: 'Mensaje del Sistema'});
+          $rootScope.cargando = false;
+        }        
+      });
+    }
+
+    function descargar(){
+      var url = $scope.constantes.URL + 'trabajadores/reporte-trabajadores/descargar';
+      window.open(url, "_self");
+    }
+
     $scope.clearText = function(){
       $scope.filtro.nombre = "";
       $scope.filtrar();

@@ -21,8 +21,12 @@
         </div>
       </div>
 
-      <div class="col-sm-12" style="margin-bottom: 20px;">
+      <div class="col-sm-12">
         <a ng-click="plantillasContratos()" ng-if="accesos.crear && accesos.abierto" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-cog"></i> Gestión Plantillas de Contratos</a>
+      </div>
+
+      <div class="col-sm-12" style="margin-bottom: 20px;">
+        <a ng-click="reporte()" ng-if="accesos.crear && accesos.abierto" href="" class="btn btn-primary btn-xs pull-right"><i class="fa fa-table"></i> Reporte Trabajadores</a>
       </div>
 
       <div class="col-sm-12" style="margin-bottom: 20px;" ng-class="{ 'hidden' : datos.length==0}"> 

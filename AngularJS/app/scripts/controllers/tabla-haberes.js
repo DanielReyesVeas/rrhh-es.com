@@ -111,7 +111,7 @@ angular.module('angularjsApp')
       $scope.titulo = 'Modificación Haberes';
       $scope.encabezado = $scope.tipoHaber.nombre;
     }else{
-      $scope.tipoHaber = { imponible : imponible, tributable : imponible, gratificacion : imponible, calculaHorasExtras : imponible, proporcionalDiasTrabajados : imponible };
+      $scope.tipoHaber = { imponible : imponible, tributable : imponible, gratificacion : imponible, calculaHorasExtras : imponible, proporcionalDiasTrabajados : imponible, isEditNombre : true };
       $scope.titulo = 'Ingreso Haberes';
       $scope.encabezado = 'Nuevo Haber';
     }

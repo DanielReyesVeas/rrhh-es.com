@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 //ini_set('display_errors', 'On');
 
 ini_set('max_execution_time', 30000);
-define('VERSION_SISTEMA', '1.8.6');
+define('VERSION_SISTEMA', '1.8.7');
 ini_set('memory_limit', '3048M');
 
 if(Config::get('cliente.LOCAL')){
@@ -59,7 +59,6 @@ Route::get('fichass', function(){
 });
 
 Route::get('liq', function(){
-
     Config::set('database.default', 'principal' );
     $empresas = Empresa::all();
     
@@ -1699,36 +1698,31 @@ c139f46406b37dedd4062fea30a5ccec
 3355afed2b2d8d597f1ac8fd178892ef
 ";
 
-                    $query1 = "https://184.154.202.34:2087/json-api/cpanel?user=easysystems&cpanel_jsonapi_module=Mysql&cpanel_jsonapi_func=adddb&cpanel_jsonapi_apiversion=1&arg-0=easysyst_123456";
-                    $query2 = "https://184.154.202.34:2087/json-api/cpanel?user=easysystems&cpanel_jsonapi_module=Mysql&cpanel_jsonapi_func=adduserdb&cpanel_jsonapi_apiversion=1&arg-0=easysyst_123456&arg-1=easysyst_rrhh&arg-2=all";
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                $query1 = "https://184.154.202.34:2087/json-api/cpanel?user=easysystems&cpanel_jsonapi_module=Mysql&cpanel_jsonapi_func=adddb&cpanel_jsonapi_apiversion=1&arg-0=easysyst_123456";
+                $query2 = "https://184.154.202.34:2087/json-api/cpanel?user=easysystems&cpanel_jsonapi_module=Mysql&cpanel_jsonapi_func=adduserdb&cpanel_jsonapi_apiversion=1&arg-0=easysyst_123456&arg-1=easysyst_rrhh&arg-2=all";
+                $curl = curl_init();
+                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-                    $header[0] = "Authorization: WHM $whmusername:" . preg_replace("'(\r|\n)'", "", $hash);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-                    curl_setopt($curl, CURLOPT_URL, $query1);
-                    $result = curl_exec($curl);
-                    if ($result == false) {
-                        error_log("curl_exec threw error " . curl_error($curl) . " for $query1");
-                        die("curl_exec threw error " . curl_error($curl) . " for $query1");
-                    }
+                $header[0] = "Authorization: WHM $whmusername:" . preg_replace("'(\r|\n)'", "", $hash);
+                curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+                curl_setopt($curl, CURLOPT_URL, $query1);
+                $result = curl_exec($curl);
+                if ($result == false) {
+                    error_log("curl_exec threw error " . curl_error($curl) . " for $query1");
+                    die("curl_exec threw error " . curl_error($curl) . " for $query1");
+                }
 
-                    curl_setopt($curl, CURLOPT_URL, $query2);
-                    $result = curl_exec($curl);
+                curl_setopt($curl, CURLOPT_URL, $query2);
+                $result = curl_exec($curl);
 
-                    if ($result == false) {
-                        error_log("curl_exec threw error " . curl_error($curl) . " for $query2");
-                        die("curl_exec threw error " . curl_error($curl) . " for $query2");
-                    }
-                    curl_close($curl);
-        
+                if ($result == false) {
+                    error_log("curl_exec threw error " . curl_error($curl) . " for $query2");
+                    die("curl_exec threw error " . curl_error($curl) . " for $query2");
+                }
+                curl_close($curl);
 
-
-    
-
- 
     });
                 
     Route::post('cambiar-mes-de-trabajo', function(){
@@ -1762,7 +1756,7 @@ c139f46406b37dedd4062fea30a5ccec
             
             $listaMesesDeTrabajo=MesDeTrabajo::listaMesesDeTrabajo();
 
-            $respuesta = array(
+            $respuesta = array( 
                 'success' => true,
                 'recargar' => true,
                 'mesActual' => $mesActual,
@@ -1944,6 +1938,8 @@ Route::group(array('before'=>'auth_ajax'), function() {
     Route::post('trabajadores/provision-vacaciones/obtener', 'TrabajadoresController@provisionVacaciones');
     Route::get('trabajadores/provision-vacaciones/descargar', 'TrabajadoresController@descargarProvision');
     Route::get('trabajadores/sueldo-hora/obtener/{sid}', 'TrabajadoresController@trabajadorSueldoHora');
+    Route::post('trabajadores/reporte/generar', 'TrabajadoresController@reporte');
+    Route::get('trabajadores/reporte-trabajadores/descargar', 'TrabajadoresController@descargarReporteTrabajadores');
         
     /*   NACIONALIDADES    */
     Route::resource('nacionalidades', 'NacionalidadesController');

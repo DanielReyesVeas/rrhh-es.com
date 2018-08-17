@@ -20,8 +20,7 @@ class ReportesController extends \BaseController {
     }
     
     public function index()
-    {
-        
+    {        
         if(!\Session::get('empresa')){
             return Response::json(array('datos' => array(), 'permisos' => array()));
         }
@@ -33,8 +32,8 @@ class ReportesController extends \BaseController {
             array( 'id' => 3, 'nombre' => 'Aportes', 'concepto' => 'aportes')
         );
         
-        $haberes = TipoHaber::listaHaberes();
-        $descuentos = TipoDescuento::listaTiposDescuento();
+        $haberes = TipoHaber::listaHaberes(true);
+        $descuentos = TipoDescuento::listaDescuentos();
         $aportes = Aporte::listaAportes();
         $trabajadores = Trabajador::listaTrabajadores();
         
@@ -67,13 +66,12 @@ class ReportesController extends \BaseController {
                 $conceptos = TipoDescuento::reporteDescuentos($datos['conceptos'], $datos['trabajadores'], $desde);
                 break;
             case 'aportes':
-                $conceptos = Aporte::whereIn('id', $datos['conceptos'])->get();
+                $conceptos = Aporte::reporteAportes($datos['conceptos'], $datos['trabajadores']);
                 break;
             default:
                 $conceptos = null;
                 break;
         }
-
         $trabajadores = Trabajador::whereIn('id', $datos['trabajadores'])->get();                
         
         Excel::create('reporte', function($reader) use ($trabajadores, $conceptos) {
@@ -117,9 +115,6 @@ class ReportesController extends \BaseController {
                         foreach($conceptos as $concepto){
                             //if($concepto['id']>15 || $concepto['id']==10 || $concepto['id']==11){
                                 $count = 3;
-                                $sheet->cell($letter.'1', function($cell) use ($letter, $concepto) {
-                                    $cell->setValue($concepto['codigo']);                       
-                                });
                                 $sheet->cell($letter.'2', function($cell) use ($letter, $concepto) {
                                     $cell->setValue($concepto['nombre']);                       
                                 });

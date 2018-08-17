@@ -8,12 +8,27 @@ class DetalleMutual extends Eloquent {
         return $this->belongsTo('Liquidacion','liquidacion_id');
     }
     
+    public function mutual(){
+        return $this->belongsTo('Glosa', 'mutual_id');
+    }
+    
     public function codigoMutual()
     {        
         $mutual = $this->mutual_id;
         $codigo = Codigo::find($mutual)->codigo;
         
         return $codigo;
+    }
+    
+    public function nombreMutual()
+    {        
+        $mutual = $this->mutual;
+        $nombre = '';
+        if($mutual){
+            $nombre = $mutual->glosa;
+        }
+        
+        return $nombre;
     }
     
     /*public function cuenta($cuentasCodigo, $centroCostoId){

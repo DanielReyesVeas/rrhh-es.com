@@ -20,7 +20,7 @@
             Desde:
           </label>
           <div class="col-md-3">
-            <select class="form-control form-white" ng-model="objeto.desde" ng-options="desde as desde.nombre for desde in opcionesDesde | filter : filtro()" required> </select> 
+            <select class="form-control form-white" ng-model="objeto.desde" ng-options="desde as desde.nombre for desde in opcionesDesde | filter : filtro()" ng-change="selectDesde()" required> </select> 
           </div>
         </div>
       </div>     
@@ -54,7 +54,7 @@
             </thead>
             <tbody>
               <tr ng-repeat="dato in datos" ng-if="$index>(datos.length / 2)">
-                <td><input type="checkbox" ng-model="dato.check" ng-change="selectAllConceptos()" icheck></td>
+                <td><input type="checkbox" ng-model="dato.check" ng-change="selectDatos(dato.check)" icheck></td>
                 <td>{{ dato.nombre }}</td>
               </tr>
             </tbody>

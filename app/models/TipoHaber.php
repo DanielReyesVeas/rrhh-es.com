@@ -103,114 +103,157 @@ class TipoHaber extends Eloquent {
     static function listaHaberes()
     {
         $tiposHaber = TipoHaber::all()->sortBy("codigo");
-        $listaImponibles=array();
-        $listaNoImponibles=array();
+        $todos=array();
+        $filtrados=array();
         
         if($tiposHaber->count()){
             foreach($tiposHaber as $tipoHaber){
                 if($tipoHaber->id>15 || $tipoHaber->id==10 || $tipoHaber->id==11 || $tipoHaber->id==4 || $tipoHaber->id==3 || $tipoHaber->id==5){
-                    if($tipoHaber->imponible){
-                        $listaImponibles[]=array(
-                            'id' => $tipoHaber->id,
-                            'sid' => $tipoHaber->sid,
-                            'codigo' => $tipoHaber->codigo,
-                            'nombre' => $tipoHaber->nombre
-                        );
-                    }else{
-                        $listaImponibles[]=array(
-                            'id' => $tipoHaber->id,
-                            'sid' => $tipoHaber->sid,
-                            'codigo' => $tipoHaber->codigo,
-                            'nombre' => $tipoHaber->nombre
-                        );
-                    }
+                    $filtrados[]=array(
+                        'id' => $tipoHaber->id,
+                        'sid' => $tipoHaber->sid,
+                        'codigo' => $tipoHaber->codigo,
+                        'nombre' => $tipoHaber->nombre
+                    );
+                    $todos[]=array(
+                        'id' => $tipoHaber->id,
+                        'sid' => $tipoHaber->sid,
+                        'codigo' => $tipoHaber->codigo,
+                        'nombre' => $tipoHaber->nombre
+                    );
+                }else{
+                    $todos[]=array(
+                        'id' => $tipoHaber->id,
+                        'sid' => $tipoHaber->sid,
+                        'codigo' => $tipoHaber->codigo,
+                        'nombre' => $tipoHaber->nombre
+                    );
                 }
             }
         }
         
         
         $datos = array(
-            'imponibles' => $listaImponibles,
-            'noImponibles' => $listaNoImponibles
+            'todos' => $todos,
+            'filtrados' => $filtrados
         );
         
-        return $listaImponibles;
+        return $datos;
     }
     
     static function reporteHaberes($ids, $trabajadores, $desde)
     {
-        $mes = \Session::get('mesActivo');
-        $conceptos = TipoHaber::whereIn('id', $ids)->get();
+        $mes = \Session::get('mesActivo');        
         $detalle = array();
-        $detalleTrabajadores = array();
         
-        if($desde=='Ingresos'){
-            $haberes = Haber::where('mes_id', $mes->id)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
-                    ->orWhere('permanente', 1)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
-                    ->orWhere('hasta', '>=', $mes->mes)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)->get();
+        if(count($ids)){
+            if($desde=='Ingresos'){
+                $conceptos = TipoHaber::whereIn('id', $ids)->get();
 
-            if($conceptos->count()){
-                foreach($haberes as $haber){
-                    if($haber->permanente && !$haber->desde && !$haber->hasta 
-                    || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes->mes 
-                    || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes->mes 
-                    || $haber->permanente && $haber->desde && $haber->desde <= $mes->mes && $haber->hasta && $haber->hasta >= $mes->mes 
-                    || !$haber->permanente){
-                        if(isset($detalle[$haber->tipoHaber->id])){
-                            $detalle[$haber->tipoHaber->id]['total'] += Funciones::convertir($haber->monto, $haber->moneda);
-                            if(isset($detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id])){
-                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] += Funciones::convertir($haber->monto, $haber->moneda);
-                            }else{
+                $haberes = Haber::where('mes_id', $mes->id)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                        ->orWhere('permanente', 1)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
+                        ->orWhere('hasta', '>=', $mes->mes)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)->get();
+
+                if($conceptos->count()){
+                    foreach($haberes as $haber){
+                        if($haber->permanente && !$haber->desde && !$haber->hasta 
+                        || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes->mes 
+                        || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes->mes 
+                        || $haber->permanente && $haber->desde && $haber->desde <= $mes->mes && $haber->hasta && $haber->hasta >= $mes->mes 
+                        || !$haber->permanente){
+                            if(isset($detalle[$haber->tipoHaber->id])){
+                                $detalle[$haber->tipoHaber->id]['total'] += Funciones::convertir($haber->monto, $haber->moneda);
+                                if(isset($detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id])){
+                                    $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] += Funciones::convertir($haber->monto, $haber->moneda);
+                                }else{
+                                    $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
+                                }
+                            }else{                    
+                                $detalle[$haber->tipoHaber->id] = array(
+                                    'id' => $haber->tipoHaber->id,
+                                    'codigo' => $haber->tipoHaber->codigo,
+                                    'nombre' => $haber->tipoHaber->nombre,
+                                    'total' => Funciones::convertir($haber->monto, $haber->moneda),
+                                    'trabajadores' => array()
+                                );
                                 $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
                             }
+                        }
+                    }
+                    array_values($detalle);
+                }
+            }else{
+                $liquidaciones = Liquidacion::whereIn('trabajador_id', $trabajadores)->where('mes', $mes->mes)->get();
+                $idsLiquidaciones = Funciones::array_column(json_decode(json_encode($liquidaciones), true), 'id');
+                $haberes = DetalleLiquidacion::whereIn('liquidacion_id', $idsLiquidaciones)->whereIn('tipo_id', array(1, 5))->whereIn('detalle_id', $ids)->get();
+                                
+                if($haberes->count()){                   
+                   foreach($haberes as $haber){
+                        if(isset($detalle[$haber->detalle_id])){
+                            $detalle[$haber->detalle_id]['total'] += $haber->valor;
+                            if(isset($detalle[$haber->detalle_id]['trabajadores'][$haber->liquidacion->trabajador_id])){
+                                $detalle[$haber->detalle_id]['trabajadores'][$haber->liquidacion->trabajador_id] += $haber->valor;
+                            }else{
+                                $detalle[$haber->detalle_id]['trabajadores'][$haber->liquidacion->trabajador_id] = $haber->valor;
+                            }
                         }else{                    
-                            $detalle[$haber->tipoHaber->id] = array(
-                                'id' => $haber->tipoHaber->id,
-                                'codigo' => $haber->tipoHaber->codigo,
-                                'nombre' => $haber->tipoHaber->nombre,
-                                'total' => Funciones::convertir($haber->monto, $haber->moneda),
+                            $detalle[$haber->detalle_id] = array(
+                                'id' => $haber->detalle_id,
+                                'codigo' => $haber->detalle_id,
+                                'nombre' => $haber->nombre,
+                                'total' => $haber->valor,
                                 'trabajadores' => array()
                             );
-                            $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
+                            $detalle[$haber->detalle_id]['trabajadores'][$haber->liquidacion->trabajador_id] = $haber->valor;
                         }
                     }
                 }
-            }
-        }else{
-            $haberes = Haber::where('mes_id', $mes->id)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
-                    ->orWhere('permanente', 1)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)
-                    ->orWhere('hasta', '>=', $mes->mes)->whereIn('tipo_haber_id', $ids)->whereIn('trabajador_id', $trabajadores)->get();
-
-            if($conceptos->count()){
-                foreach($haberes as $haber){
-                    if($haber->permanente && !$haber->desde && !$haber->hasta 
-                    || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes->mes 
-                    || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes->mes 
-                    || $haber->permanente && $haber->desde && $haber->desde <= $mes->mes && $haber->hasta && $haber->hasta >= $mes->mes 
-                    || !$haber->permanente){
-                        if(isset($detalle[$haber->tipoHaber->id])){
-                            $detalle[$haber->tipoHaber->id]['total'] += Funciones::convertir($haber->monto, $haber->moneda);
-                            if(isset($detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id])){
-                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] += Funciones::convertir($haber->monto, $haber->moneda);
-                            }else{
-                                $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
-                            }
-                        }else{                    
-                            $detalle[$haber->tipoHaber->id] = array(
-                                'id' => $haber->tipoHaber->id,
-                                'codigo' => $haber->tipoHaber->codigo,
-                                'nombre' => $haber->tipoHaber->nombre,
-                                'total' => Funciones::convertir($haber->monto, $haber->moneda),
-                                'trabajadores' => array()
-                            );
-                            $detalle[$haber->tipoHaber->id]['trabajadores'][$haber->trabajador_id] = Funciones::convertir($haber->monto, $haber->moneda);
-                        }
-                    }
+                
+                $trabajadores = array();
+                $trabajadoresGratificacion = array();
+                $trabajadoresCargas = array();
+                $totalSueldo = 0;
+                $totalAsignacion = 0;
+                $totalGratificacion = 0;
+                array_values($detalle);
+                
+                foreach($liquidaciones as $liquidacion){
+                    $trabajadores[$liquidacion->trabajador_id] = $liquidacion->sueldo;
+                    $totalSueldo += $liquidacion->sueldo;
+                    $trabajadoresCargas[$liquidacion->trabajador_id] = $liquidacion->total_cargas;
+                    $totalAsignacion += $liquidacion->total_cargas;
+                    $trabajadoresGratificacion[$liquidacion->trabajador_id] = $liquidacion->gratificacion;
+                    $totalGratificacion += $liquidacion->gratificacion;
+                }        
+                if($totalAsignacion>0){
+                    $detalle[] = array(
+                        'id' => 101010101,
+                        'codigo' => 101010101,
+                        'nombre' => 'Asignación Familiar',
+                        'total' => $totalAsignacion,
+                        'trabajadores' => $trabajadoresCargas
+                    );  
                 }
+                if($totalGratificacion>0){
+                    array_unshift($detalle, array(
+                        'id' => 10101,
+                        'codigo' => 10101,
+                        'nombre' => 'Gratificación',
+                        'total' => $totalGratificacion,
+                        'trabajadores' => $trabajadoresGratificacion
+                    ));
+                }
+                array_unshift($detalle, array(
+                    'id' => 1010101,
+                    'codigo' => 1010101,
+                    'nombre' => 'Sueldo',
+                    'total' => $totalSueldo,
+                    'trabajadores' => $trabajadores
+                ));
             }
         }
                 
-        return array_values($detalle);
+        return $detalle;
     }
     
     public function misHaberes()

@@ -888,7 +888,8 @@ class Trabajador extends Eloquent {
                            || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
                            || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
                            || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
-                           || !$haber->permanente){
+                           || !$haber->permanente && $haber->por_mes
+                           || !$haber->permanente && $haber->rango_meses && $haber->desde <= $mes && $haber->hasta >= $mes){
                             
                             $monto = Funciones::convertir($haber->monto, $haber->moneda);                                        
                             if($haber->tipoHaber->id==2){
@@ -951,7 +952,8 @@ class Trabajador extends Eloquent {
                            || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
                            || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
                            || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
-                           || !$haber->permanente){
+                           || !$haber->permanente && $haber->por_mes
+                           || !$haber->permanente && $haber->rango_meses && $haber->desde <= $mes && $haber->hasta >= $mes){
                             
                             $listaHaberes[] = array(
                                 'id' => $haber->id,
@@ -1038,8 +1040,14 @@ class Trabajador extends Eloquent {
         
         if( $misHaberes->count() ){
             if($diasTrabajados<30){
-                foreach($misHaberes as $haber){
-                    if($haber->permanente && !$haber->desde && !$haber->hasta || $haber->permanente && $haber->hasta && $haber->hasta >= $mes && !$haber->desde || $haber->permanente && $haber->desde && $haber->desde <= $mes && !$haber->hasta || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes || !$haber->permanente){
+                foreach($misHaberes as $haber){                        
+                    if($haber->permanente && !$haber->desde && !$haber->hasta 
+                       || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
+                       || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
+                       || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
+                       || !$haber->permanente && $haber->por_mes
+                       || !$haber->permanente && $haber->rango_meses && $haber->desde <= $mes && $haber->hasta >= $mes){
+                        
                         if($haber->tipoHaber->imponible){
                             $monto = Funciones::convertir($haber->monto, $haber->moneda);
 
@@ -1081,7 +1089,12 @@ class Trabajador extends Eloquent {
                 }
             }else{
                 foreach($misHaberes as $haber){
-                    if($haber->permanente && !$haber->desde && !$haber->hasta || $haber->permanente && $haber->hasta && $haber->hasta >= $mes && !$haber->desde || $haber->permanente && $haber->desde && $haber->desde <= $mes && !$haber->hasta || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes || !$haber->permanente){
+                    if($haber->permanente && !$haber->desde && !$haber->hasta 
+                       || $haber->permanente && !$haber->desde && $haber->hasta && $haber->hasta >= $mes 
+                       || $haber->permanente && !$haber->hasta && $haber->desde && $haber->desde <= $mes 
+                       || $haber->permanente && $haber->desde && $haber->desde <= $mes && $haber->hasta && $haber->hasta >= $mes 
+                       || !$haber->permanente && $haber->por_mes
+                       || !$haber->permanente && $haber->rango_meses && $haber->desde <= $mes && $haber->hasta >= $mes){
                         if($haber->tipoHaber->imponible){
                             $listaHaberes[] = array(
                                 'id' => $haber->id,
@@ -1342,7 +1355,7 @@ class Trabajador extends Eloquent {
         
         $datos = array(
             'total' => $total,
-            'dias' => round($dias, 2),
+            'dias' => round(($dias + $diasFiniquito), 2),
             'hasta' => $hasta,
             'calcularDesde' => $calcularDesde,
             'desde' => $desde,
@@ -1815,7 +1828,8 @@ class Trabajador extends Eloquent {
                        || $descuento->permanente && !$descuento->desde && $descuento->hasta && $descuento->hasta >= $mes 
                        || $descuento->permanente && !$descuento->hasta && $descuento->desde && $descuento->desde <= $mes 
                        || $descuento->permanente && $descuento->desde && $descuento->desde <= $mes && $descuento->hasta && $descuento->hasta >= $mes 
-                       || !$descuento->permanente){
+                       || !$descuento->permanente && $descuento->por_mes
+                       || !$descuento->permanente && $descuento->rango_meses && $descuento->desde <= $mes && $descuento->hasta >= $mes){
                                                 
                         if($descuento->tipoDescuento->estructuraDescuento->id==3){                        
                             $nombre = 'APVC AFP ' . $descuento->tipoDescuento->nombreAfp();

@@ -24,6 +24,6 @@ angular.module('angularjsApp')
 	 		{ id:11 , mes:'Noviembre', abrev:'Nov', fecha : '11-01' },
 	 		{ id:12 , mes:'Diciembre', abrev:'Dic', fecha : '12-01' }
 	 	],
-	 	version : '1.8.6',
-	 	versionFecha : '13-08-2018'
+	 	version : '1.8.7',
+	 	versionFecha : '16-08-2018'
 		});	

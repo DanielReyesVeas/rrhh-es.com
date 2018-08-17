@@ -83,6 +83,12 @@ angular.module('angularjsApp')
                   { post : { 'method': 'POST' } }
               );
             },
+            reporte : function(){
+              return $resource(constantes.URL + 'trabajadores/reporte/generar',
+                  {},
+                  { post : { 'method': 'POST' } }
+              );
+            },
             cambiarTramo : function(){
               return $resource(constantes.URL + 'trabajadores/tramo/cambiar',
                   {},

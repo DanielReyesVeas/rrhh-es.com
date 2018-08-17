@@ -566,13 +566,13 @@
                         <td>Sueldo</td>
                         <td>{{ Funciones::formatoPesos(( $liquidacion['sueldo'] + $liquidacion['atrasos']['descuento'] + $liquidacion['licencias']['total'] + $liquidacion['inasistencias']['total'])) }}</td>
                       </tr>
-                      @if($liquidacion['licencias']['dias']>0)
+                      @if($liquidacion['licencias']['total']>0)
                         <tr>
                           <td>Descuento Licencias ({{$liquidacion['licencias']['dias']}} días)</td>
                           <td>-{{ Funciones::formatoPesos($liquidacion['licencias']['total']) }}</td>
                         </tr>
                       @endif
-                      @if($liquidacion['inasistencias']['dias']>0)
+                      @if($liquidacion['inasistencias']['total']>0)
                         <tr>
                           <td>Descuento Inasistencias ({{$liquidacion['inasistencias']['dias']}} días)</td>
                           <td>-{{ Funciones::formatoPesos($liquidacion['inasistencias']['total']) }}</td>

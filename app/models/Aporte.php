@@ -114,6 +114,123 @@ class Aporte extends Eloquent {
         
         return $listaAportes;
     }
+    
+    static function arraySeleccionables($ids)
+    {
+        $aportes = Aporte::whereIn('id', $ids)->get();  
+        $lista = new stdClass();
+        $lista->sc = new stdClass(); 
+        $lista->afp = new stdClass();
+        
+        if($aportes->count()){
+            foreach($aportes as $aporte){
+                if($aporte->tipo_aporte==1){
+                    $lista->mutual = $aporte->nombre;
+                }else if($aporte->tipo_aporte==2){
+                    $val = $aporte->nombre;
+                    $lista->afp->$val = $aporte->nombre;
+                }else if($aporte->tipo_aporte==6){
+                    $val = $aporte->nombre;
+                    $lista->sc->$val = $aporte->nombre;
+                }
+            }
+        }
+        
+        return $lista;
+    }
+    
+    static function reporteAportes($ids, $trabajadores)
+    {
+        $mes = \Session::get('mesActivo');
+        $detalle = array();
+        
+        if(count($ids)){                           
+            $liquidaciones = Liquidacion::whereIn('trabajador_id', $trabajadores)->where('mes', $mes->mes)->get();
+            $idsLiquidaciones = Funciones::array_column(json_decode(json_encode($liquidaciones), true), 'id');
+            $afps = DetalleAfp::whereIn('liquidacion_id', $idsLiquidaciones)->get();
+            $sc = DetalleSeguroCesantia::whereIn('liquidacion_id', $idsLiquidaciones)->get();
+            $mutuales = DetalleMutual::whereIn('liquidacion_id', $idsLiquidaciones)->get();
+            $aportes = Aporte::arraySeleccionables($ids);
+            
+            if($sc->count()){                   
+                foreach($sc as $s){
+                    $val = $s->afp_id;
+                    if($s->aporte_empleador && isset($aportes->sc->$val)){
+                        if(isset($detalle['sc-' . $s->afp_id])){
+                            $detalle['sc-' . $s->afp_id]['total'] += $s->aporte_empleador;
+                            if(isset($detalle['sc-' . $s->afp_id]['trabajadores'][$s->liquidacion->trabajador_id])){
+                                $detalle['sc-' . $s->afp_id]['trabajadores'][$s->liquidacion->trabajador_id] += $s->aporte_empleador;
+                            }else{
+                                $detalle['sc-' . $s->afp_id]['trabajadores'][$s->liquidacion->trabajador_id] = $s->aporte_empleador;
+                            }
+                        }else{         
+                            $detalle['sc-' . $s->afp_id] = array(
+                                'id' => $s->id,
+                                'codigo' => $s->id,
+                                'nombre' => 'AFC AFP ' . $s->nombreAfp(),
+                                'total' => $s->aporte_empleador,
+                                'trabajadores' => array()
+                            );                            
+                            $detalle['sc-' . $s->afp_id]['trabajadores'][$s->liquidacion->trabajador_id] = $s->aporte_empleador;
+                        }  
+                    }
+                }
+            }
+            if($afps->count()){                   
+                foreach($afps as $afp){ 
+                    $monto = 0;
+                    $val = $afp->afp_id;
+                    if($afp->paga_sis=='empresa'){
+                        $monto += $afp->sis;
+                    }
+                    if($monto>0 && isset($aportes->afp->$val)){
+                        if(isset($detalle['afp-' . $afp->afp_id])){
+                            $detalle['afp-' . $afp->afp_id]['total'] += $monto;
+                            if(isset($detalle['afp-' . $afp->afp_id]['trabajadores'][$afp->liquidacion->trabajador_id])){
+                                $detalle['afp-' . $afp->afp_id]['trabajadores'][$afp->liquidacion->trabajador_id] += $monto;
+                            }else{
+                                $detalle['afp-' . $afp->afp_id]['trabajadores'][$afp->liquidacion->trabajador_id] = $monto;
+                            }
+                        }else{         
+                            $detalle['afp-' . $afp->afp_id] = array(
+                                'id' => $afp->id,
+                                'codigo' => $afp->id,
+                                'nombre' => 'AFP ' . $afp->nombreAfp(),
+                                'total' => $monto,
+                                'trabajadores' => array()
+                            );                            
+                            $detalle['afp-' . $afp->afp_id]['trabajadores'][$afp->liquidacion->trabajador_id] = $monto;
+                        }
+                    }                    
+                }
+            }   
+            if($mutuales->count()){                   
+                foreach($mutuales as $mutual){ 
+                    if($mutual->cotizacion_accidentes>0 && isset($aportes->mutual)){
+                        if(isset($detalle['mutual'])){
+                            $detalle['mutual']['total'] += $mutual->cotizacion_accidentes;
+                            if(isset($detalle['mutual']['trabajadores'][$mutual->liquidacion->trabajador_id])){
+                                $detalle['mutual']['trabajadores'][$mutual->liquidacion->trabajador_id] += $mutual->cotizacion_accidentes;
+                            }else{
+                                $detalle['mutual']['trabajadores'][$mutual->liquidacion->trabajador_id] = $mutual->cotizacion_accidentes;
+                            }
+                        }else{         
+                            $detalle['mutual'] = array(
+                                'id' => $mutual->id,
+                                'codigo' => $mutual->id,
+                                'nombre' => $mutual->nombreMutual(),
+                                'total' => $mutual->cotizacion_accidentes,
+                                'trabajadores' => array()
+                            );                            
+                            $detalle['mutual']['trabajadores'][$mutual->liquidacion->trabajador_id] = $mutual->cotizacion_accidentes;
+                        }
+                    }                    
+                }
+            }            
+        }
+                
+        return array_values($detalle);
+    }
    
     static function aportes()
     {

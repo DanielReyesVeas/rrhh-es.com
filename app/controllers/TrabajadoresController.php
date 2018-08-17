@@ -41,6 +41,17 @@ class TrabajadoresController extends \BaseController {
         ]);    
     }  
     
+    public function descargarReporteTrabajadores()
+    {
+        $filename = "ReporteTrabajadores.xlsx";
+        $destination = public_path('stories/ReporteTrabajadores.xlsx');
+        
+        return Response::make(file_get_contents($destination), 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+        ]);
+    }
+    
     /*public function descargarLibroExcel($name)
     {
         $destination = public_path() . '/stories/' . $name . '.pdf';
@@ -1415,7 +1426,7 @@ class TrabajadoresController extends \BaseController {
                     $haberes = TipoHaber::all();
                     if($haberes){
                         foreach($haberes as $haber){
-                            if($haber->id>15 || $haber->id==10 || $haber->id==11){
+                            if($haber->id>15 || $haber->id==10 || $haber->id==11 || $haber->id==3 || $haber->id==4 || $haber->id==5){
                                 $sheet->cell($letter.'1', function($cell) use ($letter, $haber) {
                                     $cell->setValue($haber->codigo);                       
                                 });
@@ -2421,6 +2432,21 @@ class TrabajadoresController extends \BaseController {
                             $detallesSeguroCesantia = $liquidacion->miDetalleSeguroCesantia();
                             $detallesPagadorSubsidio = $liquidacion->miDetallePagadorSubsidio();
                             $diasTrabajados = $liquidacion->diasTrabajados();
+                            
+                            /*
+                                -liquidación: 1-Datos del trabajador
+                                -detalleAfp: 2-Datos de la AFP
+                                -detalleApvi: 3-Datos Ahorro previsional voluntario individual
+                                -detalleApvc: 4-Datos Ahorro previsional voluntario colectivo
+                                -5-Datos afiliado voluntario (no se utiliza)
+                                -detalleIpsIslFonasa: 6-Datos IPS-ISL-FONASA
+                                -detalleSalud: 7-Datos Salud
+                                -detalleCaja: 8-Datos Caja de Compensa  ción
+                                -detalleMutual: 9-Datos Mutualidad
+                                -detalleSeguroCesantia: 10-Datos Administradora de seguro de cesantía
+                                -11-Datos Pagador de Subsidio (no se utiliza)
+                                -12-Otros datos de la empresa (datos ficha)
+                            */
 
                             $listaTrabajadores[] = array(
                                 /*'id' => $trabajador->id,
@@ -4445,6 +4471,201 @@ class TrabajadoresController extends \BaseController {
         return Response::json($respuesta);
     }
     
+    public function reporte()
+    {
+        $mes = \Session::get('mesActivo');
+        $finMes = $mes->fechaRemuneracion;
+        $mostrarFiniquitados = Empresa::variableConfiguracion('finiquitados_liquidacion');
+        $trabajadores = Trabajador::all();
+        $listaTrabajadores = array();
+        
+        if($mostrarFiniquitados){
+            $mesAnterior = date('Y-m-d', strtotime('-' . 1 . ' month', strtotime($mes->mes)));
+        }else{
+            $mesAnterior = $mes->mes;
+        }
+        
+        if( $trabajadores->count() ){
+            foreach( $trabajadores as $trabajador ){
+                $empleado = $trabajador->ficha();
+                if($empleado){
+                    if($empleado->estado=='Ingresado' && $empleado->fecha_ingreso<=$finMes || $empleado->estado=='Finiquitado' && $empleado->fecha_finiquito >= $mesAnterior && $empleado->fecha_ingreso<=$finMes){
+                        
+                        $sueldoBase = $empleado->sueldo_base;
+                        if($empleado->moneda_sueldo=='$'){
+                            $sueldoBase = (int) $sueldoBase;
+                        }
+                        $gratificacion = $empleado->monto_gratificacion;
+                        if($empleado->moneda_gratificacion=='$'){
+                            $gratificacion = (int) $gratificacion;
+                        }
+                        $montoIsapre = $empleado->monto_isapre;
+                        if($empleado->cotizacion_isapre=='$'){
+                            $montoIsapre = (int) $montoIsapre;
+                        }
+                        $datosTrabajador = array(
+                            'id' => $trabajador->id,
+                            'idFicha' => $empleado->id,
+                            'sid' => $trabajador->sid,
+                            'rutFormato' => $trabajador->rut_formato(),
+                            'rut' => $trabajador->rut,
+                            'nombres' => $empleado->nombres,
+                            'apellidos' => $empleado->apellidos,
+                            'nombreCompleto' => $empleado->nombreCompleto(),
+                            'nacionalidad' => array(
+                                'id' => $empleado->nacionalidad ? $empleado->nacionalidad->id : "",
+                                'nombre' => $empleado->nacionalidad ? $empleado->nacionalidad->glosa : ""
+                            ),
+                            'sexo' => $empleado->sexo,
+                            'estadoCivil' => array(
+                                'id' => $empleado->estadoCivil ? $empleado->estadoCivil->id : "",
+                                'nombre' => $empleado->estadoCivil ? $empleado->estadoCivil->nombre : ""
+                            ),
+                            'fechaNacimiento' => $empleado->fecha_nacimiento,
+                            'direccion' => $empleado->direccion,
+                            //'domicilio' => $trabajador->domicilio(),
+                            'comuna' => array(
+                                'id' => $empleado->comuna ? $empleado->comuna->id : "",
+                                'nombre' => $empleado->comuna ? $empleado->comuna->localidad() : "",
+                                'comuna' => $empleado->comuna ? $empleado->comuna->comuna : "",
+                                'provincia' => $empleado->comuna ? $empleado->comuna->provincia->provincia : ""
+                            ), 
+                            'telefono' => $empleado->telefono,
+                            'celular' => $empleado->celular,
+                            'celularEmpresa' => $empleado->celular_empresa,
+                            'email' => $empleado->email,
+                            'emailEmpresa' => $empleado->email_empresa,
+                            'tipo' => array(
+                                'id' => $empleado->tipo_id,
+                                'nombre' => $empleado->tipo ? $empleado->tipo->nombre : ""
+                            ),
+                            'cargo' => array(
+                                'id' => $empleado->cargo ? $empleado->cargo->id : "",
+                                'nombre' => $empleado->cargo ? $empleado->cargo->nombre : ""
+                            ),
+                            'titulo' => array(
+                                'id' => $empleado->titulo ? $empleado->titulo->id : "",
+                                'nombre' => $empleado->titulo ? $empleado->titulo->nombre : ""
+                            ),
+                            'seccion' => array(
+                                'id' => $empleado->seccion ? $empleado->seccion->id : "",
+                                'nombre' => $empleado->seccion ? $empleado->seccion->nombre : ""
+                            ),
+                            'tienda' => array(
+                                'id' => $empleado->tienda ? $empleado->tienda->id : "",
+                                'nombre' => $empleado->tienda ? $empleado->tienda->nombre : ""
+                            ),
+                            'centroCosto' => array(
+                                'id' => $empleado->centroCosto ? $empleado->centroCosto->id : "",
+                                'nombre' => $empleado->centroCosto ? $empleado->centroCosto->nombre : ""
+                            ),
+                            'tipoCuenta' => array(
+                                'id' => $empleado->tipoCuenta ? $empleado->tipoCuenta->id : "",
+                                'nombre' => $empleado->tipoCuenta ? $empleado->tipoCuenta->nombre : ""
+                            ),
+                            'banco' => array(
+                                'id' => $empleado->banco ? $empleado->banco->id : "",
+                                'nombre' => $empleado->banco ? $empleado->banco->nombre : ""
+                            ),
+                            'numeroCuenta' => $empleado->numero_cuenta,                
+                            'fechaIngreso' => $empleado->fecha_ingreso,
+                            'fechaReconocimiento' => $empleado->fecha_reconocimiento,
+                            'fechaReconocimientoCesantia' => $empleado->fecha_reconocimiento_cesantia,
+                            'fechaFiniquito' => $empleado->fecha_finiquito,
+                            'tipoContrato' => array(
+                                'id' => $empleado->tipoContrato ? $empleado->tipoContrato->id : "",
+                                'nombre' => $empleado->tipoContrato ? $empleado->tipoContrato->nombre : ""
+                            ),
+                            'fechaVencimiento' => $empleado->fecha_vencimiento ? $empleado->fecha_vencimiento : "",
+                            'tipoJornada' => array(
+                                'id' => $empleado->tipoJornada ? $empleado->tipoJornada->id : "",
+                                'nombre' => $empleado->tipoJornada ? $empleado->tipoJornada->nombre : ""
+                            ),
+                            'semanaCorrida' => $empleado->semana_corrida ? true : false,
+                            'tipoSemana' => $empleado->tipo_semana,
+                            'monedaSueldo' => $empleado->moneda_sueldo,
+                            'gratificacion' => $empleado->gratificacion,
+                            'gratificacionEspecial' => $empleado->gratificacion_especial ? true : false,
+                            'monedaGratificacion' => $empleado->moneda_gratificacion,
+                            'montoGratificacion' => $gratificacion,
+                            'proporcionalInasistencias' => $empleado->gratificacion_proporcional_inasistencias ? true : false,
+                            'proporcionalLicencias' => $empleado->gratificacion_proporcional_licencias ? true : false,
+                            'tipoSueldo' => $empleado->tipo_sueldo,
+                            'horas' => $empleado->horas,
+                            'sueldoBase' => $sueldoBase,
+                            'tipoTrabajador' => $empleado->tipo_trabajador,
+                            'excesoRetiro' => $empleado->exceso_retiro,
+                            'proporcionalColacion' => $empleado->proporcional_colacion ? true : false,
+                            'monedaColacion' => $empleado->moneda_colacion,
+                            'montoColacion' => $empleado->monto_colacion,
+                            'proporcionalMovilizacion' => $empleado->proporcional_movilizacion ? true : false,
+                            'monedaMovilizacion' => $empleado->moneda_movilizacion,
+                            'montoMovilizacion' => $empleado->monto_movilizacion,
+                            'proporcionalViatico' => $empleado->proporcional_viatico ? true : false,
+                            'monedaViatico' => $empleado->moneda_viatico,
+                            'montoViatico' => $empleado->monto_viatico,
+                            'prevision' => array(
+                                'id' => $empleado->prevision ? $empleado->prevision->id : "",
+                                'nombre' => $empleado->prevision ? $empleado->prevision->glosa : ""
+                            ),
+                            'afp' => array(
+                                'id' => $empleado->afp ? $empleado->afp->id : "",
+                                'nombre' => $empleado->afp ? $empleado->afp->glosa : ""
+                            ),
+                            'seguroDesempleo' => $empleado->seguro_desempleo ? true : false,
+                            'afpSeguro' => array(
+                                'id' => $empleado->afpSeguro ? $empleado->afpSeguro->id : "",
+                                'nombre' => $empleado->afpSeguro ? $empleado->afpSeguro->glosa : ""
+                            ),
+                            'isapre' => array(
+                                'id' => $empleado->isapre ? $empleado->isapre->id : "",
+                                'nombre' => $empleado->isapre ? $empleado->isapre->glosa : ""
+                            ),
+                            'cotizacionIsapre' => $empleado->cotizacion_isapre,
+                            'montoIsapre' => $montoIsapre,
+                            'sindicato' => $empleado->sindicato ? true : false,
+                            'monedaSindicato' => $empleado->moneda_sindicato,
+                            'montoSindicato' => $empleado->monto_sindicato,
+                            'estado' => $empleado->estado,
+                            'haberes' => $trabajador->misHaberesPermanentes(),
+                            'descuentos' => $trabajador->misDescuentosPermanentes(),
+                            'prestamos' => $trabajador->misPrestamos(),
+                            'zonaImpuestoUnico' => array(
+                                'id' => $empleado->zonaImpuestoUnico ? $empleado->zonaImpuestoUnico->id : "",
+                                'nombre' => $empleado->zonaImpuestoUnico ? $empleado->zonaImpuestoUnico->nombre : "",
+                                'porcentaje' => $empleado->zonaImpuestoUnico ? $empleado->zonaImpuestoUnico->porcentaje : ""
+                            )
+                        );
+                        $listaTrabajadores[] = $datosTrabajador;
+                    }
+                }
+            }
+        }
+        
+        $filename = "reporteTrabajadores.xlsx";
+        
+        Excel::create("reporteTrabajadores", function($excel) use($listaTrabajadores) {
+            $excel->sheet("reporteTrabajadores", function($sheet) use($listaTrabajadores) {
+                $sheet->loadView('excel.reporteTrabajadores')->with('trabajadores', $listaTrabajadores)->getStyle('A1')->getAlignment();
+            });
+        })->store('xlsx', public_path('stories'));
+        
+        $destination = public_path('stories/' . $filename);
+        
+        $datos = array(
+            'success' => true,
+            'accesos' => array(
+                'ver' => true,
+                'editar' => true
+            ),
+            'datos' => $filename,
+            'nombre' => 'Planilla',
+            'data' => $listaTrabajadores
+        );
+        
+        return Response::json($datos);
+    }
+    
     public function generarF1887($anio)
     {               
 		$empresa = \Session::get('empresa');
@@ -5715,8 +5936,11 @@ class TrabajadoresController extends \BaseController {
         if($datos['indemnizacion']['indemnizacion']){
             $table .= '<tr><td>Indemnización Años de Servicio (' . $datos['indemnizacion']['anios'] . ' años)</td><td>' . Funciones::formatoPesos($datos['indemnizacion']['monto']) . '</td></tr>';
         }
-        if($datos['vacaciones']['vacaciones']){
-            $table .= '<tr><td>Feriado Proporcional (' . $datos['vacaciones']['dias'] . ' días)</td><td>' . Funciones::formatoPesos($datos['vacaciones']['monto']) . '</td></tr>';
+        if($datos['vacaciones']['checkVacaciones'] && isset($datos['vacaciones']['detalle']['dias'])){
+            $table .= '<tr><td>Vacaciones Disponibles (' . $datos['vacaciones']['detalle']['dias'] . ' días)</td><td>' . Funciones::formatoPesos($datos['vacaciones']['detalle']['totalNormal']) . '</td></tr>';
+        }
+        if($datos['vacaciones']['checkFeriado'] && isset($datos['vacaciones']['detalle']['feriadoProporcional'])){
+            $table .= '<tr><td>Feriado Proporcional (' . $datos['vacaciones']['detalle']['feriadoProporcional']['diasF'] . ' días)</td><td>' . Funciones::formatoPesos($datos['vacaciones']['detalle']['totalProporcional']) . '</td></tr>';
         }
         
         if($datos['otros']){
@@ -7728,16 +7952,16 @@ class TrabajadoresController extends \BaseController {
             $horasExtraDetalle = $trabajador->horasExtraPagarDetalle();
             $totalMutual = $trabajador->totalMutual();  
             if($comprobarRentaImponibleAnterior){
-                $totalAfp = $trabajador->totalAfp($listaRentaImponibleAnteriorSIS[0]);
-                $totalSeguroCesantia = $trabajador->totalSeguroCesantia($listaRentaImponibleAnteriorSC[0]);
+                $totalAfp = $trabajador->totalAfp($listaRentaImponibleAnteriorSIS[0]);//se calcula afp con RI ingresada
+                $totalSeguroCesantia = $trabajador->totalSeguroCesantia($listaRentaImponibleAnteriorSC[0]);//se calcula AFC con RI ingresada
             }else{
-                $totalAfp = $trabajador->totalAfp();
-                $totalSeguroCesantia = $trabajador->totalSeguroCesantia();
+                $totalAfp = $trabajador->totalAfp();//se calcula afp normalmente (en caso de tener licencias y que no encuentre RI anterior con 30 días trabajados, devuelve isSIS=false y pide ingreso manual)
+                $totalSeguroCesantia = $trabajador->totalSeguroCesantia();//se calcula afc normalmente (en caso de tener licencias y que no encuentre RI anterior con 30 días trabajados, devuelve isSIS=false y pide ingreso manual)
             }
-            if($totalAfp['isSIS'] && $totalSeguroCesantia['isSC']){
+            if($totalAfp['isSIS'] && $totalSeguroCesantia['isSC']){//Si el sistema encuentra liquidación con 30 días trabajados (caso licencias)
                 $atrasos = $trabajador->descuentoAtrasos();
 
-                if($totalAfp['pagaSis']=='empleado'){
+                if($totalAfp['pagaSis']=='empleado'){//si empresa no paga sis lo paga el empleado(se muestra en liquidación)
                     $sis = $totalAfp['sis'];
                 }
 
@@ -7775,14 +7999,14 @@ class TrabajadoresController extends \BaseController {
                 $diasLicencia = $trabajador->totalDiasLicencias();
                 $diasInasistencia = $trabajador->totalInasistencias();
                 
-                $licencias = array(
+                $licencias = array(//para mostrar decuento por licencias
                     'dias' => $diasLicencia,
-                    'total' => ($diasLicencia * $sueldoDiario)                    
+                    'total' => $empleado->tipo_sueldo=='Mensual' ? ($diasLicencia * $sueldoDiario) : 0
                 );
                 
-                $inasistencias = array(
+                $inasistencias = array(//para mostrar decuento por inasistencias
                     'dias' => $diasInasistencia,
-                    'total' => ($diasInasistencia * $sueldoDiario)                    
+                    'total' => $empleado->tipo_sueldo=='Mensual' ? ($diasInasistencia * $sueldoDiario) : 0                  
                 );
 
                 $filename = date("m-Y", strtotime($mes->mes))."_".$empresa->rut."_Liquidacion_".$trabajador->rut. '.pdf';
@@ -7902,8 +8126,7 @@ class TrabajadoresController extends \BaseController {
                     'nombreDocumento' => $filename,
                     'aliasDocumento' => $alias,
                     'atrasos' => $atrasos,
-                    'logoEmpresa' => $logo,
-                    'z' => $trabajador->horasExtraPagarDetalle()
+                    'logoEmpresa' => $logo
                 );
 
                 $documento = new Documento();
@@ -7929,6 +8152,7 @@ class TrabajadoresController extends \BaseController {
                     'configuracion' => $configuracion,
                     'isValida' => $isValida
                 ]);
+                //se crea vista para almacenarla en la liquidación
                 $html = $view->render();
 
                 $liquidacion = new Liquidacion();
@@ -7996,11 +8220,29 @@ class TrabajadoresController extends \BaseController {
                 $liquidacion->prevision_id = $empleado->prevision_id;
                 $liquidacion->observacion = $observacion? $observacion->observaciones : "";
                 $liquidacion->centro_costo_id = $empleado->centro_costo_id;
-                $liquidacion->cuerpo = $html;
+                $liquidacion->cuerpo = $html;//se almacena html de la liquidación para la posterior impresión masiva
 
                 $liquidacion->save();
+                
+                /*detalles: detalles de la liquidación para ser utilizados posteriormente en previred:
+                
+                -liquidación: 1-Datos del trabajador
+                -detalleAfp: 2-Datos de la AFP
+                -detalleApvi: 3-Datos Ahorro previsional voluntario individual
+                -detalleApvc: 4-Datos Ahorro previsional voluntario colectivo
+                -5-Datos afiliado voluntario (no se utiliza)
+                -detalleIpsIslFonasa: 6-Datos IPS-ISL-FONASA
+                -detalleSalud: 7-Datos Salud
+                -detalleCaja: 8-Datos Caja de Compensación
+                -detalleMutual: 9-Datos Mutualidad
+                -detalleSeguroCesantia: 10-Datos Administradora de seguro de cesantía
+                -11-Datos Pagador de Subsidio (no se utiliza)
+                -12-Otros datos de la empresa (datos ficha)
+                */
+                
+                //DetalleAfp
 
-                if($totalAfp['isAfp']){
+                if($totalAfp['isAfp']){//si tiene afp (cotización, ahorro voluntario o sis) se crea detalleAfp
                     $detalleAfp = new DetalleAfp();
                     $detalleAfp->liquidacion_id = $liquidacion->id;
                     $detalleAfp->afp_id = $empleado->afp_id;
@@ -8025,62 +8267,18 @@ class TrabajadoresController extends \BaseController {
 
                     $liquidacion->setRelation('detalleAfp', $detalleAfp);
                 }
-                /*
-                if($totalColacion>0){                
-                    $detalleLiquidacion = new DetalleLiquidacion();
-                    $detalleLiquidacion->sid = Funciones::generarSID();
-                    $detalleLiquidacion->liquidacion_id = $liquidacion->id;
-                    $detalleLiquidacion->nombre = 'Colación';
-                    $detalleLiquidacion->tipo = 'no imponible';
-                    $detalleLiquidacion->tipo_id = 1;
-                    $detalleLiquidacion->valor = $totalColacion;
-                    $detalleLiquidacion->valor_2 = $empleado->monto_colacion;
-                    $detalleLiquidacion->valor_3 = $empleado->moneda_colacion;
-                    $detalleLiquidacion->valor_4 = null;
-                    $detalleLiquidacion->valor_5 = null;
-                    $detalleLiquidacion->valor_6 = null;
-                    $detalleLiquidacion->detalle_id = 3;
-                    //$detalleLiquidacion->save(); 
-
-                    $liquidacion->detalles->add( $detalleLiquidacion );
-                }
-                if($totalMovilizacion>0){                
-                    $detalleLiquidacion = new DetalleLiquidacion();
-                    $detalleLiquidacion->sid = Funciones::generarSID();
-                    $detalleLiquidacion->liquidacion_id = $liquidacion->id;
-                    $detalleLiquidacion->nombre = 'Movilización';
-                    $detalleLiquidacion->tipo = 'no imponible';
-                    $detalleLiquidacion->tipo_id = 1;
-                    $detalleLiquidacion->valor = $totalMovilizacion;
-                    $detalleLiquidacion->valor_2 = $empleado->monto_movilizacion;
-                    $detalleLiquidacion->valor_3 = $empleado->moneda_movilizacion;
-                    $detalleLiquidacion->valor_4 = null;
-                    $detalleLiquidacion->valor_5 = null;
-                    $detalleLiquidacion->valor_6 = null;
-                    $detalleLiquidacion->detalle_id = 4;
-                    //$detalleLiquidacion->save(); 
-
-                    $liquidacion->detalles->add( $detalleLiquidacion );
-                }
-                if($totalViatico>0){                
-                    $detalleLiquidacion = new DetalleLiquidacion();
-                    $detalleLiquidacion->sid = Funciones::generarSID();
-                    $detalleLiquidacion->liquidacion_id = $liquidacion->id;
-                    $detalleLiquidacion->nombre = 'Viático';
-                    $detalleLiquidacion->tipo = 'no imponible';
-                    $detalleLiquidacion->tipo_id = 1;
-                    $detalleLiquidacion->valor = $totalColacion;
-                    $detalleLiquidacion->valor_2 = $empleado->monto_viatico;
-                    $detalleLiquidacion->valor_3 = $empleado->moneda_viatico;
-                    $detalleLiquidacion->valor_4 = null;
-                    $detalleLiquidacion->valor_5 = null;
-                    $detalleLiquidacion->valor_6 = null;
-                    $detalleLiquidacion->detalle_id = 5;
-                    //$detalleLiquidacion->save(); 
-
-                    $liquidacion->detalles->add( $detalleLiquidacion );
-                }  */
-                if($semanaCorrida>0){                
+                /*DetalleLiquidacion
+                cada haber o descuento se almacena como detalleLiquidacion
+                se almacena el tipo_id (haber=1, descuento=2, prestamos=4, horaExtra=5)
+                tipo imponible o no imponible (haberes)
+                detalle_id=id del tipo de haber o descuento (para centralización)
+                valor=monto pesos
+                valor2=monto
+                valor3=moneda
+                demás campos opcionales (valor 4,5,6)
+                */
+                
+                if($semanaCorrida>0){//si tiene semana corrida se crea el detalleLiquidacion tipo=1
                     $detalleLiquidacion = new DetalleLiquidacion();
                     $detalleLiquidacion->sid = Funciones::generarSID();
                     $detalleLiquidacion->liquidacion_id = $liquidacion->id;
@@ -8100,7 +8298,7 @@ class TrabajadoresController extends \BaseController {
                 }            
                 if($haberes){                
                     foreach($haberes as $haber)
-                    {
+                    {//se crea un detalle liquidación por cada haber tipo=1 imponible o no imponible
                         $detalleLiquidacion = new DetalleLiquidacion();
                         $detalleLiquidacion->sid = Funciones::generarSID();
                         $detalleLiquidacion->liquidacion_id = $liquidacion->id;
@@ -8122,7 +8320,7 @@ class TrabajadoresController extends \BaseController {
                 
                 if($horasExtraDetalle){                
                     foreach($horasExtraDetalle as $horaExtra)
-                    {
+                    {//se crea un detalle liquidación por cada tipo de hora extra tipo=5
                         $detalleLiquidacion = new DetalleLiquidacion();
                         $detalleLiquidacion->sid = Funciones::generarSID();
                         $detalleLiquidacion->liquidacion_id = $liquidacion->id;
@@ -8144,7 +8342,7 @@ class TrabajadoresController extends \BaseController {
 
                 if($descuentos){                    
                     foreach($descuentos as $descuento)
-                    {
+                    {//se crea un detalle liquidación por cada descuento tipo=2
                         //if($descuento->estructura_descuento_id!=3){
                             $detalleLiquidacion = new DetalleLiquidacion();
                             $detalleLiquidacion->sid = Funciones::generarSID();
@@ -8181,7 +8379,7 @@ class TrabajadoresController extends \BaseController {
                     }
                 }
 
-                if($apvs){                    
+                if($apvs){  //se crea un detalleApvi por cada Apv del trabajador                  
                     foreach($apvs as $apv)
                     {                    
                         $detalleApvi = new DetalleApvi();
@@ -8200,7 +8398,7 @@ class TrabajadoresController extends \BaseController {
                     }
                 }
 
-                if($prestamos){                    
+                if($prestamos){     //se crea un detalle liquidacion por cada cuota de prestamos           
                     foreach($prestamos as $prestamo)
                     {
                         $prestamo = (array) $prestamo;
@@ -8227,7 +8425,7 @@ class TrabajadoresController extends \BaseController {
                     }
                 }
 
-                if($apvc){
+                if($apvc){//se crea un detalleApvc por cada Apvc del trabajador        
                     $detalleApvc = new DetalleApvc();
                     $detalleApvc->liquidacion_id = $liquidacion->id;
                     $detalleApvc->afp_id = $apvc['idAfp'];
@@ -8241,7 +8439,8 @@ class TrabajadoresController extends \BaseController {
 
                     $liquidacion->detalleApvc->add($detalleApvc);
                 }
-
+                
+                //se crea un detalleIpsIslFonasa por cada trabajador, independiente de su previsión de salud
                 $detalleIpsIslFonasa = new DetalleIpsIslFonasa();
                 $detalleIpsIslFonasa->liquidacion_id = $liquidacion->id;
                 if($empleado->prevision_id==9){
@@ -8274,7 +8473,8 @@ class TrabajadoresController extends \BaseController {
                 //$detalleIpsIslFonasa->save();   
 
                 $liquidacion->setRelation('detalleIpsIslFonasa', $detalleIpsIslFonasa);
-
+                
+                //se crea un detalleSalud por cada trabajador, independiente de su previsión de salud
                 $detalleSalud = new DetalleSalud();
                 $detalleSalud->liquidacion_id = $liquidacion->id;
                 $detalleSalud->salud_id = $empleado->isapre_id;
@@ -8313,8 +8513,9 @@ class TrabajadoresController extends \BaseController {
                 //$detalleSalud->save(); 
 
                 $liquidacion->setRelation('detalleSalud', $detalleSalud);
-
-                if($empresa->caja_id!=257){
+                
+                
+                if($empresa->caja_id!=257){//si la empresa tiene caja se crea un detalleCaja
                     $detalleCaja = new DetalleCaja();
                     $detalleCaja->liquidacion_id = $liquidacion->id;
                     $detalleCaja->caja_id = $empresa->caja_id;
@@ -8335,7 +8536,7 @@ class TrabajadoresController extends \BaseController {
                     $liquidacion->setRelation('detalleCaja', $detalleCaja);
                 }
 
-                if($empresa->mutual_id!=263){
+                if($empresa->mutual_id!=263){//si la empresa tiene mutual se crea un detalleMutual
                     $detalleMutual = new DetalleMutual();
                     $detalleMutual->liquidacion_id = $liquidacion->id;
                     $detalleMutual->mutual_id = $empresa->mutual_id;
@@ -8347,7 +8548,7 @@ class TrabajadoresController extends \BaseController {
                     $liquidacion->setRelation('detalleMutual', $detalleMutual);
                 }
 
-                if($empleado->seguro_desempleo==1){
+                if($empleado->seguro_desempleo==1){//si el trabajador tiene seguro de cesantía se crea un detalleSeguroCesantia
                     $detalleSeguroCesantia = new DetalleSeguroCesantia();
                     $detalleSeguroCesantia->liquidacion_id = $liquidacion->id;
                     $detalleSeguroCesantia->renta_imponible = $totalSeguroCesantia['rentaImponible'];
@@ -8361,7 +8562,8 @@ class TrabajadoresController extends \BaseController {
 
                     $liquidacion->setRelation('detalleSeguroCesantia', $detalleSeguroCesantia);
                 }
-
+                
+                //si tiene licencia se crea un detallePagadorSubsidio, actualmente no se utiliza
                 if($liquidacion->movimiento_personal==3){
                     $detallePagadorSubsidio = new DetallePagadorSubsidio();
                     $detallePagadorSubsidio->liquidacion_id = $liquidacion->id;
@@ -8380,15 +8582,13 @@ class TrabajadoresController extends \BaseController {
                 $miLiquidacion['sidDocumento'] = $documento->sid;
                 $listaPDF[] = $miLiquidacion;
                 $destination = public_path() . '/stories/' . $filename;
-                //$dompdf->set_option('isHtml5ParserEnabled', true);
-                //$html = View::make('pdf.liquidacion', array('liquidaciones' => $liquidaciones))->render();
 
-                //File::put($destination, PDF::load(utf8_decode($html), 'A4', 'portrait')->output());
                 $pdf = new \Thujohn\Pdf\Pdf();
                 $content = $pdf->load(View::make('pdf.liquidacion', array('liquidacion' => $miLiquidacion,
                     'configuracion' => $configuracion, 'isValida' => $isValida)))->output();
                 File::put($destination, $content);  
             }else{
+                //si tiene licencia y no se encuentra liquidacion anterior con 30 días trabajados se muestra error y se pide RI
                 $empleado->rutFormato = $trabajador->rut_formato();
                 $empleado->nombreCompleto = $empleado->nombreCompleto();
                 $empleado->sis = 0;
@@ -8426,8 +8626,7 @@ class TrabajadoresController extends \BaseController {
             'success' => true,
             'mensaje' => $mensaje,
             'datos' => $listaPDF,
-            'sinRentaImponibleAnterior' => $sinRentaImponibleAnterior,
-            'a' => $configuracion
+            'sinRentaImponibleAnterior' => $sinRentaImponibleAnterior
         );
         
         return Response::json($datos);

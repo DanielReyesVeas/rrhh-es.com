@@ -422,7 +422,17 @@
               <span class="switch-label" data-on="SI" data-off="NO" ng-disabled="trabajador.estado==='Finiquitado'"></span>
               <span class="switch-handle" ng-disabled="trabajador.estado==='Finiquitado'"></span>
             </label>
-          </div>  
+          </div>
+          <div class="col-sm-6" ng-class="{ 'hidden' : !trabajador.semanaCorrida }" style="margin-top: 10px;">
+            <div class="row">
+              <div class="radio col-sm-4">
+                <label><input type="radio" ng-model="trabajador.tipoSemana" name="tipoSemana" value="s" icheck ng-disabled="trabajador.estado==='Finiquitado'" required>Semanal</label>
+              </div>
+              <div class="radio col-sm-4">
+                <label><input type="radio" ng-model="trabajador.tipoSemana" name="tipoSemana" value="m" icheck ng-disabled="trabajador.estado==='Finiquitado'" required>Mensual</label>
+              </div>
+            </div>                            
+          </div>   
         </div>   
         
       </div>      
@@ -436,10 +446,14 @@
           <legend>Imponibles</legend>
           <div class="form-group form-group-md" style="margin-top: 30px;">
 
-            <label class="col-sm-3 control-label required">Sueldo Base:</label>
+            <label class="col-sm-3 control-label required">Sueldo:</label>
             <div class="col-sm-8" style="padding: 0px;">
               <div class="col-sm-3">
-                <select class="form-control form-white" name="monedaSueldo" ng-model="trabajador.monedaSueldo" ng-options="mon.nombre as mon.nombre for mon in monedas" ng-disabled="trabajador.estado==='Finiquitado'" ng-change="cambiarMonedaSueldo()" > 
+                <select class="form-control form-white" name="tipoSueldo" ng-model="trabajador.tipoSueldo" ng-options="suel for suel in sueldos" ng-disabled="trabajador.estado==='Finiquitado'"> 
+                </select>
+              </div> 
+              <div class="col-sm-3">
+                <select class="form-control form-white" name="monedaSueldo" ng-model="trabajador.monedaSueldo" ng-options="mon.nombre as mon.nombre for mon in monedas" ng-disabled="trabajador.estado==='Finiquitado'" ng-change="cambiarMonedaSueldo()" >
                 </select>
               </div>                            
               <div class="col-sm-4" ng-show="trabajador.monedaSueldo==='$'" style="padding: 0px;">
@@ -454,6 +468,17 @@
             </div>
           </div>  
           
+          <div class="form-group form-group-md" style="margin-top: 30px;" ng-class="{ 'hidden' : trabajador.tipoSueldo=='Mensual' }">
+
+            <label class="col-sm-3 control-label required">Horas Semanales:</label>
+            <div class="col-sm-8">                       
+              <div class="input-group col-sm-4">
+                <input type="text" class="form-control form-white" name="horas" ng-model="trabajador.horas">
+                <div class="input-group-addon">hrs.</div>
+              </div>                              
+            </div>
+          </div> 
+
           <div class="form-group form-group-md required" style="margin-top: 30px; margin-bottom: 30px;">
             <label class="col-sm-3 control-label">Tipo de Trabajador:</label>
             <div class="col-sm-5" style="padding: 0px;">
@@ -542,7 +567,7 @@
 
         </fieldset>
 
-        <fieldset>
+        <fieldset ng-if="false">
           <legend>No Imponibles</legend>
           <div class="form-group form-group-md" style="margin-top: 30px;">
             <label class="col-sm-2 control-label">Colación:</label>

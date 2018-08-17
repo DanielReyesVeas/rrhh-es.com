@@ -119,6 +119,7 @@ class FichasTrabajadoresController extends \BaseController {
                 'id' => $ficha->tipoJornada ? $ficha->tipoJornada->id : "",
                 'nombre' => $ficha->tipoJornada ? $ficha->tipoJornada->nombre : ""
             ),
+            'tipoSemana' => $ficha->tipo_semana,
             'semanaCorrida' => $ficha->semana_corrida ? true : false,
             'monedaSueldo' => $ficha->moneda_sueldo,
             'gratificacion' => $ficha->gratificacion,
@@ -127,6 +128,8 @@ class FichasTrabajadoresController extends \BaseController {
             'montoGratificacion' => $ficha->monto_gratificacion,
             'proporcionalInasistencias' => $ficha->gratificacion_proporcional_inasistencias ? true : false,
             'proporcionalLicencias' => $ficha->gratificacion_proporcional_licencias ? true : false,
+            'tipoSueldo' => $ficha->tipo_sueldo,
+            'horas' => $ficha->horas,
             'sueldoBase' => $ficha->sueldo_base,
             'tipoTrabajador' => $ficha->tipo_trabajador,
             'excesoRetiro' => $ficha->exceso_retiro,
@@ -258,6 +261,9 @@ class FichasTrabajadoresController extends \BaseController {
             $ficha->tipo_jornada_id = $datos['tipo_jornada_id'];
             $ficha->semana_corrida = $datos['semana_corrida'];
             $ficha->moneda_sueldo = $datos['moneda_sueldo'];
+            $ficha->tipo_semana = $datos['tipo_semana'];
+            $ficha->tipo_sueldo = $datos['tipo_sueldo'];
+            $ficha->horas = $datos['horas'];
             $ficha->sueldo_base = $datos['sueldo_base'];
             $ficha->tipo_trabajador = $datos['tipo_trabajador'];
             $ficha->exceso_retiro = $datos['exceso_retiro'];

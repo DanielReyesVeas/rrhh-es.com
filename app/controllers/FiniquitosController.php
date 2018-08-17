@@ -558,7 +558,9 @@ class FiniquitosController extends \BaseController {
                 'detalle' => $vacacionesDetalle,
                 'vacaciones' => $datos['vacaciones'],
                 'dias' => $vacaciones,
-                'monto' => $montoVacaciones
+                'monto' => $montoVacaciones,
+                'checkVacaciones' => true,
+                'checkFeriado' => true
             ),
             'prestamos' => array(
                 'monto' => $prestamos

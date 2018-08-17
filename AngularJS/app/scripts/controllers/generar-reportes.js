@@ -29,12 +29,14 @@ angular.module('angularjsApp')
       datos.$promise.then(function(response){
         $rootScope.cargando = false;
         $scope.conceptos = response.conceptos;
-        $scope.haberes = response.haberes;
+        $scope.todosHaberes = response.haberes.todos;
+        $scope.filtradosHaberes = response.haberes.filtrados;
         $scope.aportes = response.aportes;
         $scope.trabajadores = response.trabajadores;
-        $scope.descuentos = response.descuentos;
+        $scope.todosDescuentos = response.descuentos.todos;
+        $scope.filtradosDescuentos = response.descuentos.filtrados;
         $scope.objeto.concepto = $scope.conceptos[0];      
-        $scope.datos = $scope[$scope.objeto.concepto.concepto];
+        $scope.datos = $scope.todosHaberes;
         crearModels();
         $scope.filtrar(true);                
         $timeout(function() {
@@ -73,6 +75,7 @@ angular.module('angularjsApp')
         all = false;
       }
       var bool = { one : one, all : all };
+      console.log(bool)
 
       return bool;
     }
@@ -194,8 +197,40 @@ angular.module('angularjsApp')
       if($scope.objeto.concepto.id==3){
         $scope.objeto.desde = $scope.opcionesDesde[0];
       }   
-      $scope.datos = $scope[$scope.objeto.concepto.concepto];  
+      if($scope.objeto.concepto.id==1){
+        if($scope.objeto.desde.id==1){
+          $scope.datos = $scope.todosHaberes;
+        }else{
+          $scope.datos = $scope.filtradosHaberes;          
+        }
+      }else if($scope.objeto.concepto.id==2){
+        if($scope.objeto.desde.id==1){
+          $scope.datos = $scope.todosDescuentos;
+        }else{
+          $scope.datos = $scope.filtradosDescuentos;          
+        }
+      }else{
+        $scope.datos = $scope[$scope.objeto.concepto.concepto];        
+      }
       crearModels();
+    }
+
+    $scope.selectDesde = function(){
+      if($scope.objeto.concepto.id==1){
+        if($scope.objeto.desde.id==1){
+          $scope.datos = $scope.todosHaberes;
+        }else{
+          $scope.datos = $scope.filtradosHaberes;          
+        }
+        crearModels();
+      }else if($scope.objeto.concepto.id==2){
+        if($scope.objeto.desde.id==1){
+          $scope.datos = $scope.todosDescuentos;
+        }else{
+          $scope.datos = $scope.filtradosDescuentos;          
+        }
+        crearModels();
+      }
     }
 
     $scope.generar = function(){
